@@ -1,26 +1,16 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { routes } from 'routes';
+import { useRoutes } from 'react-router-dom';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+const App: React.FC = () => {
+  // The useRoutes() hook allows you to define your routes as JavaScript objects
+  // instead of <Routes> and <Route> elements. This is really just a style
+  // preference for those who prefer to not use JSX for their routes config.
+  let element = useRoutes(routes);
+    <>
+      <h1>DTO team</h1>
+      {element}
+    </>
   );
-}
+};
 
 export default App;
