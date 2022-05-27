@@ -37,7 +37,7 @@ const StyledListItemText = styled(ListItemText)({
 
 export const mainListItems = navItems.map(({ icon, path, name }, index) => {
   return (
-    <NavLink to={path} className={({ isActive }) => (isActive ? 'nav_active' : 'nav_item')}>
+    <NavLink key={index} to={path} className={({ isActive }) => (isActive ? 'nav_active' : 'nav_item')}>
       <ListItemButton>
         <ListItemIcon>{icon}</ListItemIcon>
         <StyledListItemText primary={name} />
