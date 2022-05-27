@@ -1,9 +1,10 @@
 import { Outlet, Link } from 'react-router-dom';
+import Dashboard from './dashboard/Dashboard';
 
 const UserLayout: React.FC = () => {
   return (
     <>
-      <nav>
+      {/* <nav>
         <ul>
           <li>
             <Link to="/">Welcome</Link>
@@ -16,7 +17,8 @@ const UserLayout: React.FC = () => {
 
       <hr />
       <Outlet />
-      <h1>Footer</h1>
+      <h1>Footer</h1> */}
+      <Dashboard />
     </>
   );
 };
