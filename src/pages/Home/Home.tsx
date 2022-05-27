@@ -2,9 +2,9 @@ import Pokemon from 'features/pokemon/Pokemon';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
+
 const Home: React.FC = () => {
   const navigate = useNavigate();
-
   return (
     <>
       <h1>Home</h1>
