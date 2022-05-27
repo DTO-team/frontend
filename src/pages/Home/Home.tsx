@@ -1,13 +1,13 @@
 import Pokemon from 'features/pokemon/Pokemon';
 import React from 'react';
 
-const Welcome: React.FC = () => {
+const Home: React.FC = () => {
   return (
     <>
-      <h1>Welcome</h1>
+      <h1>Home</h1>
       <Pokemon />
     </>
   );
 };
 
-export default Welcome;
+export default Home;

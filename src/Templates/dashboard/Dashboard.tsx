@@ -20,6 +20,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import { mainListItems, secondaryListItems } from './listItems';
 import Deposits from './Deposits';
 import Orders from './Orders';
+import { Outlet } from 'react-router-dom';
 
 function Copyright(props: any) {
   return (
@@ -43,6 +44,11 @@ interface AppBarProps extends MuiAppBarProps {
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
 })<AppBarProps>(({ theme, open }) => ({
+  backgroundColor: 'rgba(255,255,255,0.7)',
+  backdropFilter: 'blur(20px)',
+  borderBottom: '1px solid #E7EBF0',
+  boxShadow: 'none',
+  color: 'black',
   zIndex: theme.zIndex.drawer + 1,
   transition: theme.transitions.create(['width', 'margin'], {
     easing: theme.transitions.easing.sharp,
@@ -136,55 +142,23 @@ function DashboardContent() {
             </IconButton>
           </Toolbar>
           <Divider />
-          <List component="nav">
-            {mainListItems}
-            <Divider sx={{ my: 1 }} />
-            {secondaryListItems}
-          </List>
+          <List component="nav">{mainListItems}</List>
         </Drawer>
         <Box
           component="main"
           sx={{
             backgroundColor: (theme) =>
-              theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[900],
+              theme.palette.mode === 'light' ? theme.palette.background.default : theme.palette.grey[900],
             flexGrow: 1,
             height: '100vh',
             overflow: 'auto',
+            padding: '0 1.5rem',
           }}
         >
           <Toolbar />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+          <Container maxWidth="lg" sx={{ mt: 2, mb: 2 }}>
             <Grid container spacing={3}>
-              {/* Chart */}
-              <Grid item xs={12} md={8} lg={9}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                  }}
-                ></Paper>
-              </Grid>
-              {/* Recent Deposits */}
-              <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: 240,
-                  }}
-                >
-                  <Deposits />
-                </Paper>
-              </Grid>
-              {/* Recent Orders */}
-              <Grid item xs={12}>
-                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                  <Orders />
-                </Paper>
-              </Grid>
+              <Outlet />
             </Grid>
             <Copyright sx={{ pt: 4 }} />
           </Container>
