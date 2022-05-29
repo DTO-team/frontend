@@ -11,6 +11,12 @@ const UserLayout: React.FC = () => {
           <li>
             <Link to="/home">Home</Link>
           </li>
+          <li>
+            <Link to="/signup">Sign Up</Link>
+          </li>
+          <li>
+            <Link to="/login">Sign In</Link>
+          </li>
         </ul>
       </nav>
 
