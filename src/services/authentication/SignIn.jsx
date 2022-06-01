@@ -1,18 +1,12 @@
-import { Auth } from './AwsConfig';
-import React, { useEffect, useState } from 'react';
 import { Hub } from 'aws-amplify';
-
-/* async function signIn({ username, password }) {
-  try {
-    const user = await Auth.signIn(username, password);
-    console.log('logged in: ', user);
-  } catch (error) {
-    console.log('error signing in', error);
-  }
-} */
+import React, { useEffect, useState } from 'react';
+import authenticationApi from 'store/models/authentication-store';
+import studentApi from 'store/models/student-store';
+import { Auth } from './AwsConfig';
 
 export default function SignIn() {
   const [portalUser, setPortalUser] = useState(null);
+  const [token, setToken] = useState('');
 
   useEffect(() => {
     Hub.listen('auth', ({ payload: { event, data } }) => {
@@ -33,7 +27,16 @@ export default function SignIn() {
       }
     });
 
-    getUser().then((userData) => {
+    getUser().then(async (userData) => {
+      if (userData) {
+        try {
+          const payload = { idToken: userData.signInUserSession.idToken.jwtToken };
+          const response = await authenticationApi.signIn(payload);
+          setToken(response);
+        } catch (error) {
+          console.error(error);
+        }
+      }
       console.log('Data: ', userData);
       setPortalUser(userData);
     });
@@ -45,6 +48,14 @@ export default function SignIn() {
       .catch(() => console.log('Not signed in'));
   }
 
+  const getStudent = async () => {
+    try {
+      await studentApi.getStudentDetai({ token });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div>
       <p>User: {portalUser ? JSON.stringify(portalUser.attributes) : 'None'}</p>
@@ -53,6 +64,7 @@ export default function SignIn() {
       ) : (
         <button onClick={() => Auth.federatedSignIn()}>Federated Sign In</button>
       )}
+      <button onClick={getStudent}>Get Student</button>
     </div>
   );
 }
