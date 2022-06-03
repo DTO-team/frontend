@@ -4,6 +4,8 @@ import { Link as RouterLink } from 'react-router-dom';
 import { styled } from '@material-ui/core/styles';
 import { Box, Card, Stack, Link, Alert, Tooltip, Container, Typography } from '@material-ui/core';
 // routes
+import { useEffect, useState } from 'react';
+import { Hub } from 'aws-amplify';
 import { PATH_AUTH } from '../../routes/paths';
 // hooks
 import useAuth from '../../hooks/useAuth';
@@ -44,8 +46,7 @@ const ContentStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function Login() {
-  const { method } = useAuth();
-
+  const { method, loginWithGoogle } = useAuth();
   return (
     <RootStyle title="Login | Minimal-UI">
       <AuthLayout>
@@ -89,6 +90,9 @@ export default function Login() {
           </Alert>
 
           <LoginForm />
+          <button type="button" onClick={loginWithGoogle}>
+            Login with google
+          </button>
 
           <MHidden width="smUp">
             <Typography variant="body2" align="center" sx={{ mt: 3 }}>

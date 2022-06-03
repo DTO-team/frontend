@@ -52,6 +52,7 @@ export type AWSCognitoContextType = {
   user: AuthUser;
   method: 'cognito';
   login: (email: string, password: string) => Promise<unknown>;
+  loginWithGoogle: () => void;
   register: (
     email: string,
     password: string,
