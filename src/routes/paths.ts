@@ -34,6 +34,15 @@ export const PATH_PAGE = {
 
 export const PATH_DASHBOARD = {
   root: ROOTS_DASHBOARD,
+  admin: {
+    root: path(ROOTS_DASHBOARD, '/admin/management'),
+    lecturerManagement: path(ROOTS_DASHBOARD, '/admin/management/lecturers'),
+    companyManagement: path(ROOTS_DASHBOARD, '/admin/management/companies'),
+    studentManagement: path(ROOTS_DASHBOARD, '/admin/management/students')
+  },
+  fptuCapstone: {
+    root: path(ROOTS_DASHBOARD, '/teams')
+  },
   general: {
     app: path(ROOTS_DASHBOARD, '/app'),
     ecommerce: path(ROOTS_DASHBOARD, '/ecommerce'),
