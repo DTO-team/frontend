@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 import { createContext, ReactNode, useCallback, useEffect, useReducer } from 'react';
 import {
   CognitoUser,
