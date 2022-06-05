@@ -97,6 +97,15 @@ export default function Router() {
           ]
         },
         {
+          path: 'admin',
+          children: [
+            { path: 'management/lecturers', element: <LecturerList /> },
+            { path: 'management/companies', element: <CompanyList /> },
+            { path: 'management/students', element: <StudentList /> }
+          ]
+        },
+        { path: 'teams', element: <TeamList /> },
+        {
           path: 'user',
           children: [
             { path: '/', element: <Navigate to="/dashboard/user/profile" replace /> },
@@ -316,6 +325,10 @@ const BlogNewPost = Loadable(lazy(() => import('../pages/dashboard/BlogNewPost')
 const UserProfile = Loadable(lazy(() => import('../pages/dashboard/UserProfile')));
 const UserCards = Loadable(lazy(() => import('../pages/dashboard/UserCards')));
 const UserList = Loadable(lazy(() => import('../pages/dashboard/UserList')));
+const StudentList = Loadable(lazy(() => import('../pages/dashboard/StudentList')));
+const CompanyList = Loadable(lazy(() => import('../pages/dashboard/CompanyList')));
+const LecturerList = Loadable(lazy(() => import('../pages/dashboard/LecturerList')));
+const TeamList = Loadable(lazy(() => import('../pages/dashboard/TeamList')));
 const UserAccount = Loadable(lazy(() => import('../pages/dashboard/UserAccount')));
 const UserCreate = Loadable(lazy(() => import('../pages/dashboard/UserCreate')));
 const Chat = Loadable(lazy(() => import('../pages/dashboard/Chat')));
