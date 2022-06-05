@@ -4,11 +4,9 @@ import { useState, useEffect } from 'react';
 // material
 import { useTheme } from '@material-ui/core/styles';
 import {
-  Box,
   Card,
   Table,
   Stack,
-  Avatar,
   Checkbox,
   TableRow,
   TableBody,
