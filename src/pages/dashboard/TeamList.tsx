@@ -7,6 +7,7 @@ import { Link as RouterLink } from 'react-router-dom';
 // material
 import { useTheme } from '@material-ui/core/styles';
 import {
+  Box,
   Card,
   Table,
   Stack,
@@ -21,6 +22,7 @@ import {
   TableContainer,
   TablePagination
 } from '@material-ui/core';
+import FormDialogs from 'components/dialog/FormDialogs';
 // redux
 import { RootState, useDispatch, useSelector } from '../../redux/store';
 import { getUserList, deleteUser } from '../../redux/slices/user';
@@ -149,6 +151,10 @@ export default function StudentList() {
     dispatch(deleteUser(userId));
   };
 
+  const handleOpenModal = () => {
+    console.log('f');
+  };
+
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
 
   const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName);
@@ -162,25 +168,15 @@ export default function StudentList() {
           heading="Team List"
           links={[{ name: 'Dashboard', href: PATH_DASHBOARD.root }, { name: 'Team List' }]}
           action={
-            <>
-              <Button
-                variant="contained"
-                component={RouterLink}
-                to={PATH_DASHBOARD.user.newUser}
-                startIcon={<Icon icon={plusFill} />}
-              >
-                Join Team
-              </Button>
+            <Box sx={{ display: 'flex' }}>
+              <FormDialogs
+                buttonContent="Join Team"
+                title="Join a team"
+                content="Enter the team code to join &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+              />
               <span style={{ padding: '0.5rem' }} />
-              <Button
-                variant="contained"
-                component={RouterLink}
-                to={PATH_DASHBOARD.user.newUser}
-                startIcon={<Icon icon={plusFill} />}
-              >
-                Create New Team
-              </Button>
-            </>
+              {/* <FormDialogs /> */}
+            </Box>
           }
         />
 
