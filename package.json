@@ -132,6 +132,7 @@
     "web-vitals": "^2.1.0",
     "worker-loader": "^3.0.8",
     "yarn": "^1.22.18",
+    "xlsx": "^0.18.5",
     "yup": "^0.32.9"
   },
   "devDependencies": {
