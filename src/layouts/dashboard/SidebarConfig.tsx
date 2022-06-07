@@ -106,7 +106,10 @@ const sidebarConfig = [
 
   {
     subheader: 'fptu-capstone',
-    items: [{ title: 'team list', path: PATH_DASHBOARD.fptuCapstone.root, icon: ICONS.chat }]
+    items: [
+      { title: 'team list', path: PATH_DASHBOARD.fptuCapstone.teams, icon: ICONS.chat },
+      { title: 'topic list', path: PATH_DASHBOARD.fptuCapstone.topics, icon: ICONS.chat }
+    ]
   },
 
   // APP

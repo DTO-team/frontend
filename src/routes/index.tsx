@@ -105,6 +105,7 @@ export default function Router() {
           ]
         },
         { path: 'teams', element: <TeamList /> },
+        { path: 'topics', element: <TopicList /> },
         {
           path: 'user',
           children: [
@@ -329,6 +330,7 @@ const StudentList = Loadable(lazy(() => import('../pages/dashboard/StudentList')
 const CompanyList = Loadable(lazy(() => import('../pages/dashboard/CompanyList')));
 const LecturerList = Loadable(lazy(() => import('../pages/dashboard/LecturerList')));
 const TeamList = Loadable(lazy(() => import('../pages/dashboard/TeamList')));
+const TopicList = Loadable(lazy(() => import('../pages/dashboard/TopicList')));
 const UserAccount = Loadable(lazy(() => import('../pages/dashboard/UserAccount')));
 const UserCreate = Loadable(lazy(() => import('../pages/dashboard/UserCreate')));
 const Chat = Loadable(lazy(() => import('../pages/dashboard/Chat')));
