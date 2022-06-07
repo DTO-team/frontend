@@ -18,5 +18,13 @@ export type User = {
 };
 
 export type AccountSession = {
+  id: string;
   accessToken: string;
+  avatarUrl: string | null;
+  email: string;
+  fullName: string;
+  role: string;
+  semester: string;
+  status: number;
+  studentCode: string;
 };

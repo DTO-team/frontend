@@ -5,6 +5,18 @@ import { dispatch } from '../store';
 
 // ----------------------------------------------------------------------
 
+const accountSessionInit: AccountSession = {
+  id: '',
+  accessToken: '',
+  avatarUrl: '',
+  email: '',
+  fullName: '',
+  role: '',
+  semester: '',
+  status: 0,
+  studentCode: ''
+};
+
 type AccountState = {
   isLoading: boolean;
   error: boolean;
@@ -14,7 +26,7 @@ type AccountState = {
 const initialState: AccountState = {
   isLoading: false,
   error: false,
-  accountSession: { accessToken: '' }
+  accountSession: accountSessionInit
 };
 
 const slice = createSlice({

@@ -4,6 +4,7 @@ import Amplify, { Auth } from 'aws-amplify';
 import { createContext, ReactNode, useCallback, useEffect, useReducer } from 'react';
 // @types
 import { ActionMap, AuthState, AuthUser, AWSCognitoContextType } from '../@types/authentication';
+import { AccountSession } from '../@types/account';
 //
 import { awsConfig } from '../config';
 // utils
@@ -87,15 +88,14 @@ function AuthProvider({ children }: { children: ReactNode }) {
         .then(async (session) => {
           const attributes = await Auth.currentAuthenticatedUser();
           try {
-            const response = await axios.post('v1/auth/login', {
+            const response: AccountSession = await axios.post('v1/auth/login', {
               idToken: session.getIdToken().getJwtToken()
             });
-            console.log('response ne: ', response.data);
+            axios.defaults.headers.common.Authorization = response.accessToken;
           } catch (error) {
             console.log('Failed to get session: ', error);
           }
           // use the token or Bearer depend on the wait BE handle, by default amplify API only need to token.
-          /* axios.defaults.headers.common.Authorization = token; */
           dispatch({
             type: Types.auth,
             payload: { isAuthenticated: true, user: attributes }

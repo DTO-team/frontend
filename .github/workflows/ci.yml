@@ -20,6 +20,6 @@ jobs:
           node-version: '14'
           cache: 'yarn'
       - name: Install dependencies
-        run: yarn --frozen-lockfile
+        run: yarn
       - run: yarn run build --if-present
       - run: yarn test
