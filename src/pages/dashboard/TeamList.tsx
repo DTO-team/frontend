@@ -1,17 +1,14 @@
 import { filter } from 'lodash';
-import { Icon } from '@iconify/react';
 import { sentenceCase } from 'change-case';
 import { useState, useEffect } from 'react';
-import plusFill from '@iconify/icons-eva/plus-fill';
-import { Link as RouterLink } from 'react-router-dom';
 // material
 import { useTheme } from '@material-ui/core/styles';
 import {
+  Box,
   Card,
   Table,
   Stack,
   Avatar,
-  Button,
   Checkbox,
   TableRow,
   TableBody,
@@ -21,6 +18,7 @@ import {
   TableContainer,
   TablePagination
 } from '@material-ui/core';
+import FormDialogs from 'components/dialog/FormDialogs';
 // redux
 import { RootState, useDispatch, useSelector } from '../../redux/store';
 import { getUserList, deleteUser } from '../../redux/slices/user';
@@ -162,25 +160,15 @@ export default function StudentList() {
           heading="Team List"
           links={[{ name: 'Dashboard', href: PATH_DASHBOARD.root }, { name: 'Team List' }]}
           action={
-            <>
-              <Button
-                variant="contained"
-                component={RouterLink}
-                to={PATH_DASHBOARD.user.newUser}
-                startIcon={<Icon icon={plusFill} />}
-              >
-                Join Team
-              </Button>
+            <Box sx={{ display: 'flex' }}>
+              <FormDialogs
+                buttonContent="Join Team"
+                title="Join a team"
+                content="Enter the team code to join &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+              />
               <span style={{ padding: '0.5rem' }} />
-              <Button
-                variant="contained"
-                component={RouterLink}
-                to={PATH_DASHBOARD.user.newUser}
-                startIcon={<Icon icon={plusFill} />}
-              >
-                Create New Team
-              </Button>
-            </>
+              {/* <FormDialogs /> */}
+            </Box>
           }
         />
 

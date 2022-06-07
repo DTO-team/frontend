@@ -15,6 +15,10 @@ const IMPORT_TYPES = [
   {
     label: 'In-progress student',
     icon: fileFill
+  },
+  {
+    label: 'Topic list',
+    icon: fileFill
   }
 ];
 
