@@ -16,3 +16,7 @@ export type User = {
   role: string;
   isPublic: boolean;
 };
+
+export type AccountSession = {
+  accessToken: string;
+};

@@ -1,21 +1,13 @@
 /* eslint-disable no-use-before-define */
-import { createContext, ReactNode, useCallback, useEffect, useReducer } from 'react';
-import {
-  CognitoUser,
-  AuthenticationDetails,
-  CognitoUserSession,
-  CognitoUserAttribute
-} from 'amazon-cognito-identity-js';
 import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
 import Amplify, { Auth } from 'aws-amplify';
-// utils
-import axios from '../utils/axios';
-// routes
-import { PATH_AUTH } from '../routes/paths';
+import { createContext, ReactNode, useCallback, useEffect, useReducer } from 'react';
 // @types
 import { ActionMap, AuthState, AuthUser, AWSCognitoContextType } from '../@types/authentication';
 //
 import { awsConfig } from '../config';
+// utils
+import axios from '../utils/axios';
 
 // ----------------------------------------------------------------------
 
@@ -69,10 +61,10 @@ const AuthContext = createContext<AWSCognitoContextType | null>(null);
 function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const getUserAttributes = useCallback(
+  /* const getUserAttributes = useCallback(
     (currentUser: CognitoUser): Record<string, any> =>
       new Promise((resolve, reject) => {
-        /* currentUser.getUserAttributes((err, attributes) => {
+        currentUser.getUserAttributes((err, attributes) => {
           if (err) {
             reject(err);
           } else {
@@ -83,21 +75,27 @@ function AuthProvider({ children }: { children: ReactNode }) {
             });
             resolve(results);
           }
-        }); */
+        });
       }),
     []
-  );
+  ); */
 
   const getSession = useCallback(async () => {
     const user = await Auth.currentAuthenticatedUser();
-    console.log('Logged In: ', user);
     if (user) {
       await Auth.currentSession()
         .then(async (session) => {
           const attributes = await Auth.currentAuthenticatedUser();
-          const token = session.getIdToken();
+          try {
+            const response = await axios.post('v1/auth/login', {
+              idToken: session.getIdToken().getJwtToken()
+            });
+            console.log('response ne: ', response.data);
+          } catch (error) {
+            console.log('Failed to get session: ', error);
+          }
           // use the token or Bearer depend on the wait BE handle, by default amplify API only need to token.
-          axios.defaults.headers.common.Authorization = token;
+          /* axios.defaults.headers.common.Authorization = token; */
           dispatch({
             type: Types.auth,
             payload: { isAuthenticated: true, user: attributes }
@@ -174,7 +172,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
           }
         }); */
       }),
-    [getSession]
+    []
   );
 
   const loginWithGoogle = () => {
@@ -214,11 +212,6 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const resetPassword = (email: string) => console.log(email);
 
   const updateProfile = () => {};
-
-  const getUser = () =>
-    Auth.currentAuthenticatedUser()
-      .then((userData) => userData)
-      .catch(() => console.log('Not signed in'));
 
   return (
     <AuthContext.Provider
