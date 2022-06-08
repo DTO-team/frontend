@@ -30,7 +30,7 @@ jobs:
         working-directory: ./
 
       - run: |
-          yarn --frozen-lockfile
+          yarn
           yarn run build
           rm -r node_modules
 

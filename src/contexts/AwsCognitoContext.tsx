@@ -1,28 +1,20 @@
+/* eslint-disable no-use-before-define */
+import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
+import Amplify, { Auth } from 'aws-amplify';
 import { createContext, ReactNode, useCallback, useEffect, useReducer } from 'react';
-import {
-  CognitoUser,
-  CognitoUserPool,
-  AuthenticationDetails,
-  CognitoUserSession,
-  CognitoUserAttribute
-} from 'amazon-cognito-identity-js';
-// utils
-import axios from '../utils/axios';
-// routes
-import { PATH_AUTH } from '../routes/paths';
 // @types
 import { ActionMap, AuthState, AuthUser, AWSCognitoContextType } from '../@types/authentication';
+import { AccountSession } from '../@types/account';
 //
-import { cognitoConfig } from '../config';
+import { awsConfig } from '../config';
+// utils
+import axios from '../utils/axios';
 
 // ----------------------------------------------------------------------
 
 // CAUTION: User Cognito is slily difference from firebase, so be sure to read the doc carefully.
 
-export const UserPool = new CognitoUserPool({
-  UserPoolId: cognitoConfig.userPoolId || '',
-  ClientId: cognitoConfig.clientId || ''
-});
+Amplify.configure(awsConfig);
 
 const initialState: AuthState = {
   isAuthenticated: false,
@@ -70,7 +62,7 @@ const AuthContext = createContext<AWSCognitoContextType | null>(null);
 function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const getUserAttributes = useCallback(
+  /* const getUserAttributes = useCallback(
     (currentUser: CognitoUser): Record<string, any> =>
       new Promise((resolve, reject) => {
         currentUser.getUserAttributes((err, attributes) => {
@@ -87,44 +79,50 @@ function AuthProvider({ children }: { children: ReactNode }) {
         });
       }),
     []
-  );
+  ); */
 
-  const getSession = useCallback(
-    () =>
-      new Promise((resolve, reject) => {
-        const user = UserPool.getCurrentUser();
-        if (user) {
-          user.getSession(async (err: Error | null, session: CognitoUserSession | null) => {
-            if (err) {
-              reject(err);
-            } else {
-              const attributes = await getUserAttributes(user);
-              const token = session?.getIdToken().getJwtToken();
-              // use the token or Bearer depend on the wait BE handle, by default amplify API only need to token.
-              axios.defaults.headers.common.Authorization = token;
-              dispatch({
-                type: Types.auth,
-                payload: { isAuthenticated: true, user: attributes }
-              });
-              resolve({
-                user,
-                session,
-                headers: { Authorization: token }
-              });
-            }
-          });
-        } else {
+  const getSession = useCallback(async () => {
+    const user = await Auth.currentAuthenticatedUser();
+    if (user) {
+      await Auth.currentSession()
+        .then(async (session) => {
+          const attributes = await Auth.currentAuthenticatedUser();
+          try {
+            const response: AccountSession = await axios.post('v1/auth/login', {
+              idToken: session.getIdToken().getJwtToken()
+            });
+            axios.defaults.headers.common.Authorization = response.accessToken;
+          } catch (error) {
+            console.log('Failed to get session: ', error);
+          }
+          // use the token or Bearer depend on the wait BE handle, by default amplify API only need to token.
           dispatch({
             type: Types.auth,
-            payload: {
-              isAuthenticated: false,
-              user: null
-            }
+            payload: { isAuthenticated: true, user: attributes }
+          });
+        })
+        .catch((err) => console.log('Get session failed: ', err));
+      /* user.getSession(async (err: Error | null, session: CognitoUserSession | null) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({
+            user,
+            session,
+            headers: { Authorization: token }
           });
         }
-      }),
-    [getUserAttributes]
-  );
+      }); */
+    } else {
+      dispatch({
+        type: Types.auth,
+        payload: {
+          isAuthenticated: false,
+          user: null
+        }
+      });
+    }
+  }, []);
 
   const initial = useCallback(async () => {
     try {
@@ -150,7 +148,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(
     (email, password) =>
       new Promise((resolve, reject) => {
-        const user = new CognitoUser({
+        /* const user = new CognitoUser({
           Username: email,
           Pool: UserPool
         });
@@ -172,23 +170,27 @@ function AuthProvider({ children }: { children: ReactNode }) {
             // Handle this on login page for update password.
             resolve({ message: 'newPasswordRequired' });
           }
-        });
+        }); */
       }),
-    [getSession]
+    []
   );
 
+  const loginWithGoogle = () => {
+    Auth.federatedSignIn({ provider: CognitoHostedUIIdentityProvider.Google });
+  };
+
   // same thing here
-  const logout = () => {
-    const user = UserPool.getCurrentUser();
+  const logout = async () => {
+    const user = await Auth.currentAuthenticatedUser();
     if (user) {
-      user.signOut();
+      Auth.signOut();
       dispatch({ type: Types.logout });
     }
   };
 
   const register = (email: string, password: string, firstName: string, lastName: string) =>
     new Promise((resolve, reject) => {
-      UserPool.signUp(
+      /* UserPool.signUp(
         email,
         password,
         [
@@ -204,7 +206,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
           resolve(undefined);
           window.location.href = PATH_AUTH.login;
         }
-      );
+      ); */
     });
 
   const resetPassword = (email: string) => console.log(email);
@@ -222,6 +224,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
           ...state.user
         },
         login,
+        loginWithGoogle,
         register,
         logout,
         updateProfile,
