@@ -19,8 +19,10 @@ jobs:
           node-version: '14'
           cache: 'yarn'
           
-      - name: Install dependencies
+      - name: Build
         run: |
           yarn
           yarn run build --if-present
-          yarn test
+          
+      - name: Test
+        run: yarn test
