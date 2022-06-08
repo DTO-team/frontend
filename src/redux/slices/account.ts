@@ -56,7 +56,7 @@ const slice = createSlice({
 export default slice.reducer;
 
 // Actions
-export const {} = slice.actions;
+/* export const {} = slice.actions; */
 
 // ----------------------------------------------------------------------
 
