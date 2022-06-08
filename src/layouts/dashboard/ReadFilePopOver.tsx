@@ -14,7 +14,13 @@ import { MIconButton } from '../../components/@material-extend';
 const IMPORT_TYPES = [
   {
     label: 'In-progress student',
-    icon: fileFill
+    icon: fileFill,
+    id: 'inProgressStudent'
+  },
+  {
+    label: 'Topic list',
+    icon: fileFill,
+    id: 'topicList'
   }
 ];
 
@@ -22,7 +28,8 @@ export default function ReadFilePopOver() {
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
+    console.log(type);
     e.preventDefault();
     // eslint-disable-next-line prefer-destructuring
     const files = e.target.files;
@@ -38,7 +45,11 @@ export default function ReadFilePopOver() {
 
       // Convert array to json
       const dataParse = XLSX.utils.sheet_to_json(ws, { header: 2 });
-      const inprogressStudentList = dataParse.map((student: any) => student.RollNumber);
+      const inprogressStudentList = dataParse.map((student: any) => ({
+        studentCode: student.RollNumber,
+        email: student.Email,
+        fullName: student.Name
+      }));
       console.log(inprogressStudentList);
     };
     reader.readAsBinaryString(f);
@@ -67,7 +78,7 @@ export default function ReadFilePopOver() {
       >
         <Box sx={{ py: 1 }}>
           {IMPORT_TYPES.map((option, key) => (
-            <label htmlFor="upload" key={key}>
+            <label htmlFor={`upload${key}`} key={key}>
               <MenuItem sx={{ py: 1, px: 2.5 }}>
                 <Box
                   component={Icon}
@@ -83,8 +94,8 @@ export default function ReadFilePopOver() {
                   type="file"
                   style={{ display: 'none' }}
                   accept=".xlsx,.xls"
-                  id="upload"
-                  onChange={handleFileChange}
+                  id={`upload${key}`}
+                  onChange={(e) => handleFileChange(e, option.id)}
                 />
               </MenuItem>
             </label>

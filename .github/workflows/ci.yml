@@ -4,8 +4,6 @@
 name: CI
 
 on:
-  push:
-    branches: main
   pull_request:
     branches: main
 
@@ -14,12 +12,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '14'
           cache: 'yarn'
-      - name: Install dependencies
-        run: yarn
-      - run: yarn run build --if-present
-      - run: yarn test
+          
+      - name: Build
+        run: |
+          yarn
+          yarn run build --if-present
+          
+      - name: Test
+        run: yarn test
