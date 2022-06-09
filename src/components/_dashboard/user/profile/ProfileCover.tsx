@@ -55,7 +55,7 @@ type ProfileCoverProps = {
 
 export default function ProfileCover({ myProfile }: ProfileCoverProps) {
   const { user } = useAuth();
-  const { position, cover } = myProfile;
+  const { cover } = myProfile;
 
   return (
     <RootStyle>
@@ -79,10 +79,16 @@ export default function ProfileCover({ myProfile }: ProfileCoverProps) {
           }}
         >
           <Typography variant="h4">{user?.displayName}</Typography>
-          <Typography sx={{ opacity: 0.72 }}>{position}</Typography>
+          {/* <Typography sx={{ opacity: 0.72 }}>{position}</Typography> */}
         </Box>
       </InfoStyle>
-      <CoverImgStyle alt="profile cover" src={cover} />
+      <CoverImgStyle
+        alt="profile cover"
+        src={
+          cover ||
+          'https://img.freepik.com/free-vector/hand-painted-watercolor-pastel-sky-background_23-2148902771.jpg?w=2000'
+        }
+      />
     </RootStyle>
   );
 }

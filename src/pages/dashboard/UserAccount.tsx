@@ -1,41 +1,43 @@
-import { Icon } from '@iconify/react';
-import { capitalCase } from 'change-case';
-import { useState, useEffect } from 'react';
 import bellFill from '@iconify/icons-eva/bell-fill';
 import shareFill from '@iconify/icons-eva/share-fill';
-import roundVpnKey from '@iconify/icons-ic/round-vpn-key';
-import roundReceipt from '@iconify/icons-ic/round-receipt';
 import roundAccountBox from '@iconify/icons-ic/round-account-box';
+import roundReceipt from '@iconify/icons-ic/round-receipt';
+import roundVpnKey from '@iconify/icons-ic/round-vpn-key';
+import { Icon } from '@iconify/react';
 // material
-import { Container, Tab, Box, Tabs } from '@material-ui/core';
-// redux
-import { RootState, useDispatch, useSelector } from '../../redux/store';
-import {
-  getCards,
-  getProfile,
-  getInvoices,
-  getAddressBook,
-  getNotifications
-} from '../../redux/slices/user';
-// routes
-import { PATH_DASHBOARD } from '../../routes/paths';
-// hooks
-import useSettings from '../../hooks/useSettings';
+import { Box, Container, Tab, Tabs } from '@material-ui/core';
+import { capitalCase } from 'change-case';
+import useAuth from 'hooks/useAuth';
+import { useEffect, useState } from 'react';
+import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 // components
 import Page from '../../components/Page';
-import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import {
-  AccountGeneral,
   AccountBilling,
-  AccountSocialLinks,
+  AccountChangePassword,
+  AccountGeneral,
   AccountNotifications,
-  AccountChangePassword
+  AccountSocialLinks
 } from '../../components/_dashboard/user/account';
+// hooks
+import useSettings from '../../hooks/useSettings';
+import {
+  getAddressBook,
+  getCards,
+  getInvoices,
+  getNotifications,
+  getProfile
+} from '../../redux/slices/user';
+// redux
+import { RootState, useDispatch, useSelector } from '../../redux/store';
+// routes
+import { PATH_DASHBOARD } from '../../routes/paths';
 
 // ----------------------------------------------------------------------
 
 export default function UserAccount() {
   const { themeStretch } = useSettings();
+  const { user } = useAuth();
   const dispatch = useDispatch();
   const { cards, invoices, myProfile, addressBook, notifications } = useSelector(
     (state: RootState) => state.user
@@ -48,8 +50,8 @@ export default function UserAccount() {
     dispatch(getAddressBook());
     dispatch(getInvoices());
     dispatch(getNotifications());
-    dispatch(getProfile());
-  }, [dispatch]);
+    dispatch(getProfile(user?.id));
+  }, [dispatch, user]);
 
   if (!myProfile) {
     return null;
