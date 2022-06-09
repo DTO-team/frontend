@@ -13,7 +13,7 @@ const accountSessionInit: AccountSession = {
   fullName: '',
   role: '',
   semester: '',
-  status: 0,
+  statusId: 0,
   studentCode: ''
 };
 

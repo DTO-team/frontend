@@ -1,38 +1,31 @@
-import { Icon } from '@iconify/react';
-import { capitalCase } from 'change-case';
-import { useEffect, useState } from 'react';
 import heartFill from '@iconify/icons-eva/heart-fill';
 import peopleFill from '@iconify/icons-eva/people-fill';
-import roundPermMedia from '@iconify/icons-ic/round-perm-media';
 import roundAccountBox from '@iconify/icons-ic/round-account-box';
+import roundPermMedia from '@iconify/icons-ic/round-perm-media';
+import { Icon } from '@iconify/react';
+import { Box, Card, Container, Tab, Tabs } from '@material-ui/core';
 // material
 import { styled } from '@material-ui/core/styles';
-import { Tab, Box, Card, Tabs, Container } from '@material-ui/core';
-// redux
-import { RootState, useDispatch, useSelector } from '../../redux/store';
-import {
-  getPosts,
-  getGallery,
-  getFriends,
-  getProfile,
-  getFollowers,
-  onToggleFollow
-} from '../../redux/slices/user';
-// routes
-import { PATH_DASHBOARD } from '../../routes/paths';
-// hooks
-import useAuth from '../../hooks/useAuth';
-import useSettings from '../../hooks/useSettings';
+import { capitalCase } from 'change-case';
+import { useEffect, useState } from 'react';
+import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 // components
 import Page from '../../components/Page';
-import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import {
   Profile,
   ProfileCover,
+  ProfileFollowers,
   ProfileFriends,
-  ProfileGallery,
-  ProfileFollowers
+  ProfileGallery
 } from '../../components/_dashboard/user/profile';
+// hooks
+import useAuth from '../../hooks/useAuth';
+import useSettings from '../../hooks/useSettings';
+import { getProfile, onToggleFollow } from '../../redux/slices/user';
+// redux
+import { RootState, useDispatch, useSelector } from '../../redux/store';
+// routes
+import { PATH_DASHBOARD } from '../../routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -66,12 +59,12 @@ export default function UserProfile() {
   const [findFriends, setFindFriends] = useState('');
 
   useEffect(() => {
-    dispatch(getProfile());
-    dispatch(getPosts());
+    dispatch(getProfile(user?.id));
+    /* dispatch(getPosts());
     dispatch(getFollowers());
     dispatch(getFriends());
-    dispatch(getGallery());
-  }, [dispatch]);
+    dispatch(getGallery()); */
+  }, [dispatch, user]);
 
   const handleChangeTab = (newValue: string) => {
     setCurrentTab(newValue);

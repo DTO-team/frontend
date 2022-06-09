@@ -86,20 +86,33 @@ function AuthProvider({ children }: { children: ReactNode }) {
     if (user) {
       await Auth.currentSession()
         .then(async (session) => {
-          const attributes = await Auth.currentAuthenticatedUser();
           try {
             const response: AccountSession = await axios.post('v1/auth/login', {
               idToken: session.getIdToken().getJwtToken()
             });
-            axios.defaults.headers.common.Authorization = response.accessToken;
+            const userAttribute = {
+              id: response.id,
+              displayName: response.fullName,
+              role: response.role,
+              statusId: response.statusId,
+              email: response.email
+            };
+            dispatch({
+              type: Types.auth,
+              payload: { isAuthenticated: true, user: userAttribute }
+            });
+            axios.defaults.headers.common.Authorization = `Bearer ${response.accessToken}`;
           } catch (error) {
             console.log('Failed to get session: ', error);
+            dispatch({
+              type: Types.auth,
+              payload: {
+                isAuthenticated: false,
+                user: null
+              }
+            });
           }
           // use the token or Bearer depend on the wait BE handle, by default amplify API only need to token.
-          dispatch({
-            type: Types.auth,
-            payload: { isAuthenticated: true, user: attributes }
-          });
         })
         .catch((err) => console.log('Get session failed: ', err));
       /* user.getSession(async (err: Error | null, session: CognitoUserSession | null) => {
@@ -219,8 +232,11 @@ function AuthProvider({ children }: { children: ReactNode }) {
         ...state,
         method: 'cognito',
         user: {
-          displayName: state?.user?.name || 'Minimals',
-          role: 'admin',
+          id: state?.user?.id || '',
+          displayName: state?.user?.displayName || 'Minimals',
+          role: state?.user?.role || 'admin',
+          email: state?.user?.email || 'admin@gmail.com',
+          statusId: state?.user?.statusId || 0,
           ...state.user
         },
         login,

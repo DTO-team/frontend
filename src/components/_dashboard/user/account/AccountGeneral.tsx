@@ -45,16 +45,17 @@ export default function AccountGeneral() {
     enableReinitialize: true,
     initialValues: {
       displayName: user?.displayName || '',
-      email: user?.email,
+      email: user?.email || '',
       photoURL: user?.photoURL,
-      phoneNumber: user?.phoneNumber,
-      country: user?.country,
-      address: user?.address,
-      state: user?.state,
-      city: user?.city,
-      zipCode: user?.zipCode,
-      about: user?.about,
-      isPublic: user?.isPublic
+      phoneNumber: '',
+      country: user?.country || '',
+      address: user?.address || '',
+      state: user?.state || '',
+      city: user?.city || '',
+      zipCode: user?.zipCode || '',
+      about: user?.about || '',
+      isPublic: user?.isPublic || false,
+      statusId: user?.statusId || 0
     },
 
     validationSchema: UpdateUserSchema,
@@ -65,7 +66,7 @@ export default function AccountGeneral() {
         if (isMountedRef.current) {
           setSubmitting(false);
         }
-      } catch (error) {
+      } catch (error: any) {
         if (isMountedRef.current) {
           setErrors({ afterSubmit: error.code });
           setSubmitting(false);
@@ -98,7 +99,7 @@ export default function AccountGeneral() {
             <Card sx={{ py: 10, px: 3, textAlign: 'center' }}>
               <UploadAvatar
                 accept="image/*"
-                file={values.photoURL}
+                file={values.photoURL || null}
                 maxSize={3145728}
                 onDrop={handleDrop}
                 error={Boolean(touched.photoURL && errors.photoURL)}
