@@ -13,47 +13,42 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-#      - name: Clear useless artifacts
-#        uses: c-hive/gha-remove-artifacts@v1.2.0
-#        with:
-#          age: '14 days'
-
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      
+      - name: Setup node.js and yarn 
+        uses: actions/setup-node@v3
         with:
           node-version: '14'
           cache: 'yarn'
 
-      - name: Export .env.production file
+      - name: Export .env
         run: |
           touch .env.production
+          echo ${{secrets.REACT_APP_AWS_IDENTITY_POOL}} >> .env.production
+          echo ${{secrets.REACT_APP_AWS_REGION}} >> .env.production
+          echo ${{secrets.REACT_APP_AWS_IDENTITY_POOL_REGION}} >> .env.production
+          echo ${{secrets.REACT_APP_AWS_USER_POOL_ID}} >> .env.production
+          echo ${{secrets.REACT_APP_AWS_USER_POOL_WEB_CLIENT_ID}} >> .env.production
+          echo ${{secrets.REACT_APP_OAUTH_DOMAIN}} >> .env.production
+          echo ${{secrets.REACT_APP_REDIRECT_URL}} >> .env.production
+          echo ${{secrets.REACT_APP_HOST_API_KEY}} >> .env.production
         working-directory: ./
 
-      - run: |
+      - name: Build
+        run: |
           yarn
           yarn run build
           rm -r node_modules
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: frontend
-          path: ./build
-
-  deploy:
-    name: Deploy
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
+      
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-southeast-1
-
-      - uses: actions/download-artifact@v2
-        with:
-          name: frontend
-          path: build
-
-      - run: aws s3 sync ./build s3://portal-service/ --acl public-read
+        
+      - name: Deploy to S3
+        run: aws s3 sync ./build s3://portal-service/ --acl public-read
+        
+      - name: Invalidate CloudFront cache
+        run: aws cloudfront create-invalidation --distribution-id E2QAJNDDJKVNB --path "/*"
