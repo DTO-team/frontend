@@ -47,11 +47,7 @@ jobs:
       - name: Deploy to S3
         run: |
           cd build
-          aws s3 sync ./asset-manifest.json s3://capstone-ongoing-frontend/ --acl public-read
-          aws s3 sync ./index.html s3://capstone-ongoing-frontend/ --acl public-read
-          aws s3 sync ./static/css s3://capstone-ongoing-frontend/static/ --acl public-read
-          aws s3 sync ./static/js s3://capstone-ongoing-frontend/static/ --acl public-read
-          aws s3 sync ./static/media s3://capstone-ongoing-frontend/static/ --acl public-read
+          aws s3 sync . s3://capstone-ongoing-frontend/ --acl public-read --exclude "favicon/*" --exclude "fonts/*" --exclude "static/*" --include "static/css" --include "static/js" --include "static/media" --exclude "_redirects" --exclude "manifest.json"
 
       - name: Invalidate CloudFront cache
         run: aws cloudfront create-invalidation --distribution-id E3KSQV3IGAZH7R --path "/*"
