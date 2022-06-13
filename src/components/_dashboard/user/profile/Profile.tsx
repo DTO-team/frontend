@@ -4,9 +4,9 @@ import { Grid, Stack } from '@material-ui/core';
 import { Profile as UserProfile, UserPost } from '../../../../@types/user';
 //
 import ProfileAbout from './ProfileAbout';
+import ProfileFollowInfo from './ProfileFollowInfo';
 import ProfilePostCard from './ProfilePostCard';
 import ProfilePostInput from './ProfilePostInput';
-import ProfileFollowInfo from './ProfileFollowInfo';
 import ProfileSocialInfo from './ProfileSocialInfo';
 
 // ----------------------------------------------------------------------
@@ -17,6 +17,15 @@ type ProfileProps = {
 };
 
 export default function Profile({ myProfile, posts }: ProfileProps) {
+  /*   useEffect(() => {
+    const getData = async () => {
+      await AccountAPI.getProfile()
+        .then((data: any) => console.log(data))
+        .catch((err) => console.log('error ', err));
+    };
+    getData();
+  }, []); */
+
   return (
     <Grid container spacing={3}>
       <Grid item xs={12} md={4}>

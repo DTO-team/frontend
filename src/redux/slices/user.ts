@@ -165,12 +165,12 @@ export const { onToggleFollow, deleteUser } = slice.actions;
 
 // ----------------------------------------------------------------------
 
-export function getProfile() {
+export function getProfile(userId: any) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/user/profile');
-      dispatch(slice.actions.getProfileSuccess(response.data.profile));
+      const response = await axios.get(`v1/users/${userId}`);
+      dispatch(slice.actions.getProfileSuccess(response));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

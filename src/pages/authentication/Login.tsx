@@ -1,18 +1,29 @@
-import { capitalCase } from 'change-case';
-import { Link as RouterLink } from 'react-router-dom';
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  Container,
+  Link,
+  Stack,
+  Tooltip,
+  Typography
+} from '@material-ui/core';
+import { Icon } from '@iconify/react';
+import googleIcon from '@iconify/icons-logos/google-icon';
 // material
 import { styled } from '@material-ui/core/styles';
-import { Box, Card, Stack, Link, Alert, Tooltip, Container, Typography } from '@material-ui/core';
-// routes
-import { PATH_AUTH } from '../../routes/paths';
+import { capitalCase } from 'change-case';
+import { Link as RouterLink } from 'react-router-dom';
+import { MHidden } from '../../components/@material-extend';
+import { LoginForm } from '../../components/authentication/login';
+// components
+import Page from '../../components/Page';
 // hooks
 import useAuth from '../../hooks/useAuth';
 // layouts
 import AuthLayout from '../../layouts/AuthLayout';
-// components
-import Page from '../../components/Page';
-import { MHidden } from '../../components/@material-extend';
-import { LoginForm } from '../../components/authentication/login';
+import { PATH_AUTH } from '../../routes/paths';
 
 // ----------------------------------------------------------------------
 
@@ -44,8 +55,7 @@ const ContentStyle = styled('div')(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function Login() {
-  const { method } = useAuth();
-
+  const { method, loginWithGoogle } = useAuth();
   return (
     <RootStyle title="Login | Minimal-UI">
       <AuthLayout>
@@ -82,6 +92,20 @@ export default function Login() {
               />
             </Tooltip>
           </Stack>
+
+          <Button
+            fullWidth
+            size="large"
+            color="inherit"
+            variant="outlined"
+            onClick={loginWithGoogle}
+            sx={{
+              mb: 2
+            }}
+          >
+            <Typography sx={{ mr: 1 }}>Login using Google</Typography>
+            <Icon icon={googleIcon} color="#1877F2" height={24} />
+          </Button>
 
           <Alert severity="info" sx={{ mb: 3 }}>
             Use email : <strong>demo@minimals.cc</strong> / password :

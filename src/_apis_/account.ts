@@ -17,7 +17,6 @@ const users: User[] = [
     id: '8864c717-587d-472a-929a-8e5f298024da-0',
     displayName: 'Jaydon Frankie',
     email: 'demo@minimals.cc',
-    password: 'demo1234',
     photoURL: '/static/mock-images/avatars/avatar_default.jpg',
     phoneNumber: '+40 777666555',
     country: 'United States',
@@ -27,7 +26,8 @@ const users: User[] = [
     zipCode: '94116',
     about: faker.lorem.paragraphs(),
     role: 'admin',
-    isPublic: true
+    isPublic: true,
+    statusId: 0
   }
 ];
 
@@ -44,9 +44,9 @@ mock.onPost('/api/account/login').reply(async (config) => {
       return [400, { message: 'There is no user corresponding to the email address.' }];
     }
 
-    if (user.password !== password) {
+    /* if (user.password !== password) {
       return [400, { message: 'Wrong password' }];
-    }
+    } */
 
     const accessToken = sign({ userId: user.id }, JWT_SECRET, {
       expiresIn: JWT_EXPIRES_IN
@@ -76,7 +76,7 @@ mock.onPost('/api/account/register').reply(async (config) => {
       id: faker.datatype.uuid(),
       displayName: `${firstName} ${lastName}`,
       email,
-      password,
+      /* password, */
       photoURL: null,
       phoneNumber: null,
       country: null,
@@ -86,7 +86,8 @@ mock.onPost('/api/account/register').reply(async (config) => {
       zipCode: null,
       about: null,
       role: 'user',
-      isPublic: true
+      isPublic: true,
+      statusId: 0
     };
 
     const accessToken = sign({ userId: user.id }, JWT_SECRET, {

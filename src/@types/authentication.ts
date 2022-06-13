@@ -11,7 +11,22 @@ export type ActionMap<M extends { [index: string]: any }> = {
       };
 };
 
-export type AuthUser = null | Record<string, any>;
+export type AuthUser = null | {
+  id: string;
+  email?: string | null;
+  displayName: string;
+  role: string;
+  statusId: number;
+  photoURL?: string | null;
+  phoneNumber?: string | null;
+  country?: string | null;
+  address?: string | null;
+  state?: string | null;
+  city?: string | null;
+  zipCode?: string | null;
+  about?: string | null;
+  isPublic?: boolean | null;
+};
 
 export type AuthState = {
   isAuthenticated: boolean;
@@ -52,6 +67,7 @@ export type AWSCognitoContextType = {
   user: AuthUser;
   method: 'cognito';
   login: (email: string, password: string) => Promise<unknown>;
+  loginWithGoogle: () => void;
   register: (
     email: string,
     password: string,
