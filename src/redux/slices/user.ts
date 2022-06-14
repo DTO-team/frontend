@@ -239,7 +239,7 @@ export function getUserList() {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
-      const response = await axios.get('/api/user/manage-users');
+      const response = await axios.get('/v1/lecturers');
       dispatch(slice.actions.getUserListSuccess(response.data.users));
     } catch (error) {
       dispatch(slice.actions.hasError(error));

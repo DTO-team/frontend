@@ -40,12 +40,14 @@ const SearchStyle = styled(OutlinedInput)(({ theme }) => ({
 
 type UserListToolbarProps = {
   numSelected: number;
+  placeholder?: string;
   filterName: string;
   onFilterName: (value: string) => void;
 };
 
 export default function UserListToolbar({
   numSelected,
+  placeholder,
   filterName,
   onFilterName
 }: UserListToolbarProps) {
@@ -69,7 +71,7 @@ export default function UserListToolbar({
         <SearchStyle
           value={filterName}
           onChange={(e) => onFilterName(e.target.value)}
-          placeholder="Search user..."
+          placeholder={placeholder || 'Search user...'}
           startAdornment={
             <InputAdornment position="start">
               <Box component={Icon} icon={searchFill} sx={{ color: 'text.disabled' }} />
