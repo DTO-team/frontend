@@ -1,18 +1,15 @@
-import { Icon } from '@iconify/react';
 import menu2Fill from '@iconify/icons-eva/menu-2-fill';
+import { Icon } from '@iconify/react';
 // material
+import { AppBar, Box, IconButton, Stack, Toolbar } from '@material-ui/core';
 import { alpha, styled } from '@material-ui/core/styles';
-import { Box, Stack, AppBar, Toolbar, IconButton } from '@material-ui/core';
 // hooks
 import useCollapseDrawer from '../../hooks/useCollapseDrawer';
 // components
 import { MHidden } from '../../components/@material-extend';
-import Searchbar from './Searchbar';
 import AccountPopover from './AccountPopover';
-import LanguagePopover from './LanguagePopover';
-import ContactsPopover from './ContactsPopover';
-import ReadFilePopOver from './ReadFilePopOver';
 import NotificationsPopover from './NotificationsPopover';
+import Searchbar from './Searchbar';
 
 // ----------------------------------------------------------------------
 
@@ -68,10 +65,7 @@ export default function DashboardNavbar({ onOpenSidebar }: DashboardNavbarProps)
         <Box sx={{ flexGrow: 1 }} />
 
         <Stack direction="row" alignItems="center" spacing={{ xs: 0.5, sm: 1.5 }}>
-          <LanguagePopover />
-          <ReadFilePopOver />
           <NotificationsPopover />
-          <ContactsPopover />
           <AccountPopover />
         </Stack>
       </ToolbarStyle>
