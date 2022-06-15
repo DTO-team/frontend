@@ -4,9 +4,9 @@
   "version": "2.3.0",
   "private": true,
   "scripts": {
-    "start": "DISABLE_ESLINT_PLUGIN=true react-scripts start",
-    "build": "DISABLE_ESLINT_PLUGIN=true react-scripts --max_old_space_size=4096 build",
-    "test": "DISABLE_ESLINT_PLUGIN=true react-scripts test",
+    "start": "react-scripts start",
+    "build": "react-scripts --max_old_space_size=4096 build",
+    "test": "react-scripts test",
     "eject": "react-scripts eject",
     "lint": "eslint --ext .ts,.tsx ./src",
     "lint:fix": "eslint --fix --ext .ts,.tsx ./src"
@@ -15,7 +15,10 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "rules": {
+      "@typescript-eslint/no-unused-vars": "off"
+    }
   },
   "babel": {
     "presets": [
@@ -36,6 +39,7 @@
   },
   "dependencies": {
     "@auth0/auth0-spa-js": "^1.16.1",
+    "@craco/craco": "^6.4.3",
     "@emotion/cache": "^11.4.0",
     "@emotion/react": "^11.4.0",
     "@emotion/styled": "^11.3.0",
