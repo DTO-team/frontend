@@ -162,12 +162,18 @@ export default function StudentList() {
           action={
             <Box sx={{ display: 'flex' }}>
               <FormDialogs
+                id="joinTeam"
                 buttonContent="Join Team"
                 title="Join a team"
                 content="Enter the team code to join &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
               />
               <span style={{ padding: '0.5rem' }} />
-              {/* <FormDialogs /> */}
+              <FormDialogs
+                id="createTeam"
+                buttonContent="Create new team"
+                title="Create team"
+                content="Please enter name of your team &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+              />
             </Box>
           }
         />

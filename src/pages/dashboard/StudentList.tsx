@@ -23,13 +23,14 @@ import {
 } from '@material-ui/core';
 // redux
 import { RootState, useDispatch, useSelector } from '../../redux/store';
-import { getUserList, deleteUser } from '../../redux/slices/user';
+import { getStudentList } from '../../redux/slices/student';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
 import useSettings from '../../hooks/useSettings';
 // @types
 import { UserManager } from '../../@types/user';
+import { StudentManager } from '../../@types/student';
 // components
 import Page from '../../components/Page';
 import Label from '../../components/Label';
@@ -41,12 +42,10 @@ import { UserListHead, UserListToolbar, UserMoreMenu } from '../../components/_d
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
-  { id: 'company', label: 'Company', alignRight: false },
-  { id: 'role', label: 'Role', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
-  { id: '' }
+  { id: 'code', label: 'Code', alignRight: false },
+  { id: 'fullName', label: 'Full Name', alignRight: false },
+  { id: 'email', label: 'Email', alignRight: false },
+  { id: 'username', label: 'User Name', alignRight: false }
 ];
 
 // ----------------------------------------------------------------------
@@ -70,7 +69,7 @@ function getComparator(order: string, orderBy: string) {
 }
 
 function applySortFilter(
-  array: UserManager[],
+  array: StudentManager[],
   comparator: (a: any, b: any) => number,
   query: string
 ) {
@@ -81,7 +80,10 @@ function applySortFilter(
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(
+      array,
+      (_user) => _user.userName.toLowerCase().indexOf(query.toLowerCase()) !== -1
+    );
   }
   return stabilizedThis.map((el) => el[0]);
 }
@@ -91,7 +93,7 @@ export default function StudentList() {
   const theme = useTheme();
   const dispatch = useDispatch();
 
-  const { userList } = useSelector((state: RootState) => state.user);
+  const { studentList } = useSelector((state: RootState) => state.student);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [selected, setSelected] = useState<string[]>([]);
@@ -100,7 +102,7 @@ export default function StudentList() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
-    dispatch(getUserList());
+    dispatch(getStudentList());
   }, [dispatch]);
 
   const handleRequestSort = (property: string) => {
@@ -111,7 +113,7 @@ export default function StudentList() {
 
   const handleSelectAllClick = (checked: boolean) => {
     if (checked) {
-      const newSelecteds = userList.map((n) => n.name);
+      const newSelecteds = studentList.map((n) => n.userName);
       setSelected(newSelecteds);
       return;
     }
@@ -146,12 +148,12 @@ export default function StudentList() {
   };
 
   const handleDeleteUser = (userId: string) => {
-    dispatch(deleteUser(userId));
+    // dispatch(deleteUser(userId));
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - studentList.length) : 0;
 
-  const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(studentList, getComparator(order, orderBy), filterName);
 
   const isUserNotFound = filteredUsers.length === 0;
 
@@ -191,7 +193,7 @@ export default function StudentList() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={userList.length}
+                  rowCount={studentList.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
@@ -200,8 +202,8 @@ export default function StudentList() {
                   {filteredUsers
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const { id, name, role, status, company, avatarUrl, isVerified } = row;
-                      const isItemSelected = selected.indexOf(name) !== -1;
+                      const { id, code, fullName, email, userName } = row;
+                      const isItemSelected = selected.indexOf(userName) !== -1;
 
                       return (
                         <TableRow
@@ -213,20 +215,25 @@ export default function StudentList() {
                           aria-checked={isItemSelected}
                         >
                           <TableCell padding="checkbox">
-                            <Checkbox checked={isItemSelected} onClick={() => handleClick(name)} />
+                            <Checkbox
+                              checked={isItemSelected}
+                              onClick={() => handleClick(userName)}
+                            />
                           </TableCell>
-                          <TableCell component="th" scope="row" padding="none">
+                          {/* <TableCell component="th" scope="row" padding="none">
                             <Stack direction="row" alignItems="center" spacing={2}>
-                              <Avatar alt={name} src={avatarUrl} />
+                              <Avatar alt={userName} src={avatarUrl} />
                               <Typography variant="subtitle2" noWrap>
-                                {name}
+                                {userName}
                               </Typography>
                             </Stack>
-                          </TableCell>
-                          <TableCell align="left">{company}</TableCell>
-                          <TableCell align="left">{role}</TableCell>
-                          <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell>
-                          <TableCell align="left">
+                          </TableCell> */}
+                          <TableCell align="left">{code}</TableCell>
+                          <TableCell align="left">{fullName}</TableCell>
+                          <TableCell align="left">{email}</TableCell>
+                          <TableCell align="left">{userName}</TableCell>
+                          {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
+                          {/* <TableCell align="left">
                             <Label
                               variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
                               color={(status === 'banned' && 'error') || 'success'}
@@ -237,7 +244,7 @@ export default function StudentList() {
 
                           <TableCell align="right">
                             <UserMoreMenu onDelete={() => handleDeleteUser(id)} userName={name} />
-                          </TableCell>
+                          </TableCell> */}
                         </TableRow>
                       );
                     })}
@@ -263,7 +270,7 @@ export default function StudentList() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={userList.length}
+            count={studentList.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={(e, page) => setPage(page)}
