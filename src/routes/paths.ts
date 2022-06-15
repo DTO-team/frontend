@@ -38,7 +38,8 @@ export const PATH_DASHBOARD = {
     root: path(ROOTS_DASHBOARD, '/admin/management'),
     lecturerManagement: path(ROOTS_DASHBOARD, '/admin/management/lecturers'),
     companyManagement: path(ROOTS_DASHBOARD, '/admin/management/companies'),
-    studentManagement: path(ROOTS_DASHBOARD, '/admin/management/students')
+    studentManagement: path(ROOTS_DASHBOARD, '/admin/management/students'),
+    settingsPage: path(ROOTS_DASHBOARD, '/admin/management/settings')
   },
   fptuCapstone: {
     teams: path(ROOTS_DASHBOARD, '/teams'),

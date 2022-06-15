@@ -22,6 +22,20 @@ const ICONS = {
   kanban: getIcon('ic_kanban')
 };
 
+const sidebarAdminConfig = [
+  {
+    subheader: 'admin management',
+    items: [
+      {
+        title: 'manage lists',
+        path: PATH_DASHBOARD.admin.root,
+        icon: ICONS.kanban,
+        children: [{ title: 'Admin management settings', path: PATH_DASHBOARD.admin.settingsPage }]
+      }
+    ]
+  }
+];
+
 const sidebarConfig = [
   // GENERAL
   // ----------------------------------------------------------------------
@@ -37,23 +51,6 @@ const sidebarConfig = [
       // { title: 'analytics', path: PATH_DASHBOARD.general.analytics, icon: ICONS.analytics }
     ]
   },
-
-  {
-    subheader: 'admin management',
-    items: [
-      {
-        title: 'manage lists',
-        path: PATH_DASHBOARD.admin.root,
-        icon: ICONS.kanban,
-        children: [
-          { title: 'lecturer list', path: PATH_DASHBOARD.admin.lecturerManagement },
-          { title: 'company list', path: PATH_DASHBOARD.admin.companyManagement },
-          { title: 'student list', path: PATH_DASHBOARD.admin.studentManagement }
-        ]
-      }
-    ]
-  },
-
   // MANAGEMENT
   // ----------------------------------------------------------------------
   {
@@ -129,4 +126,4 @@ const sidebarConfig = [
   }
 ];
 
-export default sidebarConfig;
+export { sidebarConfig, sidebarAdminConfig };

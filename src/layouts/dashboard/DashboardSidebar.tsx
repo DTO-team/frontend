@@ -1,31 +1,32 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link as RouterLink, useLocation } from 'react-router-dom';
 // material
-import { alpha, styled } from '@material-ui/core/styles';
 import {
   Box,
+  Button,
+  CardActionArea,
+  Drawer,
   Link,
   Stack,
-  Button,
-  Drawer,
   Tooltip,
-  Typography,
-  CardActionArea
+  Typography
 } from '@material-ui/core';
+import { AuthorizeRole } from 'utils/enum-utils';
+import { alpha, styled } from '@material-ui/core/styles';
 // hooks
 import useAuth from '../../hooks/useAuth';
 import useCollapseDrawer from '../../hooks/useCollapseDrawer';
 // routes
 import { PATH_DASHBOARD, PATH_DOCS } from '../../routes/paths';
 // components
+import { MHidden } from '../../components/@material-extend';
 import Logo from '../../components/Logo';
 import MyAvatar from '../../components/MyAvatar';
-import Scrollbar from '../../components/Scrollbar';
 import NavSection from '../../components/NavSection';
-import { MHidden } from '../../components/@material-extend';
+import Scrollbar from '../../components/Scrollbar';
 //
-import sidebarConfig from './SidebarConfig';
 import { DocIcon } from '../../assets';
+import { sidebarAdminConfig, sidebarConfig } from './SidebarConfig';
 
 // ----------------------------------------------------------------------
 
@@ -111,7 +112,7 @@ type DashboardSidebarProps = {
 export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }: DashboardSidebarProps) {
   const { pathname } = useLocation();
   const { user } = useAuth();
-
+  const [authorizeSidebarConfig, setAuthorizeSidebarConfig] = useState(sidebarConfig);
   const { isCollapse, collapseClick, collapseHover, onToggleCollapse, onHoverEnter, onHoverLeave } =
     useCollapseDrawer();
 
@@ -119,8 +120,11 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }: Dash
     if (isOpenSidebar) {
       onCloseSidebar();
     }
+    if (user?.role === AuthorizeRole.ADMIN) {
+      setAuthorizeSidebarConfig([...sidebarAdminConfig, ...sidebarConfig]);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [pathname, user]);
 
   const renderContent = (
     <Scrollbar
@@ -175,7 +179,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }: Dash
         )}
       </Stack>
 
-      <NavSection navConfig={sidebarConfig} isShow={!isCollapse} />
+      <NavSection navConfig={authorizeSidebarConfig} isShow={!isCollapse} />
 
       <Box sx={{ flexGrow: 1 }} />
 

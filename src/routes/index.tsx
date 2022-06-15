@@ -101,7 +101,8 @@ export default function Router() {
           children: [
             { path: 'management/lecturers', element: <LecturerList /> },
             { path: 'management/companies', element: <CompanyList /> },
-            { path: 'management/students', element: <StudentList /> }
+            { path: 'management/students', element: <StudentList /> },
+            { path: 'management/settings', element: <AdminManagementSettingsPage /> }
           ]
         },
         { path: 'teams', element: <TeamList /> },
@@ -426,3 +427,5 @@ const MultiLanguage = Loadable(
 );
 const Animate = Loadable(lazy(() => import('../pages/components-overview/extra/animate')));
 const MegaMenu = Loadable(lazy(() => import('../pages/components-overview/extra/MegaMenu')));
+// admin
+const AdminManagementSettingsPage = Loadable(lazy(() => import('../pages/adminManagement')));

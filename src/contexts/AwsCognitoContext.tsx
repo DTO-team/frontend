@@ -86,31 +86,33 @@ function AuthProvider({ children }: { children: ReactNode }) {
     if (user) {
       await Auth.currentSession()
         .then(async (session) => {
-          try {
-            const response: AccountSession = await axios.post('v1/auth/login', {
-              idToken: session.getIdToken().getJwtToken()
-            });
-            const userAttribute = {
-              id: response.id,
-              displayName: response.fullName,
-              role: response.role,
-              statusId: response.statusId,
-              email: response.email
-            };
-            dispatch({
-              type: Types.auth,
-              payload: { isAuthenticated: true, user: userAttribute }
-            });
-            axios.defaults.headers.common.Authorization = `Bearer ${response.accessToken}`;
-          } catch (error) {
-            console.log('Failed to get session: ', error);
-            dispatch({
-              type: Types.auth,
-              payload: {
-                isAuthenticated: false,
-                user: null
-              }
-            });
+          if (!state.isAuthenticated) {
+            try {
+              const response: AccountSession = await axios.post('v1/auth/login', {
+                idToken: session.getIdToken().getJwtToken()
+              });
+              const userAttribute = {
+                id: response.id,
+                displayName: response.fullName,
+                role: response.role,
+                statusId: response.statusId,
+                email: response.email
+              };
+              dispatch({
+                type: Types.auth,
+                payload: { isAuthenticated: true, user: userAttribute }
+              });
+              axios.defaults.headers.common.Authorization = `Bearer ${response.accessToken}`;
+            } catch (error) {
+              console.log('Failed to get session: ', error);
+              dispatch({
+                type: Types.auth,
+                payload: {
+                  isAuthenticated: false,
+                  user: null
+                }
+              });
+            }
           }
           // use the token or Bearer depend on the wait BE handle, by default amplify API only need to token.
         })
@@ -135,7 +137,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
         }
       });
     }
-  }, []);
+  }, [state.isAuthenticated]);
 
   const initial = useCallback(async () => {
     try {
