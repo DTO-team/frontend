@@ -10,6 +10,9 @@ import { MHidden } from '../../components/@material-extend';
 import AccountPopover from './AccountPopover';
 import NotificationsPopover from './NotificationsPopover';
 import Searchbar from './Searchbar';
+import ReadFilePopOver from './ReadFilePopOver';
+import { useSelector, RootState } from 'redux/store';
+import { AuthorizeRole } from '../../utils/enum-utils';
 
 // ----------------------------------------------------------------------
 
@@ -45,7 +48,7 @@ type DashboardNavbarProps = {
 
 export default function DashboardNavbar({ onOpenSidebar }: DashboardNavbarProps) {
   const { isCollapse } = useCollapseDrawer();
-
+  const { myProfile: user } = useSelector((state: RootState) => state.user);
   return (
     <RootStyle
       sx={{
@@ -65,6 +68,7 @@ export default function DashboardNavbar({ onOpenSidebar }: DashboardNavbarProps)
         <Box sx={{ flexGrow: 1 }} />
 
         <Stack direction="row" alignItems="center" spacing={{ xs: 0.5, sm: 1.5 }}>
+          {user?.role !== AuthorizeRole.STUDENT && <ReadFilePopOver />}
           <NotificationsPopover />
           <AccountPopover />
         </Stack>
