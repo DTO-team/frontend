@@ -30,8 +30,8 @@ const IconStyle = styled(Icon)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-const TOTAL = 38566;
-const CHART_DATA = [44];
+const TOTAL = 375;
+const CHART_DATA = [100];
 
 export default function AppWidgets1() {
   const theme = useTheme();
@@ -67,7 +67,7 @@ export default function AppWidgets1() {
       <Box sx={{ ml: 3, color: 'common.white' }}>
         <Typography variant="h4"> {fNumber(TOTAL)}</Typography>
         <Typography variant="body2" sx={{ opacity: 0.72 }}>
-          Conversion
+          students
         </Typography>
       </Box>
       <IconStyle icon={personFill} />

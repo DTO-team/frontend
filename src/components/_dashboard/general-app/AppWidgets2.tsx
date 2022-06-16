@@ -31,7 +31,7 @@ const IconStyle = styled(Icon)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-const TOTAL = 55566;
+const TOTAL = 20;
 const CHART_DATA = [75];
 
 export default function AppWidgets2() {
@@ -69,7 +69,7 @@ export default function AppWidgets2() {
       <Box sx={{ ml: 3, color: 'common.white' }}>
         <Typography variant="h4"> {fNumber(TOTAL)}</Typography>
         <Typography variant="body2" sx={{ opacity: 0.72 }}>
-          Conversion
+          Topics
         </Typography>
       </Box>
       <IconStyle icon={emailFill} />
