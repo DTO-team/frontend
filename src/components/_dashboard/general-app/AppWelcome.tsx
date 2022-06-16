@@ -41,10 +41,10 @@ export default function AppWelcome({ displayName }: AppWelcomeProps) {
         </Typography>
 
         <Typography variant="body2" sx={{ pb: { xs: 3, xl: 5 }, maxWidth: 480, mx: 'auto' }}>
-          If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything
+          A lot of team doing their capstone now, please take a look!
         </Typography>
 
-        <Button variant="contained" to="#" component={RouterLink}>
+        <Button variant="contained" to="/dashboard/teams" component={RouterLink}>
           Go Now
         </Button>
       </CardContent>

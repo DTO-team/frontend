@@ -14,7 +14,7 @@ export default function Block({ children, title, sx, ...other }: BlockProps) {
   return (
     <Box sx={{ position: 'relative' }} {...other}>
       {title && (
-        <Typography gutterBottom variant="subtitle2" sx={{ color: 'text.secondary' }}>
+        <Typography gutterBottom variant="subtitle2" sx={{ color: 'text.secondary', ...sx }}>
           {title}
         </Typography>
       )}
