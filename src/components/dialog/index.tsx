@@ -1,18 +1,17 @@
 // material
+import { Box, Container, Grid } from '@material-ui/core';
 import { styled } from '@material-ui/core/styles';
-import { Box, Grid, Container } from '@material-ui/core';
 // routes
 import { PATH_PAGE } from '../../routes/paths';
 // components
-import Page from '../Page';
 import HeaderBreadcrumbs from '../HeaderBreadcrumbs';
+import Page from '../Page';
 //
 // import FormDialogs from './FormDialogs';
-import AlertDialog from './AlertDialog';
+import FullScreenDialogs from './FullScreenDialogs';
+import MaxWidthDialog from './MaxWidthDialog';
 import ScrollDialog from './ScrollDialog';
 import SimpleDialogs from './SimpleDialogs';
-import MaxWidthDialog from './MaxWidthDialog';
-import FullScreenDialogs from './FullScreenDialogs';
 import TransitionsDialogs from './TransitionsDialogs';
 //
 import Block from '../Block';
@@ -59,11 +58,11 @@ export default function DialogComponent() {
             </Block>
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          {/*  <Grid item xs={12} md={4}>
             <Block title="Alerts" sx={style}>
               <AlertDialog />
             </Block>
-          </Grid>
+          </Grid> */}
 
           <Grid item xs={12} md={4}>
             <Block title="Transitions" sx={style}>

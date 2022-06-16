@@ -2,63 +2,181 @@ import arrowIosBackFill from '@iconify/icons-eva/arrow-ios-back-fill';
 import arrowIosForwardFill from '@iconify/icons-eva/arrow-ios-forward-fill';
 import { Icon } from '@iconify/react';
 import { Box, Grid, Typography } from '@material-ui/core';
+import { Semester } from '../../../@types/management';
 import ActionModal from 'components/modal/ActionModal';
 import _ from 'lodash';
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { getSemesterList, updateSemesterStatus } from 'redux/slices/management';
+import { RootState, useDispatch } from 'redux/store';
+import palette from 'theme/palette';
+import { SemesterStatus } from 'utils/enum-utils';
+import AlertDialog from 'components/dialog/AlertDialog';
 
 interface ISemesterListModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const fakes = [
-  { id: 1, year: 2022, season: 'SPRING', status: 'ON_GOING' },
-  { id: 2, year: 2022, season: 'FALL', status: 'ON_GOING' },
-  { id: 3, year: 2022, season: 'SUMMER', status: 'ON_GOING' }
-];
-
 export default function SemesterListModal(props: ISemesterListModalProps) {
   const { isOpen, onClose } = props;
-  const bgColor = '#80bcf991';
-  const statusBorderColor = '#80bcf9d9';
+  const [isLoading, setIsLoading] = useState(false);
+  const [isOpenConfirmDialog, setIsOpenConfirmDialog] = useState(false);
+  const [currentUpdateSemester, setCurrentUpdateSemester] = useState<Semester>();
+  const dispatch = useDispatch();
+  const { semesters } = useSelector((state: RootState) => state.management);
+
+  const _handleChangeStatus = (semester: Semester, isForward: boolean) => {
+    setIsLoading(true);
+    const { id, status } = semester;
+    let payload = { id: '', status: 0 };
+    if (!isLoading) {
+      if (isForward) {
+        switch (status) {
+          case SemesterStatus.PREPARING: {
+            payload = {
+              id,
+              status: SemesterStatus.ON_GOING
+            };
+            break;
+          }
+          case SemesterStatus.ON_GOING: {
+            setIsOpenConfirmDialog(true);
+            setCurrentUpdateSemester(semester);
+            break;
+          }
+        }
+      } else {
+        switch (status) {
+          case SemesterStatus.ON_GOING: {
+            payload = {
+              id,
+              status: SemesterStatus.PREPARING
+            };
+            break;
+          }
+        }
+      }
+      try {
+        dispatch(updateSemesterStatus(payload));
+      } catch (error) {
+        console.log('error', error);
+      }
+    }
+    setIsLoading(false);
+  };
+
+  const _handleChangeStatusToEnded = () => {
+    setIsLoading(true);
+    const payload = {
+      id: currentUpdateSemester?.id,
+      status: SemesterStatus.ENDED
+    };
+    try {
+      dispatch(updateSemesterStatus(payload));
+    } catch (error) {
+      console.log('error', error);
+    }
+    setIsLoading(false);
+    setIsOpenConfirmDialog(false);
+    setCurrentUpdateSemester(undefined);
+  };
+
+  const _handleClassifyStatusColor = (status: number) => {
+    let bgColor;
+    let statusTextColor;
+    let statusName;
+    switch (status) {
+      case SemesterStatus.PREPARING: {
+        bgColor = palette.light.success.light;
+        statusTextColor = palette.dark.success.darker;
+        statusName = 'Preparing';
+        break;
+      }
+      case SemesterStatus.ON_GOING: {
+        bgColor = palette.light.info.lighter;
+        statusTextColor = palette.light.info.darker;
+        statusName = 'On Going';
+        break;
+      }
+      case SemesterStatus.ENDED: {
+        bgColor = palette.light.error.lighter;
+        statusTextColor = palette.light.error.darker;
+        statusName = 'Ended';
+        break;
+      }
+    }
+
+    return { bgColor, statusTextColor, statusName };
+  };
+
+  useEffect(() => {
+    dispatch(getSemesterList());
+  }, [dispatch]);
+
   return (
-    <ActionModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Semester Management"
-      children={
-        <Grid container spacing={2}>
-          {_.map(fakes, (fake) => {
-            const { id, year, season, status } = fake;
-            return (
-              <Grid item key={id} xs={12}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    border: 2,
-                    px: 2,
-                    py: 1,
-                    borderRadius: 1,
-                    borderColor: statusBorderColor,
-                    bgcolor: bgColor
-                  }}
-                >
-                  <Typography sx={{ fontWeight: 'bold' }}>{`${year} ${season}`}</Typography>
-                  <Box sx={{ display: 'flex' }}>
-                    <Box sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                      <Icon icon={arrowIosBackFill} />
-                    </Box>
-                    <Typography sx={{ fontWeight: 'bold' }}>{status}</Typography>
-                    <Box sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                      <Icon icon={arrowIosForwardFill} />
+    <>
+      <AlertDialog
+        isOpen={isOpenConfirmDialog}
+        title={'Changing status alert'}
+        description={
+          <div>
+            You are about to update status of this semester to ENDED.
+            <br />
+            Are you sure wanted to do this? This action cannot be undone!
+          </div>
+        }
+        onAgree={() => _handleChangeStatusToEnded()}
+        onCancle={() => setIsOpenConfirmDialog(false)}
+      />
+
+      <ActionModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title="Semester Management"
+        children={
+          <Grid container spacing={2}>
+            {_.map(semesters, (semester) => {
+              const { id, year, season, status } = semester;
+              const { bgColor, statusTextColor, statusName } = _handleClassifyStatusColor(status);
+              return (
+                <Grid item key={id} xs={12}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      px: 2,
+                      py: 1,
+                      borderRadius: 1,
+                      bgcolor: bgColor,
+                      boxShadow: '2px 5px 12px grey'
+                    }}
+                  >
+                    <Typography sx={{ fontWeight: 'bold' }}>{`${year} ${season}`}</Typography>
+                    <Box sx={{ display: 'flex' }}>
+                      <div
+                        style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                        onClick={() => _handleChangeStatus(semester, false)}
+                      >
+                        <Icon icon={arrowIosBackFill} />
+                      </div>
+                      <Typography sx={{ fontWeight: 'bold' }} color={statusTextColor}>
+                        {statusName}
+                      </Typography>
+                      <div
+                        style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                        onClick={() => _handleChangeStatus(semester, true)}
+                      >
+                        <Icon icon={arrowIosForwardFill} />
+                      </div>
                     </Box>
                   </Box>
-                </Box>
-              </Grid>
-            );
-          })}
-        </Grid>
-      }
-    />
+                </Grid>
+              );
+            })}
+          </Grid>
+        }
+      />
+    </>
   );
 }
