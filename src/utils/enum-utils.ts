@@ -9,3 +9,9 @@ export enum SemesterStatus {
   ON_GOING = 2,
   ENDED = 3
 }
+
+export enum TeamApplicationStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECT = 'REJECT'
+}

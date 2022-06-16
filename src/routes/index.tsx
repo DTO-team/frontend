@@ -1,12 +1,12 @@
-import { Suspense, lazy } from 'react';
-import { Navigate, useRoutes, useLocation } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
+import { Navigate, useLocation, useRoutes } from 'react-router-dom';
 // layouts
-import MainLayout from '../layouts/main';
 import DashboardLayout from '../layouts/dashboard';
 import LogoOnlyLayout from '../layouts/LogoOnlyLayout';
+import MainLayout from '../layouts/main';
 // guards
-import GuestGuard from '../guards/GuestGuard';
 import AuthGuard from '../guards/AuthGuard';
+import GuestGuard from '../guards/GuestGuard';
 // import RoleBasedGuard from '../guards/RoleBasedGuard';
 // components
 import LoadingScreen from '../components/LoadingScreen';
@@ -102,7 +102,8 @@ export default function Router() {
             { path: 'management/lecturers', element: <LecturerList /> },
             { path: 'management/companies', element: <CompanyList /> },
             { path: 'management/students', element: <StudentList /> },
-            { path: 'management/settings', element: <AdminManagementSettingsPage /> }
+            { path: 'management/settings', element: <AdminManagementSettingsPage /> },
+            { path: 'management/team/applications', element: <TeamApplicationList /> }
           ]
         },
         { path: 'teams', element: <TeamList /> },
@@ -429,3 +430,6 @@ const Animate = Loadable(lazy(() => import('../pages/components-overview/extra/a
 const MegaMenu = Loadable(lazy(() => import('../pages/components-overview/extra/MegaMenu')));
 // admin
 const AdminManagementSettingsPage = Loadable(lazy(() => import('../pages/adminManagement')));
+const TeamApplicationList = Loadable(
+  lazy(() => import('../pages/adminManagement/application-management/TeamApplicationList'))
+);
