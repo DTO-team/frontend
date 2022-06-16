@@ -1,5 +1,5 @@
 import { sentenceCase } from 'change-case';
-import { filter } from 'lodash';
+/* import { filter } from 'lodash'; */
 import { useEffect, useState } from 'react';
 // material
 import {
@@ -28,7 +28,7 @@ import { deleteUser, getUserList } from 'redux/slices/user';
 import { RootState, useDispatch } from 'redux/store';
 import { PATH_DASHBOARD } from 'routes/paths';
 import { TeamApplicationStatus } from 'utils/enum-utils';
-import { UserManager } from '../../../@types/user';
+/* import { UserManager } from '../../../@types/user'; */
 // redux
 // routes
 // hooks
@@ -88,9 +88,9 @@ const FAKE_APPLICATION = [
   }
 ];
 
-type Anonymous = Record<string | number, string>;
+/* type Anonymous = Record<string | number, string>; */
 
-function descendingComparator(a: Anonymous, b: Anonymous, orderBy: string) {
+/* function descendingComparator(a: Anonymous, b: Anonymous, orderBy: string) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
   }
@@ -98,15 +98,15 @@ function descendingComparator(a: Anonymous, b: Anonymous, orderBy: string) {
     return 1;
   }
   return 0;
-}
+} */
 
-function getComparator(order: string, orderBy: string) {
+/* function getComparator(order: string, orderBy: string) {
   return order === 'desc'
     ? (a: Anonymous, b: Anonymous) => descendingComparator(a, b, orderBy)
     : (a: Anonymous, b: Anonymous) => -descendingComparator(a, b, orderBy);
-}
+} */
 
-function applySortFilter(
+/* function applySortFilter(
   array: UserManager[],
   comparator: (a: any, b: any) => number,
   query: string
@@ -121,7 +121,7 @@ function applySortFilter(
     return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
-}
+} */
 
 export default function TeamApplicationList() {
   const { themeStretch } = useSettings();
@@ -188,7 +188,7 @@ export default function TeamApplicationList() {
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
 
-  const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName);
+  /* const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName); */
 
   const isUserNotFound = FAKE_APPLICATION.length === 0;
 
