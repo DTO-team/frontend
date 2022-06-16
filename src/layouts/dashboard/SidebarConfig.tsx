@@ -30,7 +30,12 @@ const sidebarAdminConfig = [
         title: 'manage lists',
         path: PATH_DASHBOARD.admin.root,
         icon: ICONS.kanban,
-        children: [{ title: 'Admin management settings', path: PATH_DASHBOARD.admin.settingsPage }]
+        children: [
+          { title: 'settings', path: PATH_DASHBOARD.admin.settingsPage },
+          { title: 'lecturer list', path: PATH_DASHBOARD.admin.lecturerManagement },
+          { title: 'company list', path: PATH_DASHBOARD.admin.companyManagement },
+          { title: 'student list', path: PATH_DASHBOARD.admin.studentManagement }
+        ]
       }
     ]
   }
@@ -39,18 +44,18 @@ const sidebarAdminConfig = [
 const sidebarConfig = [
   // GENERAL
   // ----------------------------------------------------------------------
-  {
-    subheader: 'general',
-    items: [
-      {
-        title: 'app',
-        path: PATH_DASHBOARD.general.app,
-        icon: ICONS.dashboard
-      }
-      // { title: 'e-commerce', path: PATH_DASHBOARD.general.ecommerce, icon: ICONS.ecommerce },
-      // { title: 'analytics', path: PATH_DASHBOARD.general.analytics, icon: ICONS.analytics }
-    ]
-  },
+  // {
+  //   subheader: 'general',
+  //   items: [
+  //     {
+  //       title: 'app',
+  //       path: PATH_DASHBOARD.general.app,
+  //       icon: ICONS.dashboard
+  //     }
+  //     // { title: 'e-commerce', path: PATH_DASHBOARD.general.ecommerce, icon: ICONS.ecommerce },
+  //     // { title: 'analytics', path: PATH_DASHBOARD.general.analytics, icon: ICONS.analytics }
+  //   ]
+  // },
   // MANAGEMENT
   // ----------------------------------------------------------------------
   {
@@ -63,11 +68,11 @@ const sidebarConfig = [
         icon: ICONS.user,
         children: [
           { title: 'profile', path: PATH_DASHBOARD.user.profile },
-          { title: 'cards', path: PATH_DASHBOARD.user.cards },
-          { title: 'list', path: PATH_DASHBOARD.user.list },
-          { title: 'create', path: PATH_DASHBOARD.user.newUser },
-          { title: 'edit', path: PATH_DASHBOARD.user.editById },
-          { title: 'account', path: PATH_DASHBOARD.user.account }
+          // { title: 'cards', path: PATH_DASHBOARD.user.cards },
+          // { title: 'list', path: PATH_DASHBOARD.user.list },
+          // { title: 'create', path: PATH_DASHBOARD.user.newUser },
+          { title: 'edit', path: PATH_DASHBOARD.user.editById }
+          // { title: 'account', path: PATH_DASHBOARD.user.account }
         ]
       }
 
@@ -104,26 +109,26 @@ const sidebarConfig = [
   {
     subheader: 'fptu-capstone',
     items: [
-      { title: 'team list', path: PATH_DASHBOARD.fptuCapstone.teams, icon: ICONS.chat },
+      { title: 'team list', path: PATH_DASHBOARD.fptuCapstone.teams, icon: ICONS.kanban },
       { title: 'topic list', path: PATH_DASHBOARD.fptuCapstone.topics, icon: ICONS.chat }
     ]
-  },
+  }
 
   // APP
   // ----------------------------------------------------------------------
-  {
-    subheader: 'Activities',
-    items: [
-      { title: 'Team List', path: PATH_DASHBOARD.general.ecommerce, icon: ICONS.ecommerce },
-      { title: 'chat', path: PATH_DASHBOARD.chat.root, icon: ICONS.chat },
-      { title: 'calendar', path: PATH_DASHBOARD.calendar, icon: ICONS.calendar },
-      {
-        title: 'kanban',
-        path: PATH_DASHBOARD.kanban,
-        icon: ICONS.kanban
-      }
-    ]
-  }
+  // {
+  //   subheader: 'Activities',
+  //   items: [
+  //     { title: 'Team List', path: PATH_DASHBOARD.general.ecommerce, icon: ICONS.ecommerce },
+  //     { title: 'chat', path: PATH_DASHBOARD.chat.root, icon: ICONS.chat },
+  //     { title: 'calendar', path: PATH_DASHBOARD.calendar, icon: ICONS.calendar },
+  //     {
+  //       title: 'kanban',
+  //       path: PATH_DASHBOARD.kanban,
+  //       icon: ICONS.kanban
+  //     }
+  //   ]
+  // }
 ];
 
 export { sidebarConfig, sidebarAdminConfig };
