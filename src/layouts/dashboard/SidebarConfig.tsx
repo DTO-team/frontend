@@ -30,7 +30,10 @@ const sidebarAdminConfig = [
         title: 'manage lists',
         path: PATH_DASHBOARD.admin.root,
         icon: ICONS.kanban,
-        children: [{ title: 'Admin management settings', path: PATH_DASHBOARD.admin.settingsPage }]
+        children: [
+          { title: 'Admin management settings', path: PATH_DASHBOARD.admin.settingsPage },
+          { title: 'Team application', path: PATH_DASHBOARD.admin.teamApplications }
+        ]
       }
     ]
   }
