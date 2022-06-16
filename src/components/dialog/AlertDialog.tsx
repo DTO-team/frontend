@@ -1,48 +1,38 @@
-import { useState } from 'react';
 // material
 import {
   Button,
   Dialog,
-  DialogTitle,
   DialogActions,
   DialogContent,
-  DialogContentText
+  DialogContentText,
+  DialogTitle
 } from '@material-ui/core';
 
 // ----------------------------------------------------------------------
 
-export default function AlertDialog() {
-  const [open, setOpen] = useState(false);
+interface IAlertDialogProps {
+  title: string;
+  description?: React.ReactNode;
+  isOpen: boolean;
+  onAgree: () => void;
+  onCancle: () => void;
+}
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
+export default function AlertDialog(props: IAlertDialogProps) {
+  const { isOpen, onAgree, onCancle, title, description } = props;
 
   return (
-    <div>
-      <Button color="info" variant="outlined" onClick={handleClickOpen}>
-        Open alert dialog
-      </Button>
-
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Use Google's location service?</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Let Google help apps determine location. This means sending anonymous location data to
-            Google, even when no apps are running.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Disagree</Button>
-          <Button onClick={handleClose} autoFocus>
-            Agree
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
+    <Dialog open={isOpen} onClose={onCancle}>
+      <DialogTitle>{title}</DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">{description}</DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onCancle}>Disagree</Button>
+        <Button onClick={onAgree} autoFocus>
+          Agree
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
