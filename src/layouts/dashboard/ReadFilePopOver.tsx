@@ -8,7 +8,9 @@ import fileFill from '@iconify/icons-eva/file-add-fill';
 // components
 import MenuPopover from '../../components/MenuPopover';
 import { MIconButton } from '../../components/@material-extend';
-
+import { postExcelFileList } from './dashboardServices/ReadFilePopOver';
+import { useSnackbar } from 'notistack5';
+import { cutString } from 'utils/cutString';
 // ----------------------------------------------------------------------
 
 const IMPORT_TYPES = [
@@ -27,9 +29,15 @@ const IMPORT_TYPES = [
 export default function ReadFilePopOver() {
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
+  const { enqueueSnackbar } = useSnackbar();
+
+  const handleNotistack = (statusCode: Number, message: string) => {
+    enqueueSnackbar(statusCode === 200 ? message : 'Something went wrong', {
+      variant: statusCode === 200 ? 'success' : 'error'
+    });
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
-    console.log(type);
     e.preventDefault();
     // eslint-disable-next-line prefer-destructuring
     const files = e.target.files;
@@ -37,7 +45,7 @@ export default function ReadFilePopOver() {
     const f = files[0];
     const reader = new FileReader();
     // eslint-disable-next-line func-names
-    reader.onload = function (e) {
+    reader.onload = async function (e) {
       const data = reader.result;
       const readedData = XLSX.read(data, { type: 'binary' });
       const wsname = readedData.SheetNames[0];
@@ -45,12 +53,25 @@ export default function ReadFilePopOver() {
 
       // Convert array to json
       const dataParse = XLSX.utils.sheet_to_json(ws, { header: 2 });
-      const inprogressStudentList = dataParse.map((student: any) => ({
-        studentCode: student.RollNumber,
-        email: student.Email,
-        fullName: student.Name
-      }));
-      console.log(inprogressStudentList);
+      console.log(dataParse);
+      if (type === 'topicList') {
+        const topicList: Array<any> = dataParse.map((topic: any) => ({
+          name: topic.Name,
+          description: topic.Description,
+          lecturerEmail: cutString(topic['Lecturer Email'], ','),
+          companyEmail: topic['Company Email']
+        }));
+        const { statusCode } = await postExcelFileList('topicList', topicList);
+        handleNotistack(statusCode, 'Successfully imported topic list');
+      } else {
+        const inprogressStudentList = dataParse.map((student: any) => ({
+          studentCode: student.RollNumber,
+          email: student.Email,
+          fullName: student.Name
+        }));
+        const { statusCode } = await postExcelFileList('studentList', inprogressStudentList);
+        handleNotistack(statusCode, 'Successfully imported student list');
+      }
     };
     reader.readAsBinaryString(f);
   };
@@ -95,7 +116,10 @@ export default function ReadFilePopOver() {
                   style={{ display: 'none' }}
                   accept=".xlsx,.xls"
                   id={`upload${key}`}
-                  onChange={(e) => handleFileChange(e, option.id)}
+                  onChange={(e) => {
+                    handleFileChange(e, option.id);
+                    e.target.value = '';
+                  }}
                 />
               </MenuItem>
             </label>
