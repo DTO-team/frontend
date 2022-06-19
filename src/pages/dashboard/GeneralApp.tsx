@@ -20,7 +20,7 @@ import {
   AppTotalActiveUsers,
   AppTopInstalledCountries
 } from '../../components/_dashboard/general-app';
-import TimelineComponent from 'components/_dashboard/general-app/Timeline';
+import TimelineComponent from '../../components/_dashboard/general-app/Timeline';
 
 // ----------------------------------------------------------------------
 

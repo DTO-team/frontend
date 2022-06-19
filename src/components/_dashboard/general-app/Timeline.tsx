@@ -1,8 +1,7 @@
+import { RootState, useDispatch, useSelector } from 'redux/store';
+import { useEffect, useState } from 'react';
 import { last, slice } from 'lodash';
 // material
-import HotelIcon from '@material-ui/icons/Hotel';
-import RepeatIcon from '@material-ui/icons/Repeat';
-import FastfoodIcon from '@material-ui/icons/Fastfood';
 import LaptopMacIcon from '@material-ui/icons/LaptopMac';
 import { styled } from '@material-ui/core/styles';
 import { Box, Grid, Paper, Container, Typography } from '@material-ui/core';
@@ -22,7 +21,8 @@ import Page from '../../../components/Page';
 import HeaderBreadcrumbs from '../../../components/HeaderBreadcrumbs';
 //
 import Block from '../../Block';
-
+import { getSemesterList } from 'redux/slices/management';
+import { currentSemester } from 'utils/currentSemester';
 // ----------------------------------------------------------------------
 
 type TimelineType = {
@@ -68,10 +68,16 @@ const RootStyle = styled(Page)(({ theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function TimelineComponent() {
+  const { semesters } = useSelector((state: RootState) => state.management);
+  //
   const lastItem = last(TIMELINES)?.key;
-
   const reduceTimeLine = slice(TIMELINES, TIMELINES.length - 3);
-
+  const dispatch = useDispatch();
+  //
+  useEffect(() => {
+    dispatch(getSemesterList());
+  }, [dispatch]);
+  //
   return (
     <RootStyle title="Components: Timeline | Minimal-UI">
       <Box
@@ -88,14 +94,23 @@ export default function TimelineComponent() {
               <Block title="Flow Timeline" sx={{ fontSize: '1.25rem' }}>
                 <Timeline position="alternate">
                   {TIMELINES.map((item) => (
-                    <TimelineItem key={item.key}>
+                    <TimelineItem
+                      key={item.key}
+                      sx={{ opacity: currentSemester(semesters)?.status === item.key ? 1 : 0.5 }}
+                    >
                       <TimelineOppositeContent>
                         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                           {item.time}
                         </Typography>
                       </TimelineOppositeContent>
                       <TimelineSeparator>
-                        <TimelineDot color={item.color}>{item.icon}</TimelineDot>
+                        <TimelineDot
+                          color={
+                            currentSemester(semesters)?.status === item.key ? item.color : 'grey'
+                          }
+                        >
+                          {item.icon}
+                        </TimelineDot>
                         <TimelineConnector />
                       </TimelineSeparator>
                       <TimelineContent>
