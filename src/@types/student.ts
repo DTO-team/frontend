@@ -1,12 +1,16 @@
 // ----------------------------------------------------------------------
 
+import { TeamManager } from './team';
+
 export type StudentManager = {
-  code: string;
-  email: string;
-  fullName: string;
   id: string;
-  role: 'STUDENT';
-  semester: 'SPRING' | 'FALL' | ' SUMMER';
-  statusId: Number;
+  teamId: string;
+  email: string;
   userName: string;
+  fullName: string;
+  teamDetail?: TeamManager;
+  code: string;
+  semester: 'SPRING' | 'FALL' | ' SUMMER';
+  role: 'STUDENT';
+  statusId: Number;
 };

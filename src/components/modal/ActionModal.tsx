@@ -40,7 +40,7 @@ export default function ActionModal(props: IActionModalProps) {
         <Typography id="modal-modal-title" variant="h6" component="h2">
           {title}
         </Typography>
-        <Box sx={{ mt: 3, mb: 6 }}>{children}</Box>
+        <Box sx={{ mt: 3 }}>{children}</Box>
       </Box>
     </Modal>
   );

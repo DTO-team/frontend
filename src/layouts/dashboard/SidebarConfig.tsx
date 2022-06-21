@@ -32,7 +32,6 @@ const sidebarAdminConfig = [
         icon: ICONS.kanban,
         children: [
           { title: 'settings', path: PATH_DASHBOARD.admin.settingsPage },
-          { title: 'Team application', path: PATH_DASHBOARD.admin.teamApplications },
           { title: 'lecturer list', path: PATH_DASHBOARD.admin.lecturerManagement },
           { title: 'company list', path: PATH_DASHBOARD.admin.companyManagement },
           { title: 'student list', path: PATH_DASHBOARD.admin.studentManagement }
@@ -111,7 +110,12 @@ const sidebarConfig = [
     subheader: 'fptu-capstone',
     items: [
       { title: 'team list', path: PATH_DASHBOARD.fptuCapstone.teams, icon: ICONS.kanban },
-      { title: 'topic list', path: PATH_DASHBOARD.fptuCapstone.topics, icon: ICONS.chat }
+      { title: 'topic list', path: PATH_DASHBOARD.fptuCapstone.topics, icon: ICONS.chat },
+      {
+        title: 'Team application',
+        path: PATH_DASHBOARD.admin.teamApplications,
+        icon: ICONS.analytics
+      }
     ]
   }
 

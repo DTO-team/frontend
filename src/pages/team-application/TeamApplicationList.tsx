@@ -2,7 +2,10 @@ import { sentenceCase } from 'change-case';
 /* import { filter } from 'lodash'; */
 import { useEffect, useState } from 'react';
 // material
+import plusFill from '@iconify/icons-eva/plus-fill';
+import { Icon } from '@iconify/react';
 import {
+  Button,
   Card,
   Checkbox,
   Container,
@@ -28,6 +31,8 @@ import { deleteUser, getUserList } from 'redux/slices/user';
 import { RootState, useDispatch } from 'redux/store';
 import { PATH_DASHBOARD } from 'routes/paths';
 import { TeamApplicationStatus } from 'utils/enum-utils';
+import CreateNewApplicationModal from './modals/CreateNewApplicationModal';
+
 /* import { UserManager } from '../../../@types/user'; */
 // redux
 // routes
@@ -135,10 +140,7 @@ export default function TeamApplicationList() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  useEffect(() => {
-    dispatch(getUserList());
-  }, [dispatch]);
+  const [isOpenCreateApplicationModal, setIsOpenCreateApplicationModal] = useState(false);
 
   const handleRequestSort = (property: string) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -186,46 +188,71 @@ export default function TeamApplicationList() {
     dispatch(deleteUser(userId));
   };
 
+  const handleOpenCreateApplicationModal = () => {
+    setIsOpenCreateApplicationModal(true);
+  };
+
+  const onClose = () => {
+    setIsOpenCreateApplicationModal(false);
+  };
+
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
 
   /* const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName); */
 
   const isUserNotFound = FAKE_APPLICATION.length === 0;
 
-  return (
-    <Page title="Student: List | DTO">
-      <Container maxWidth={themeStretch ? false : 'lg'}>
-        <HeaderBreadcrumbs
-          heading="Team Applications"
-          links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
-            { name: 'Management' },
-            { name: 'Team Applications' }
-          ]}
-        />
+  useEffect(() => {
+    dispatch(getUserList());
+  }, [dispatch]);
 
-        <Card>
-          <UserListToolbar
-            numSelected={selected.length}
-            filterName={filterName}
-            onFilterName={handleFilterByName}
+  return (
+    <>
+      <CreateNewApplicationModal isOpen={isOpenCreateApplicationModal} onClose={onClose} />
+      <Page title="Student: List | DTO">
+        <Container maxWidth={themeStretch ? false : 'lg'}>
+          <HeaderBreadcrumbs
+            heading="Team Applications"
+            links={[
+              { name: 'Dashboard', href: PATH_DASHBOARD.root },
+              { name: 'Management' },
+              { name: 'Team Applications' }
+            ]}
+            action={
+              <Button
+                variant="contained"
+                startIcon={<Icon icon={plusFill} />}
+                onClick={() => handleOpenCreateApplicationModal()}
+              >
+                New Team Application
+              </Button>
+            }
           />
 
-          <Scrollbar>
-            <TableContainer sx={{ minWidth: 800 }}>
-              <Table>
-                <UserListHead
-                  order={order}
-                  orderBy={orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={userList.length}
-                  numSelected={selected.length}
-                  onRequestSort={handleRequestSort}
-                  onSelectAllClick={handleSelectAllClick}
-                />
-                <TableBody>
-                  {FAKE_APPLICATION.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(
-                    (row) => {
+          <Card>
+            <UserListToolbar
+              numSelected={selected.length}
+              filterName={filterName}
+              onFilterName={handleFilterByName}
+            />
+
+            <Scrollbar>
+              <TableContainer sx={{ minWidth: 800 }}>
+                <Table>
+                  <UserListHead
+                    order={order}
+                    orderBy={orderBy}
+                    headLabel={TABLE_HEAD}
+                    rowCount={userList.length}
+                    numSelected={selected.length}
+                    onRequestSort={handleRequestSort}
+                    onSelectAllClick={handleSelectAllClick}
+                  />
+                  <TableBody>
+                    {FAKE_APPLICATION.slice(
+                      page * rowsPerPage,
+                      page * rowsPerPage + rowsPerPage
+                    ).map((row) => {
                       const { team, topic, status, applicationId } = row;
                       const isItemSelected = selected.indexOf(applicationId) !== -1;
                       let statusColor: LabelColor;
@@ -287,38 +314,38 @@ export default function TeamApplicationList() {
                           </TableCell>
                         </TableRow>
                       );
-                    }
-                  )}
-                  {emptyRows > 0 && (
-                    <TableRow style={{ height: 53 * emptyRows }}>
-                      <TableCell colSpan={6} />
-                    </TableRow>
-                  )}
-                </TableBody>
-                {isUserNotFound && (
-                  <TableBody>
-                    <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <SearchNotFound searchQuery={filterName} />
-                      </TableCell>
-                    </TableRow>
+                    })}
+                    {emptyRows > 0 && (
+                      <TableRow style={{ height: 53 * emptyRows }}>
+                        <TableCell colSpan={6} />
+                      </TableRow>
+                    )}
                   </TableBody>
-                )}
-              </Table>
-            </TableContainer>
-          </Scrollbar>
+                  {isUserNotFound && (
+                    <TableBody>
+                      <TableRow>
+                        <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
+                          <SearchNotFound searchQuery={filterName} />
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  )}
+                </Table>
+              </TableContainer>
+            </Scrollbar>
 
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={userList.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={(e, page) => setPage(page)}
-            onRowsPerPageChange={(e) => handleChangeRowsPerPage}
-          />
-        </Card>
-      </Container>
-    </Page>
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={userList.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={(e, page) => setPage(page)}
+              onRowsPerPageChange={(e) => handleChangeRowsPerPage}
+            />
+          </Card>
+        </Container>
+      </Page>
+    </>
   );
 }

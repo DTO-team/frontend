@@ -14,6 +14,8 @@ import productReducer from './slices/product';
 import calendarReducer from './slices/calendar';
 import kanbanReducer from './slices/kanban';
 import managementReducer from './slices/management';
+import topicReducer from './slices/topic';
+import applicationReducer from './slices/team-application';
 
 // ----------------------------------------------------------------------
 
@@ -43,7 +45,9 @@ const rootReducer = combineReducers({
   kanban: kanbanReducer,
   product: persistReducer(productPersistConfig, productReducer),
   account: accountReducer,
-  management: managementReducer
+  management: managementReducer,
+  topic: topicReducer,
+  application: applicationReducer
 });
 
 export { rootPersistConfig, rootReducer };
