@@ -10,12 +10,14 @@ type TeamState = {
   isLoading: boolean;
   error: boolean;
   teamList: TeamManager[];
+  teamDetail: any;
 };
 
 const initialState: TeamState = {
   isLoading: false,
   error: false,
-  teamList: []
+  teamList: [],
+  teamDetail: null
 };
 
 const slice = createSlice({
@@ -39,10 +41,19 @@ const slice = createSlice({
       state.teamList = action.payload;
     },
 
+    // GET MANAGE USERS
+    getTeamDetailSuccess(state, action) {
+      state.isLoading = false;
+      state.teamDetail = action.payload;
+    },
+
     // DELETE USERS
     deleteTeam(state, action) {
       const deleteTeam = filter(state.teamList, (team) => team.teamId !== action.payload);
       state.teamList = deleteTeam;
+    },
+    clearTeamDetail(state) {
+      state.teamDetail = null;
     }
   }
 });
@@ -58,6 +69,22 @@ export function getTeamList() {
     try {
       const response = await axios.get('/v1/teams');
       dispatch(slice.actions.getTeamListSuccess(response));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+export function clearTeamDetail() {
+  dispatch(slice.actions.clearTeamDetail());
+}
+
+export function getTeamDetail(id: string) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get(`/v1/teams/${id}`);
+      dispatch(slice.actions.getTeamDetailSuccess(response));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

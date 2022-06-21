@@ -106,7 +106,13 @@ export default function Router() {
             { path: 'management/team/applications', element: <TeamApplicationList /> }
           ]
         },
-        { path: 'teams', element: <TeamList /> },
+        {
+          path: 'teams',
+          children: [
+            { path: '/', element: <TeamList /> },
+            { path: ':id', element: <TeamDetail /> }
+          ]
+        },
         { path: 'topics', element: <TopicList /> },
         {
           path: 'user',
@@ -326,6 +332,7 @@ const BlogPosts = Loadable(lazy(() => import('../pages/dashboard/BlogPosts')));
 const BlogPost = Loadable(lazy(() => import('../pages/dashboard/BlogPost')));
 const BlogNewPost = Loadable(lazy(() => import('../pages/dashboard/BlogNewPost')));
 const UserProfile = Loadable(lazy(() => import('../pages/dashboard/UserProfile')));
+const TeamDetail = Loadable(lazy(() => import('../pages/dashboard/TeamDetail/TeamDetail')));
 const UserCards = Loadable(lazy(() => import('../pages/dashboard/UserCards')));
 const UserList = Loadable(lazy(() => import('../pages/dashboard/UserList')));
 const StudentList = Loadable(lazy(() => import('../pages/dashboard/StudentList')));

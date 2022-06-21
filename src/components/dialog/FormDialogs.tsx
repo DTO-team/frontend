@@ -10,7 +10,8 @@ import {
   DialogContentText
 } from '@material-ui/core';
 import { useSnackbar } from 'notistack5';
-import { callAPIForCreateNewTeam } from '_apis_/team';
+import { callAPIForCreateNewTeam, callAPIForJoinTeam } from '_apis_/team';
+import { useNavigate } from 'react-router-dom';
 
 // ----------------------------------------------------------------------
 
@@ -19,26 +20,26 @@ interface FormDialogsProps {
   title: string;
   content?: string;
   id?: string;
+  inputPlaceholder?: string;
 }
 
-export default function FormDialogs({ buttonContent, title, content, id }: FormDialogsProps) {
+export default function FormDialogs({
+  buttonContent,
+  title,
+  content,
+  id,
+  inputPlaceholder
+}: FormDialogsProps) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  let navigate = useNavigate();
 
   const handleClickOpen = () => {
     setOpen(true);
   };
 
   const handleClose = async () => {
-    if (id === 'createTeam') {
-      const status = await callAPIForCreateNewTeam(text);
-      if (status === 200) {
-        enqueueSnackbar('Create successfully!');
-      } else {
-        enqueueSnackbar('Error! Please try again');
-      }
-    }
     setOpen(false);
   };
 
@@ -46,8 +47,33 @@ export default function FormDialogs({ buttonContent, title, content, id }: FormD
     setText(e.target.value);
   };
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
+    if (id === 'createTeam') {
+      const { statusCode, data } = await callAPIForCreateNewTeam(text);
+      console.log(statusCode, data);
+      if (statusCode === 201) {
+        enqueueSnackbar('Create successfully!');
+        setOpen(false);
+        navigate(data.teamId, { replace: true });
+      } else if (statusCode === 400) {
+        enqueueSnackbar('You already in another class!');
+      } else {
+        enqueueSnackbar('Something went wrong, try again!');
+      }
+    }
+    if (id === 'joinTeam') {
+      const { statusCode, data } = await callAPIForJoinTeam('add', '/student', text);
+      if (statusCode === 200) {
+        enqueueSnackbar('Create successfully!');
+        setOpen(false);
+        navigate(data.teamId, { replace: true });
+      } else if (statusCode === 400) {
+        enqueueSnackbar('You already in another class!');
+      } else {
+        enqueueSnackbar('Something went wrong, try again!');
+      }
+    }
   };
   return (
     <form onSubmit={handleSubmit}>
@@ -65,7 +91,7 @@ export default function FormDialogs({ buttonContent, title, content, id }: FormD
             type="text"
             margin="dense"
             variant="outlined"
-            label="Team's code"
+            label={inputPlaceholder}
             onChange={handleOnChange}
           />
         </DialogContent>
@@ -73,7 +99,7 @@ export default function FormDialogs({ buttonContent, title, content, id }: FormD
           <Button onClick={handleClose} color="inherit">
             Cancel
           </Button>
-          <Button onClick={handleClose} variant="contained">
+          <Button onClick={handleSubmit} variant="contained" type="submit">
             {id === 'joinTeam' ? 'Join' : 'Create'}
           </Button>
         </DialogActions>
