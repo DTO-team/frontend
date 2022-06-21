@@ -8,6 +8,7 @@ import { Link as RouterLink } from 'react-router-dom';
 // material
 import { useTheme } from '@material-ui/core/styles';
 import {
+  Box,
   Card,
   Table,
   Stack,
@@ -38,7 +39,8 @@ import Scrollbar from '../../components/Scrollbar';
 import SearchNotFound from '../../components/SearchNotFound';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../../components/_dashboard/user/list';
-
+import FormDialogs from 'components/dialog/FormDialogs';
+import { Link } from 'react-router-dom';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -168,14 +170,23 @@ export default function StudentList() {
             { name: 'Team List' }
           ]}
           action={
-            <Button
-              variant="contained"
-              component={RouterLink}
-              to={PATH_DASHBOARD.user.newUser}
-              startIcon={<Icon icon={plusFill} />}
-            >
-              New Team
-            </Button>
+            <Box sx={{ display: 'flex' }}>
+              <FormDialogs
+                id={'createTeam'}
+                buttonContent="Create Team"
+                title="Create a team"
+                inputPlaceholder="Team name:"
+                content="Enter name of the team &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+              />
+              <span style={{ padding: '0.5rem' }} />
+              <FormDialogs
+                id={'joinTeam'}
+                buttonContent="Join Team"
+                title="Join a team"
+                inputPlaceholder="Team code:"
+                content="Enter code of the team &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+              />
+            </Box>
           }
         />
 
@@ -232,7 +243,9 @@ export default function StudentList() {
                           <TableCell align="left">{leader.fullName}</TableCell>
                           <TableCell align="center">{totalMember}</TableCell>
                           <TableCell align="center">
-                            <Icon icon={eyeFill} style={{ fontSize: '24px' }} />
+                            <Link to={`${teamId}`}>
+                              <Icon icon={eyeFill} style={{ fontSize: '24px' }} />
+                            </Link>
                           </TableCell>
                           {/* <TableCell align="left">{userName}</TableCell> */}
                           {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}

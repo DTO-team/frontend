@@ -44,6 +44,7 @@ export const PATH_DASHBOARD = {
   },
   fptuCapstone: {
     teams: path(ROOTS_DASHBOARD, '/teams'),
+    specificTeam: path(ROOTS_DASHBOARD, '/teams/:id'),
     topics: path(ROOTS_DASHBOARD, '/topics')
   },
   general: {
