@@ -431,5 +431,5 @@ const MegaMenu = Loadable(lazy(() => import('../pages/components-overview/extra/
 // admin
 const AdminManagementSettingsPage = Loadable(lazy(() => import('../pages/adminManagement')));
 const TeamApplicationList = Loadable(
-  lazy(() => import('../pages/adminManagement/application-management/TeamApplicationList'))
+  lazy(() => import('../pages/team-application/TeamApplicationList'))
 );

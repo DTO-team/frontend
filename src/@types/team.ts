@@ -1,6 +1,7 @@
+import { StudentManager } from './student';
 // ----------------------------------------------------------------------
 
-type leaderDetail = {
+export type LeaderDetail = {
   id: string;
   code: string;
   fullName: string;
@@ -13,6 +14,7 @@ type leaderDetail = {
 export type TeamManager = {
   teamId: string;
   teamName: string;
-  leader: leaderDetail;
+  leader: LeaderDetail;
   totalMember: Number;
+  members?: StudentManager[]
 };
