@@ -29,7 +29,7 @@ interface ICreateNewApplicationModalProps {
 
 const selectedTopicInit: ITopicDetail = {
   topicId: '',
-  name: '',
+  topicName: '',
   description: ''
 };
 
@@ -113,7 +113,7 @@ export default function CreateNewApplicationModal(props: ICreateNewApplicationMo
     return (
       <Box sx={{ width: '100%', maxWidth: 500 }}>
         <Typography variant="subtitle2" gutterBottom component="div">
-          <b style={{ marginRight: 2 }}>Topic name: </b> {selectedTopic.name}
+          <b style={{ marginRight: 2 }}>Topic name: </b> {selectedTopic.topicName}
         </Typography>
         <Typography variant="subtitle2" component="div">
           <b style={{ marginRight: 2 }}>Topic description: </b>
@@ -202,10 +202,10 @@ export default function CreateNewApplicationModal(props: ICreateNewApplicationMo
                 onChange={(event) => _handleChangeTopic(event)}
               >
                 {_.map(topic.topicList, (topic) => {
-                  const { topicId, name } = topic;
+                  const { topicId, topicName } = topic;
                   return (
                     <MenuItem key={topicId} value={`${JSON.stringify(topic)}`}>
-                      {name}
+                      {topicName}
                     </MenuItem>
                   );
                 })}

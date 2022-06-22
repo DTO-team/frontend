@@ -13,5 +13,5 @@ export enum SemesterStatus {
 export enum TeamApplicationStatus {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
-  REJECT = 'REJECT'
+  REJECTED = 'REJECTED'
 }
