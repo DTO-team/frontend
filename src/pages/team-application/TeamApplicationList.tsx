@@ -32,6 +32,7 @@ import { RootState, useDispatch } from 'redux/store';
 import { PATH_DASHBOARD } from 'routes/paths';
 import { TeamApplicationStatus } from 'utils/enum-utils';
 import CreateNewApplicationModal from './modals/CreateNewApplicationModal';
+import { getTeamApplicationList } from 'redux/slices/team-application';
 
 /* import { UserManager } from '../../../@types/user'; */
 // redux
@@ -63,7 +64,7 @@ const FAKE_APPLICATION = [
       name: 'The business of RUM',
       description: 'Descript 1'
     },
-    status: TeamApplicationStatus.REJECT
+    status: TeamApplicationStatus.REJECTED
   },
   {
     applicationId: '2',
@@ -134,6 +135,7 @@ export default function TeamApplicationList() {
   const dispatch = useDispatch();
 
   const { userList } = useSelector((state: RootState) => state.user);
+  const { application } = useSelector((state: RootState) => state);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [selected, setSelected] = useState<string[]>([]);
@@ -204,8 +206,10 @@ export default function TeamApplicationList() {
 
   useEffect(() => {
     dispatch(getUserList());
+    dispatch(getTeamApplicationList());
   }, [dispatch]);
 
+  console.log(application.teamApplicationList);
   return (
     <>
       <CreateNewApplicationModal isOpen={isOpenCreateApplicationModal} onClose={onClose} />
@@ -249,72 +253,71 @@ export default function TeamApplicationList() {
                     onSelectAllClick={handleSelectAllClick}
                   />
                   <TableBody>
-                    {FAKE_APPLICATION.slice(
-                      page * rowsPerPage,
-                      page * rowsPerPage + rowsPerPage
-                    ).map((row) => {
-                      const { team, topic, status, applicationId } = row;
-                      const isItemSelected = selected.indexOf(applicationId) !== -1;
-                      let statusColor: LabelColor;
-                      switch (status) {
-                        case TeamApplicationStatus.APPROVED: {
-                          statusColor = 'success';
-                          break;
+                    {application.teamApplicationList
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((row) => {
+                        const { applyTeam, topic, status, applicationId } = row;
+                        const isItemSelected = selected.indexOf(applicationId) !== -1;
+                        let statusColor: LabelColor;
+                        switch (status) {
+                          case TeamApplicationStatus.APPROVED: {
+                            statusColor = 'success';
+                            break;
+                          }
+                          case TeamApplicationStatus.PENDING: {
+                            statusColor = 'warning';
+                            break;
+                          }
+                          case TeamApplicationStatus.REJECTED: {
+                            statusColor = 'error';
+                            break;
+                          }
+                          default: {
+                            statusColor = 'success';
+                          }
                         }
-                        case TeamApplicationStatus.PENDING: {
-                          statusColor = 'warning';
-                          break;
-                        }
-                        case TeamApplicationStatus.REJECT: {
-                          statusColor = 'error';
-                          break;
-                        }
-                        default: {
-                          statusColor = 'success';
-                        }
-                      }
 
-                      return (
-                        <TableRow
-                          hover
-                          key={applicationId}
-                          tabIndex={-1}
-                          role="checkbox"
-                          selected={isItemSelected}
-                          aria-checked={isItemSelected}
-                        >
-                          <TableCell padding="checkbox">
-                            <Checkbox
-                              checked={isItemSelected}
-                              onClick={() => handleClick(applicationId)}
-                            />
-                          </TableCell>
-                          <TableCell component="th" scope="row" padding="none">
-                            <Stack direction="row" alignItems="center" spacing={2}>
-                              <Typography variant="subtitle2" noWrap>
-                                {team.name}
-                              </Typography>
-                            </Stack>
-                          </TableCell>
-                          <TableCell align="left">{topic.name}</TableCell>
-                          <TableCell align="left">
-                            <Label
-                              variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-                              color={statusColor}
-                            >
-                              {sentenceCase(status)}
-                            </Label>
-                          </TableCell>
+                        return (
+                          <TableRow
+                            hover
+                            key={applicationId}
+                            tabIndex={-1}
+                            role="checkbox"
+                            selected={isItemSelected}
+                            aria-checked={isItemSelected}
+                          >
+                            <TableCell padding="checkbox">
+                              <Checkbox
+                                checked={isItemSelected}
+                                onClick={() => handleClick(applicationId)}
+                              />
+                            </TableCell>
+                            <TableCell component="th" scope="row" padding="none">
+                              <Stack direction="row" alignItems="center" spacing={2}>
+                                <Typography variant="subtitle2" noWrap>
+                                  {applyTeam.teamName}
+                                </Typography>
+                              </Stack>
+                            </TableCell>
+                            <TableCell align="left">{topic.topicName}</TableCell>
+                            <TableCell align="left">
+                              <Label
+                                variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
+                                color={statusColor}
+                              >
+                                {sentenceCase(status)}
+                              </Label>
+                            </TableCell>
 
-                          <TableCell align="right">
-                            <UserMoreMenu
-                              onDelete={() => handleDeleteUser(applicationId)}
-                              userName={team.name}
-                            />
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
+                            <TableCell align="right">
+                              <UserMoreMenu
+                                onDelete={() => handleDeleteUser(applicationId)}
+                                userName={applyTeam.teamName}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     {emptyRows > 0 && (
                       <TableRow style={{ height: 53 * emptyRows }}>
                         <TableCell colSpan={6} />

@@ -3,7 +3,7 @@ import { LecturerManager } from './lecturer';
 
 export interface ITopicDetail {
   topicId: string;
-  name: string;
+  topicName: string;
   description: string;
   companyDetail?: ICompanyDetail;
   lecturersDetails?: LecturerManager[];
