@@ -35,17 +35,11 @@ import Scrollbar from '../../components/Scrollbar';
 import SearchNotFound from '../../components/SearchNotFound';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../../components/_dashboard/user/list';
+import { getTopicList } from 'redux/slices/topic';
 
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
-  { id: 'company', label: 'Company', alignRight: false },
-  { id: 'role', label: 'Role', alignRight: false },
-  { id: 'isVerified', label: 'Verified', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
-  { id: '' }
-];
+const TABLE_HEAD = [{ id: 'topicName', label: 'Topic Name', alignRight: false }, { id: '' }];
 
 // ----------------------------------------------------------------------
 
@@ -90,6 +84,7 @@ export default function TopicList() {
   const dispatch = useDispatch();
 
   const { userList } = useSelector((state: RootState) => state.user);
+  const { topic } = useSelector((state: RootState) => state);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [selected, setSelected] = useState<string[]>([]);
@@ -98,7 +93,7 @@ export default function TopicList() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
-    dispatch(getUserList());
+    dispatch(getTopicList());
   }, [dispatch]);
 
   const handleRequestSort = (property: string) => {
@@ -149,9 +144,11 @@ export default function TopicList() {
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
 
-  const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName);
+  /* const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName); */
 
-  const isUserNotFound = filteredUsers.length === 0;
+  const isUserNotFound = topic.topicList.length === 0;
+
+  console.log('topic: ', topic.topicList);
 
   return (
     <Page title="Topic List | DTO">
@@ -192,47 +189,36 @@ export default function TopicList() {
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredUsers
+                  {topic.topicList
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row) => {
-                      const { id, name, role, status, company, avatarUrl, isVerified } = row;
-                      const isItemSelected = selected.indexOf(name) !== -1;
+                    .map((topic) => {
+                      const { topicId, topicName } = topic;
+                      const isItemSelected = selected.indexOf(topicId) !== -1;
 
                       return (
                         <TableRow
                           hover
-                          key={id}
+                          key={topicId}
                           tabIndex={-1}
                           role="checkbox"
                           selected={isItemSelected}
                           aria-checked={isItemSelected}
                         >
                           <TableCell padding="checkbox">
-                            <Checkbox checked={isItemSelected} onClick={() => handleClick(name)} />
+                            <Checkbox
+                              checked={isItemSelected}
+                              onClick={() => handleClick(topicId)}
+                            />
                           </TableCell>
                           <TableCell component="th" scope="row" padding="none">
                             <Stack direction="row" alignItems="center" spacing={2}>
-                              <Avatar alt={name} src={avatarUrl} />
                               <Typography variant="subtitle2" noWrap>
-                                {name}
+                                {topicName}
                               </Typography>
                             </Stack>
                           </TableCell>
-                          <TableCell align="left">{company}</TableCell>
-                          <TableCell align="left">{role}</TableCell>
-                          <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell>
-                          <TableCell align="left">
-                            <Label
-                              variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-                              color={(status === 'banned' && 'error') || 'success'}
-                            >
-                              {sentenceCase(status)}
-                            </Label>
-                          </TableCell>
 
-                          <TableCell align="right">
-                            <UserMoreMenu onDelete={() => handleDeleteUser(id)} userName={name} />
-                          </TableCell>
+                          <TableCell align="right"></TableCell>
                         </TableRow>
                       );
                     })}

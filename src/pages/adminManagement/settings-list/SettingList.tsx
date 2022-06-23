@@ -6,7 +6,6 @@ import SemesterListModal from '../semester-management/SemesterListModal';
 export default function SettingList() {
   const [isOpenSemesterManagement, setIsOpenSemesterManagement] = useState(false);
   const _handleOpenSemesterManagement = () => {
-    console.log('open');
     setIsOpenSemesterManagement(true);
   };
 

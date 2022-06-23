@@ -1,5 +1,6 @@
-import { TeamManager } from "./team";
-import { ITopicDetail } from "./topic";
+import { TeamApplicationStatus } from 'utils/enum-utils';
+import { TeamManager } from './team';
+import { ITopicDetail } from './topic';
 
 export interface TeamApplication {
   applicationId: string;
@@ -21,5 +22,5 @@ export interface TeamApplication {
     };
   };
   topic: ITopicDetail;
-  status: string;
+  status: TeamApplicationStatus;
 }
