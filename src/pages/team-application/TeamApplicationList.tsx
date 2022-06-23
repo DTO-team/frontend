@@ -32,7 +32,10 @@ import { RootState, useDispatch } from 'redux/store';
 import { PATH_DASHBOARD } from 'routes/paths';
 import { TeamApplicationStatus } from 'utils/enum-utils';
 import CreateNewApplicationModal from './modals/CreateNewApplicationModal';
-import { getTeamApplicationList } from 'redux/slices/team-application';
+import { getTeamApplicationList, updateTeamApplicationStatus } from 'redux/slices/team-application';
+import TeamApplicationMenu from './components/menu/TeamApplicationMenu';
+import { TeamApplication } from '../../@types/application';
+import AlertDialog from 'components/dialog/AlertDialog';
 
 /* import { UserManager } from '../../../@types/user'; */
 // redux
@@ -139,10 +142,13 @@ export default function TeamApplicationList() {
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [selected, setSelected] = useState<string[]>([]);
+  const [selectedTeamApplication, setSelectedTeamApplication] = useState<TeamApplication>();
+  const [updateStatusAction, setUpdateStatusAction] = useState<TeamApplicationStatus>();
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [isOpenCreateApplicationModal, setIsOpenCreateApplicationModal] = useState(false);
+  const [isOpenConfirmDialog, setIsOpenConfirmDialog] = useState(false);
 
   const handleRequestSort = (property: string) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -186,33 +192,57 @@ export default function TeamApplicationList() {
     setFilterName(filterName);
   };
 
-  const handleDeleteUser = (userId: string) => {
-    dispatch(deleteUser(userId));
-  };
-
   const handleOpenCreateApplicationModal = () => {
     setIsOpenCreateApplicationModal(true);
   };
 
   const onClose = () => {
     setIsOpenCreateApplicationModal(false);
+    setIsOpenConfirmDialog(false);
+  };
+
+  const _handleChangeTeamApplicationStatus = (
+    teamApplication: TeamApplication,
+    action: TeamApplicationStatus
+  ) => {
+    setIsOpenConfirmDialog(true);
+    setUpdateStatusAction(action);
+    setSelectedTeamApplication(teamApplication);
   };
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
 
   /* const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName); */
 
-  const isUserNotFound = FAKE_APPLICATION.length === 0;
+  const isUserNotFound = application.teamApplicationList.length === 0;
 
   useEffect(() => {
     dispatch(getUserList());
     dispatch(getTeamApplicationList());
   }, [dispatch]);
 
-  console.log(application.teamApplicationList);
   return (
     <>
       <CreateNewApplicationModal isOpen={isOpenCreateApplicationModal} onClose={onClose} />
+      <AlertDialog
+        isOpen={isOpenConfirmDialog}
+        title="Update Application Status"
+        description={
+          <div style={{ marginTop: 10 }}>
+            You are about to {updateStatusAction} this team application
+            <br />
+            Are you sure wanted to do this?
+          </div>
+        }
+        onAgree={() => {
+          dispatch(
+            updateTeamApplicationStatus(updateStatusAction, selectedTeamApplication?.applicationId)
+          );
+          onClose();
+        }}
+        onCancle={() => onClose()}
+      />
+
       <Page title="Student: List | DTO">
         <Container maxWidth={themeStretch ? false : 'lg'}>
           <HeaderBreadcrumbs
@@ -255,8 +285,8 @@ export default function TeamApplicationList() {
                   <TableBody>
                     {application.teamApplicationList
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      .map((row) => {
-                        const { applyTeam, topic, status, applicationId } = row;
+                      .map((teamApplication) => {
+                        const { applyTeam, topic, status, applicationId } = teamApplication;
                         const isItemSelected = selected.indexOf(applicationId) !== -1;
                         let statusColor: LabelColor;
                         switch (status) {
@@ -310,9 +340,19 @@ export default function TeamApplicationList() {
                             </TableCell>
 
                             <TableCell align="right">
-                              <UserMoreMenu
-                                onDelete={() => handleDeleteUser(applicationId)}
-                                userName={applyTeam.teamName}
+                              <TeamApplicationMenu
+                                onApprove={() => {
+                                  _handleChangeTeamApplicationStatus(
+                                    teamApplication,
+                                    TeamApplicationStatus.APPROVED
+                                  );
+                                }}
+                                onReject={() => {
+                                  _handleChangeTeamApplicationStatus(
+                                    teamApplication,
+                                    TeamApplicationStatus.REJECTED
+                                  );
+                                }}
                               />
                             </TableCell>
                           </TableRow>
