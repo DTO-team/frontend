@@ -16,6 +16,7 @@ import {
   UserAddressBook,
   NotificationSettings
 } from '../../@types/user';
+import { AxiosResponse } from 'axios';
 
 // ----------------------------------------------------------------------
 
@@ -245,6 +246,29 @@ export function getUserList() {
       dispatch(slice.actions.hasError(error));
     }
   };
+}
+
+interface AxiosResponseChild extends AxiosResponse {
+  fullName?: string;
+  userName?: string;
+  email?: string;
+  statusCode: Number;
+}
+
+export async function getUserInfoById(id: string): Promise<any> {
+  try {
+    const response: AxiosResponseChild = await axios.get(`/v1/users/${id}`);
+    return {
+      fullName: response.fullName,
+      userName: response.userName,
+      email: response.email,
+      statusCode: 200
+    };
+  } catch (error) {
+    return {
+      statusCode: 400
+    };
+  }
 }
 
 // ----------------------------------------------------------------------
