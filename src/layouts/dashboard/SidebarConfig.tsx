@@ -31,19 +31,17 @@ const sidebarAdminConfig = [
         path: PATH_DASHBOARD.admin.root,
         icon: ICONS.kanban,
         children: [
-          { title: 'settings', path: PATH_DASHBOARD.admin.settingsPage },
-          { title: 'lecturer list', path: PATH_DASHBOARD.admin.lecturerManagement },
-          { title: 'company list', path: PATH_DASHBOARD.admin.companyManagement },
-          { title: 'student list', path: PATH_DASHBOARD.admin.studentManagement }
+          { title: 'admin settings', path: PATH_DASHBOARD.admin.settingsPage },
+          { title: 'lecturer account', path: PATH_DASHBOARD.admin.lecturerManagement },
+          { title: 'company account', path: PATH_DASHBOARD.admin.companyManagement },
+          { title: 'student account', path: PATH_DASHBOARD.admin.studentManagement }
         ]
       }
     ]
   }
 ];
 
-const sidebarConfig = [
-  // GENERAL
-  // ----------------------------------------------------------------------
+const sidebarGeneralConfig = [
   {
     subheader: 'Dashboard',
     items: [
@@ -55,7 +53,13 @@ const sidebarConfig = [
       // { title: 'e-commerce', path: PATH_DASHBOARD.general.ecommerce, icon: ICONS.ecommerce },
       // { title: 'analytics', path: PATH_DASHBOARD.general.analytics, icon: ICONS.analytics }
     ]
-  },
+  }
+];
+
+const sidebarConfig = [
+  // GENERAL
+  // ----------------------------------------------------------------------
+
   // MANAGEMENT
   // ----------------------------------------------------------------------
   {
@@ -136,4 +140,4 @@ const sidebarConfig = [
   // }
 ];
 
-export { sidebarConfig, sidebarAdminConfig };
+export { sidebarConfig, sidebarAdminConfig, sidebarGeneralConfig };

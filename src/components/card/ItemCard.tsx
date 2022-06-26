@@ -21,6 +21,8 @@ export default function ItemCard(props: IItemCardProps) {
             p: 3,
             minHeight: 200,
             maxHeight: 200,
+            minWidth: 260,
+            maxWidth: 260,
             cursor: 'pointer'
           }}
         >

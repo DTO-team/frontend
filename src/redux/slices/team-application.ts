@@ -45,17 +45,22 @@ export default slice.reducer;
 
 // ----------------------------------------------------------------------
 
-export function createTeamApplication(teamId: string, topicId: string) {
-  return async () => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.post('/v1/applications', { teamId, topicId });
-      dispatch(slice.actions.hasError(false));
-      return response;
-    } catch (error) {
-      dispatch(slice.actions.hasError(true));
-    }
-  };
+export async function createTeamApplication(teamId: string, topicId: string) {
+  dispatch(slice.actions.startLoading());
+  try {
+    const response = await axios.post('/v1/applications', { teamId, topicId });
+    dispatch(slice.actions.hasError(false));
+    return {
+      statusCode: 200,
+      data: response.data
+    };
+  } catch (error: any) {
+    dispatch(slice.actions.hasError(true));
+    return {
+      statusCode: error.toString().indexOf('400') === -1 ? 500 : 400,
+      data: error
+    };
+  }
 }
 
 export function getTeamApplicationList() {

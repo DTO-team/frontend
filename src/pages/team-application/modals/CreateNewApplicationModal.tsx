@@ -11,6 +11,7 @@ import {
 import ActionModal from 'components/modal/ActionModal';
 import useAuth from 'hooks/useAuth';
 import _ from 'lodash';
+import { useSnackbar } from 'notistack5';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getStudentProfile } from 'redux/slices/student';
@@ -52,8 +53,9 @@ const selectedTeamInit: TeamManager = {
 export default function CreateNewApplicationModal(props: ICreateNewApplicationModalProps) {
   const { isOpen, onClose } = props;
   const dispatch = useDispatch();
+  const { enqueueSnackbar } = useSnackbar();
   const { user } = useAuth();
-  const { student, topic, team, application } = useSelector((state: RootState) => state);
+  const { student, topic, team } = useSelector((state: RootState) => state);
   const [selectedTopic, setSelectedTopic] = useState<ITopicDetail>(selectedTopicInit);
   const [selectedTeam, setSelectedTeam] = useState<TeamManager>(selectedTeamInit);
   const [isDisabled, setIsDisabled] = useState<boolean>(false);
@@ -68,8 +70,13 @@ export default function CreateNewApplicationModal(props: ICreateNewApplicationMo
 
   const _handleCreateTeamApplication = async () => {
     if (!_.isEmpty(selectedTeam.teamId) && !_.isEmpty(selectedTopic.topicId)) {
-      await dispatch(createTeamApplication(selectedTeam.teamId, selectedTopic.topicId));
-      if (!application.error) _handleCloseModal();
+      const response = await createTeamApplication(selectedTeam.teamId, selectedTopic.topicId);
+      if (response.statusCode === 200) {
+        _handleCloseModal();
+        enqueueSnackbar('Create team application successfully', { variant: 'success' });
+      } else {
+        enqueueSnackbar('Oops! Something went wrong, please try again later', { variant: 'error' });
+      }
     }
   };
 

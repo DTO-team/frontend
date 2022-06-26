@@ -26,7 +26,7 @@ import NavSection from '../../components/NavSection';
 import Scrollbar from '../../components/Scrollbar';
 //
 import { DocIcon } from '../../assets';
-import { sidebarAdminConfig, sidebarConfig } from './SidebarConfig';
+import { sidebarAdminConfig, sidebarConfig, sidebarGeneralConfig } from './SidebarConfig';
 
 // ----------------------------------------------------------------------
 
@@ -112,7 +112,10 @@ type DashboardSidebarProps = {
 export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }: DashboardSidebarProps) {
   const { pathname } = useLocation();
   const { user } = useAuth();
-  const [authorizeSidebarConfig, setAuthorizeSidebarConfig] = useState(sidebarConfig);
+  const [authorizeSidebarConfig, setAuthorizeSidebarConfig] = useState([
+    ...sidebarGeneralConfig,
+    ...sidebarConfig
+  ]);
   const { isCollapse, collapseClick, collapseHover, onToggleCollapse, onHoverEnter, onHoverLeave } =
     useCollapseDrawer();
 
@@ -121,7 +124,7 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }: Dash
       onCloseSidebar();
     }
     if (user?.role === AuthorizeRole.ADMIN) {
-      setAuthorizeSidebarConfig([...sidebarAdminConfig, ...sidebarConfig]);
+      setAuthorizeSidebarConfig([...sidebarGeneralConfig, ...sidebarAdminConfig, ...sidebarConfig]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, user]);
