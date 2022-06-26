@@ -28,6 +28,7 @@ import Label from '../../Label';
 import { UploadAvatar } from '../../upload';
 import countries from './countries';
 import Avatar from 'components/Avatar';
+import { updateUserInfo } from 'redux/slices/user';
 
 // ----------------------------------------------------------------------
 
@@ -37,6 +38,7 @@ type UserNewFormProps = {
     fullName: string;
     email: string;
     userName: string;
+    id: string;
   };
 };
 
@@ -57,16 +59,18 @@ export default function UserNewForm({ isEdit, currentUser }: UserNewFormProps) {
     initialValues: {
       name: currentUser?.fullName || '',
       email: currentUser?.email || '',
-      username: currentUser?.userName || ''
+      username: currentUser?.userName || '',
+      id: currentUser?.id
     },
     validationSchema: NewUserSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
       try {
-        await fakeRequest(500);
-        resetForm();
-        setSubmitting(false);
-        enqueueSnackbar(!isEdit ? 'Create success' : 'Update success', { variant: 'success' });
-        navigate(PATH_DASHBOARD.user.list);
+        await updateUserInfo(values);
+        // await fakeRequest(500);
+        // resetForm();
+        // setSubmitting(false);
+        enqueueSnackbar(isEdit ? 'Failed' : 'Failed', { variant: 'error' });
+        // navigate(PATH_DASHBOARD.user.list);
       } catch (error) {
         console.error(error);
         setSubmitting(false);
@@ -221,13 +225,15 @@ export default function UserNewForm({ isEdit, currentUser }: UserNewFormProps) {
                   />
                 </Stack>
 
-                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                  {isEdit && (
-                    <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                      Save Changes
-                    </LoadingButton>
-                  )}
-                </Box>
+                {isEdit && (
+                  <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                    {isEdit && (
+                      <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                        Save Changes
+                      </LoadingButton>
+                    )}
+                  </Box>
+                )}
               </Stack>
             </Card>
           </Grid>

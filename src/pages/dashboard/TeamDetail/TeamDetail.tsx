@@ -9,6 +9,7 @@ import useSettings from '../../../hooks/useSettings';
 import { PATH_DASHBOARD } from 'routes/paths';
 import TeamInformation from './TeamInfomation';
 import TeamMemberList from './TeamMemberList';
+import TeamMentor from './TeamMentor';
 import Page404 from 'pages/Page404';
 import { clearTeamDetail, getTeamDetail } from 'redux/slices/team';
 
@@ -44,9 +45,10 @@ const TeamDetail = () => {
             <Grid item xs={12} md={8}>
               <TeamMemberList teamDetail={teamDetail} />
             </Grid>
-
             <Grid item xs={12} md={6} lg={4}>
               <TeamInformation teamDetail={teamDetail} />
+              <br />
+              <TeamMentor teamDetail={teamDetail} />
             </Grid>
           </Grid>
         )}

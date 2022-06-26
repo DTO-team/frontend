@@ -253,12 +253,14 @@ interface AxiosResponseChild extends AxiosResponse {
   userName?: string;
   email?: string;
   statusCode: Number;
+  id?: string;
 }
 
 export async function getUserInfoById(id: string): Promise<any> {
   try {
     const response: AxiosResponseChild = await axios.get(`/v1/users/${id}`);
     return {
+      id: response.id,
       fullName: response.fullName,
       userName: response.userName,
       email: response.email,
@@ -271,6 +273,21 @@ export async function getUserInfoById(id: string): Promise<any> {
   }
 }
 
+export async function updateUserInfo(data: any): Promise<any> {
+  try {
+    const response: AxiosResponseChild = await axios.put(`/v1/students`, data);
+    return {
+      fullName: response.fullName,
+      userName: response.userName,
+      email: response.email,
+      statusCode: 200
+    };
+  } catch (error) {
+    return {
+      statusCode: 400
+    };
+  }
+}
 // ----------------------------------------------------------------------
 
 export function getCards() {
