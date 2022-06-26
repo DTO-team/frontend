@@ -1,27 +1,24 @@
-import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
-import { useState, useEffect } from 'react';
+import _, { filter } from 'lodash';
+import { useEffect, useState } from 'react';
 // material
-import { useTheme } from '@material-ui/core/styles';
 import {
-  Box,
+  Button,
   Card,
-  Table,
-  Stack,
-  Avatar,
   Checkbox,
-  TableRow,
+  Container,
+  Stack,
+  Table,
   TableBody,
   TableCell,
-  Container,
-  Typography,
   TableContainer,
-  TablePagination
+  TablePagination,
+  TableRow,
+  Typography
 } from '@material-ui/core';
-import FormDialogs from 'components/dialog/FormDialogs';
+import { useTheme } from '@material-ui/core/styles';
 // redux
+import { deleteUser } from '../../redux/slices/user';
 import { RootState, useDispatch, useSelector } from '../../redux/store';
-import { getUserList, deleteUser } from '../../redux/slices/user';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -29,17 +26,30 @@ import useSettings from '../../hooks/useSettings';
 // @types
 import { UserManager } from '../../@types/user';
 // components
+import plusFill from '@iconify/icons-eva/plus-fill';
+import Icon from '@iconify/react';
+import useAuth from 'hooks/useAuth';
+import { getTopicList } from 'redux/slices/topic';
+import { AuthorizeRole } from 'utils/enum-utils';
+import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import Page from '../../components/Page';
-import Label from '../../components/Label';
 import Scrollbar from '../../components/Scrollbar';
 import SearchNotFound from '../../components/SearchNotFound';
-import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
-import { UserListHead, UserListToolbar, UserMoreMenu } from '../../components/_dashboard/user/list';
-import { getTopicList } from 'redux/slices/topic';
+import { UserListHead, UserListToolbar } from '../../components/_dashboard/user/list';
+import TopicMoreMenu from './components/menu/TopicMoreMenu';
+import CreateTopicModal from './modals/CreateTopicModal';
+import { getTeamByStudentId } from 'redux/slices/student';
+import { createTeamApplication } from 'redux/slices/team-application';
+import { useSnackbar } from 'notistack5';
 
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [{ id: 'topicName', label: 'Topic Name', alignRight: false }, { id: '' }];
+const TABLE_HEAD = [
+  { id: 'topicName', label: 'Topic Name', alignRight: false },
+  { id: 'company', label: 'Company', alignRight: false },
+  { id: 'supervisor', label: 'Supervisor', alignRight: false },
+  { id: '' }
+];
 
 // ----------------------------------------------------------------------
 
@@ -82,19 +92,17 @@ export default function TopicList() {
   const { themeStretch } = useSettings();
   const theme = useTheme();
   const dispatch = useDispatch();
+  const { enqueueSnackbar } = useSnackbar();
 
+  const { user } = useAuth();
   const { userList } = useSelector((state: RootState) => state.user);
-  const { topic } = useSelector((state: RootState) => state);
+  const { topic, student } = useSelector((state: RootState) => state);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [selected, setSelected] = useState<string[]>([]);
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  useEffect(() => {
-    dispatch(getTopicList());
-  }, [dispatch]);
 
   const handleRequestSort = (property: string) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -142,13 +150,24 @@ export default function TopicList() {
     dispatch(deleteUser(userId));
   };
 
+  const _handleRegisterTopic = async (topicId: string) => {
+    const { teamId } = student.studentTeam;
+    const response = await createTeamApplication(teamId, topicId);
+    if (response.statusCode === 200)
+      enqueueSnackbar('Register Topic Successfully', { variant: 'success' });
+    else enqueueSnackbar('Oops! Something went wrong, try again later', { variant: 'error' });
+  };
+
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
 
   /* const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName); */
 
   const isUserNotFound = topic.topicList.length === 0;
 
-  console.log('topic: ', topic.topicList);
+  useEffect(() => {
+    dispatch(getTopicList());
+    getTeamByStudentId(user?.id);
+  }, [dispatch, user?.id]);
 
   return (
     <Page title="Topic List | DTO">
@@ -157,17 +176,17 @@ export default function TopicList() {
           heading="Topic List"
           links={[{ name: 'Dashboard', href: PATH_DASHBOARD.root }, { name: 'Topic List' }]}
           action={
-            <Box sx={{ display: 'flex' }}>
-              <FormDialogs
-                buttonContent="Create Topic"
-                title="Create a team"
-                content="Enter the team code to join &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-              />
-              <span style={{ padding: '0.5rem' }} />
-              {/* <FormDialogs /> */}
-            </Box>
+            <>
+              {user?.role !== AuthorizeRole.STUDENT && (
+                <Button variant="contained" startIcon={<Icon icon={plusFill} />} onClick={() => {}}>
+                  Create Topic
+                </Button>
+              )}
+            </>
           }
         />
+
+        <CreateTopicModal isOpen={false} onClose={() => {}} />
 
         <Card>
           <UserListToolbar
@@ -192,8 +211,9 @@ export default function TopicList() {
                   {topic.topicList
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((topic) => {
-                      const { topicId, topicName } = topic;
+                      const { topicId, topicName, companyDetail, lecturersDetails } = topic;
                       const isItemSelected = selected.indexOf(topicId) !== -1;
+                      const firstSupervisor = _.first(lecturersDetails);
 
                       return (
                         <TableRow
@@ -216,6 +236,28 @@ export default function TopicList() {
                                 {topicName}
                               </Typography>
                             </Stack>
+                          </TableCell>
+                          <TableCell component="th" scope="row" padding="none">
+                            <Stack direction="row" alignItems="center" spacing={2}>
+                              <Typography variant="subtitle2" noWrap>
+                                {companyDetail?.fullName ? companyDetail?.fullName : 'No Company!'}
+                              </Typography>
+                            </Stack>
+                          </TableCell>
+                          <TableCell component="th" scope="row" padding="none">
+                            <Stack direction="row" alignItems="center" spacing={2}>
+                              <Typography variant="subtitle2" noWrap>
+                                {firstSupervisor?.fullName
+                                  ? firstSupervisor?.fullName
+                                  : 'No supervisor!'}
+                              </Typography>
+                            </Stack>
+                          </TableCell>
+                          <TableCell align="right">
+                            <TopicMoreMenu
+                              onRegisterThisTopic={() => _handleRegisterTopic(topicId)}
+                              onViewTopicDetail={() => {}}
+                            />
                           </TableCell>
 
                           <TableCell align="right"></TableCell>

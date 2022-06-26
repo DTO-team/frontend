@@ -3,6 +3,7 @@ import filter from 'lodash/filter';
 import { dispatch } from '../store';
 import { StudentManager } from './../../@types/student';
 // utils
+import { TeamManager } from '../../@types/team';
 import axios from '../../utils/axios';
 // ----------------------------------------------------------------------
 
@@ -11,6 +12,7 @@ type StudentState = {
   error: boolean;
   studentList: StudentManager[];
   student: StudentManager;
+  studentTeam: TeamManager;
 };
 
 const studentInit: StudentManager = {
@@ -29,7 +31,23 @@ const initialState: StudentState = {
   isLoading: false,
   error: false,
   studentList: [],
-  student: studentInit
+  student: studentInit,
+  studentTeam: {
+    teamId: '',
+    teamName: '',
+    leader: {
+      id: '',
+      code: '',
+      fullName: '',
+      email: '',
+      role: '',
+      semester: '',
+      status: '',
+      avatarUrl: ''
+    },
+    totalMember: 0,
+    members: []
+  }
 };
 
 const slice = createSlice({
@@ -56,6 +74,11 @@ const slice = createSlice({
     setStudent(state, action) {
       state.isLoading = false;
       state.student = action.payload;
+    },
+
+    setStudentTeam(state, action) {
+      state.isLoading = false;
+      state.studentTeam = action.payload;
     },
 
     // DELETE USERS
@@ -93,4 +116,19 @@ export function getStudentProfile(studentId: string | undefined) {
       dispatch(slice.actions.hasError(error));
     }
   };
+}
+
+export async function getTeamByStudentId(studentId: string | undefined) {
+  dispatch(slice.actions.startLoading());
+  try {
+    const response = await axios.get(`/v1/students/${studentId}/teams`);
+    dispatch(slice.actions.setStudentTeam(response));
+    return response;
+  } catch (error: any) {
+    dispatch(slice.actions.hasError(error));
+    return {
+      statusCode: error.toString().indexOf('400') === -1 ? 500 : 400,
+      data: error
+    };
+  }
 }
