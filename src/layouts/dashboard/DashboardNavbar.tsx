@@ -13,7 +13,8 @@ import Searchbar from './Searchbar';
 import ReadFilePopOver from './ReadFilePopOver';
 import { useSelector, RootState } from 'redux/store';
 import { AuthorizeRole } from '../../utils/enum-utils';
-
+// hooks
+import useAuth from '../../hooks/useAuth';
 // ----------------------------------------------------------------------
 
 const DRAWER_WIDTH = 280;
@@ -48,7 +49,8 @@ type DashboardNavbarProps = {
 
 export default function DashboardNavbar({ onOpenSidebar }: DashboardNavbarProps) {
   const { isCollapse } = useCollapseDrawer();
-  const { myProfile: user } = useSelector((state: RootState) => state.user);
+  const { user } = useAuth();
+  console.log(user);
   return (
     <RootStyle
       sx={{
@@ -68,7 +70,7 @@ export default function DashboardNavbar({ onOpenSidebar }: DashboardNavbarProps)
         <Box sx={{ flexGrow: 1 }} />
 
         <Stack direction="row" alignItems="center" spacing={{ xs: 0.5, sm: 1.5 }}>
-          {user && user.role !== AuthorizeRole.STUDENT && <ReadFilePopOver />}
+          {user && user.role === AuthorizeRole.ADMIN && <ReadFilePopOver />}
           <NotificationsPopover />
           <AccountPopover />
         </Stack>
