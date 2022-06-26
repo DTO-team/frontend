@@ -68,7 +68,7 @@ export default function DashboardNavbar({ onOpenSidebar }: DashboardNavbarProps)
         <Box sx={{ flexGrow: 1 }} />
 
         <Stack direction="row" alignItems="center" spacing={{ xs: 0.5, sm: 1.5 }}>
-          {user?.role !== AuthorizeRole.STUDENT && <ReadFilePopOver />}
+          {user && user.role !== AuthorizeRole.STUDENT && <ReadFilePopOver />}
           <NotificationsPopover />
           <AccountPopover />
         </Stack>
