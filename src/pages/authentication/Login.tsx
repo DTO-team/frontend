@@ -57,14 +57,10 @@ const ContentStyle = styled('div')(({ theme }) => ({
 export default function Login() {
   const { method, loginWithGoogle } = useAuth();
   return (
-    <RootStyle title="Login | Minimal-UI">
+    <RootStyle title="Login | DTO">
       <AuthLayout>
-        Don’t have an account? &nbsp;
-        <Link underline="none" variant="subtitle2" component={RouterLink} to={PATH_AUTH.register}>
-          Get started
-        </Link>
+        <span></span>
       </AuthLayout>
-
       <MHidden width="mdDown">
         <SectionStyle>
           <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
@@ -79,20 +75,11 @@ export default function Login() {
           <Stack direction="row" alignItems="center" sx={{ mb: 5 }}>
             <Box sx={{ flexGrow: 1 }}>
               <Typography variant="h4" gutterBottom>
-                Sign in to Minimal
+                Sign in to DTO
               </Typography>
               <Typography sx={{ color: 'text.secondary' }}>Enter your details below.</Typography>
             </Box>
-
-            <Tooltip title={capitalCase(method)}>
-              <Box
-                component="img"
-                src={`/static/auth/ic_${method}.png`}
-                sx={{ width: 32, height: 32 }}
-              />
-            </Tooltip>
           </Stack>
-
           <Button
             fullWidth
             size="large"
@@ -103,17 +90,9 @@ export default function Login() {
               mb: 2
             }}
           >
-            <Typography sx={{ mr: 1 }}>Login using Google</Typography>
+            <Typography sx={{ mr: 1 }}>Login with Google</Typography>
             <Icon icon={googleIcon} color="#1877F2" height={24} />
           </Button>
-
-          <Alert severity="info" sx={{ mb: 3 }}>
-            Use email : <strong>demo@minimals.cc</strong> / password :
-            <strong>&nbsp;demo1234</strong>
-          </Alert>
-
-          <LoginForm />
-
           <MHidden width="smUp">
             <Typography variant="body2" align="center" sx={{ mt: 3 }}>
               Don’t have an account?&nbsp;

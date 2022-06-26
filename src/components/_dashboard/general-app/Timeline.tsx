@@ -79,7 +79,7 @@ export default function TimelineComponent() {
   }, [dispatch]);
   //
   return (
-    <RootStyle title="Components: Timeline | Minimal-UI">
+    <RootStyle>
       <Box
         sx={{
           py: 3,
