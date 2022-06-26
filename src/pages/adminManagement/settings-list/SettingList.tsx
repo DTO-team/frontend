@@ -27,21 +27,30 @@ export default function SettingList() {
           <Grid item xs={3}>
             <ItemCard
               onClick={() => _handleOpenSemesterManagement()}
-              title="Semester Management"
+              title="Semester Status Management"
               description="Management the semester status"
             />
           </Grid>
           <Grid item xs={3}>
-            <ItemCard title="Semester Management" description="Management the semester status" />
+            <ItemCard
+              onClick={() => {}}
+              title="Week Management"
+              description="Management week "
+            />
           </Grid>
           <Grid item xs={3}>
-            <ItemCard title="Semester Management" description="Management the semester status" />
+            <ItemCard
+              onClick={() => {}}
+              title="Review Semester"
+              description="Review the whole semester"
+            />
           </Grid>
           <Grid item xs={3}>
-            <ItemCard title="Semester Management" description="Management the semester status" />
-          </Grid>
-          <Grid item xs={3}>
-            <ItemCard title="Semester Management" description="Management the semester status" />
+            <ItemCard
+              onClick={() => {}}
+              title="Import topics / students"
+              description="Import topics or students for the semester"
+            />
           </Grid>
         </Grid>
       </Box>

@@ -1,6 +1,6 @@
+import eyeFill from '@iconify/icons-eva/eye-fill';
 import moreVerticalFill from '@iconify/icons-eva/more-vertical-fill';
-import checkmarkFill from '@iconify/icons-eva/checkmark-fill';
-import closeFill from '@iconify/icons-eva/close-fill';
+import paperPlaneFill from '@iconify/icons-eva/paper-plane-fill';
 import { Icon } from '@iconify/react';
 import { useRef, useState } from 'react';
 // material
@@ -9,13 +9,13 @@ import { IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from '@materia
 
 // ----------------------------------------------------------------------
 
-interface ITeamApplicationMenuProps {
-  onApprove: () => void;
-  onReject: () => void;
+interface ITopicMoreMenuProps {
+  onRegisterThisTopic: () => void;
+  onViewTopicDetail: () => void;
 }
 
-export default function TeamApplicationMenu(props: ITeamApplicationMenuProps) {
-  const { onApprove, onReject } = props;
+export default function TopicMoreMenu(props: ITopicMoreMenuProps) {
+  const { onRegisterThisTopic, onViewTopicDetail } = props;
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -35,18 +35,18 @@ export default function TeamApplicationMenu(props: ITeamApplicationMenuProps) {
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuItem onClick={onApprove} sx={{ color: 'text.secondary' }}>
+        <MenuItem onClick={onRegisterThisTopic} sx={{ color: 'text.secondary' }}>
           <ListItemIcon>
-            <Icon icon={checkmarkFill} color="green" width={24} height={24} />
+            <Icon icon={paperPlaneFill} width={24} height={24} />
           </ListItemIcon>
-          <ListItemText primary="Approve" primaryTypographyProps={{ variant: 'body2' }} />
+          <ListItemText primary="Register Topic" primaryTypographyProps={{ variant: 'body2' }} />
         </MenuItem>
 
-        <MenuItem onClick={onReject} sx={{ color: 'text.secondary' }}>
+        <MenuItem onClick={onViewTopicDetail} sx={{ color: 'text.secondary' }}>
           <ListItemIcon>
-            <Icon icon={closeFill} color="red" width={24} height={24} />
+            <Icon icon={eyeFill} width={24} height={24} />
           </ListItemIcon>
-          <ListItemText primary="Reject" primaryTypographyProps={{ variant: 'body2' }} />
+          <ListItemText primary="View Detail" primaryTypographyProps={{ variant: 'body2' }} />
         </MenuItem>
       </Menu>
     </>

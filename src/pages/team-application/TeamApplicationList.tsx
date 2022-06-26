@@ -19,23 +19,24 @@ import {
   Typography
 } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
+import AlertDialog from 'components/dialog/AlertDialog';
 import HeaderBreadcrumbs from 'components/HeaderBreadcrumbs';
 import Label, { LabelColor } from 'components/Label';
 import Page from 'components/Page';
 import Scrollbar from 'components/Scrollbar';
 import SearchNotFound from 'components/SearchNotFound';
-import { UserListHead, UserListToolbar, UserMoreMenu } from 'components/_dashboard/user/list';
+import { UserListHead, UserListToolbar } from 'components/_dashboard/user/list';
 import useSettings from 'hooks/useSettings';
 import { useSelector } from 'react-redux';
-import { deleteUser, getUserList } from 'redux/slices/user';
+import { getTeamApplicationList, updateTeamApplicationStatus } from 'redux/slices/team-application';
+import { getUserList } from 'redux/slices/user';
 import { RootState, useDispatch } from 'redux/store';
 import { PATH_DASHBOARD } from 'routes/paths';
-import { TeamApplicationStatus } from 'utils/enum-utils';
-import CreateNewApplicationModal from './modals/CreateNewApplicationModal';
-import { getTeamApplicationList, updateTeamApplicationStatus } from 'redux/slices/team-application';
-import TeamApplicationMenu from './components/menu/TeamApplicationMenu';
+import { AuthorizeRole, TeamApplicationStatus } from 'utils/enum-utils';
 import { TeamApplication } from '../../@types/application';
-import AlertDialog from 'components/dialog/AlertDialog';
+import TeamApplicationMenu from './components/menu/TeamApplicationMenu';
+import CreateNewApplicationModal from './modals/CreateNewApplicationModal';
+import useAuth from 'hooks/useAuth';
 
 /* import { UserManager } from '../../../@types/user'; */
 // redux
@@ -137,6 +138,7 @@ export default function TeamApplicationList() {
   const theme = useTheme();
   const dispatch = useDispatch();
 
+  const { user } = useAuth();
   const { userList } = useSelector((state: RootState) => state.user);
   const { application } = useSelector((state: RootState) => state);
   const [page, setPage] = useState(0);
@@ -252,7 +254,7 @@ export default function TeamApplicationList() {
               { name: 'Management' },
               { name: 'Team Applications' }
             ]}
-            action={
+            /* action={
               <Button
                 variant="contained"
                 startIcon={<Icon icon={plusFill} />}
@@ -260,9 +262,8 @@ export default function TeamApplicationList() {
               >
                 New Team Application
               </Button>
-            }
+            } */
           />
-
           <Card>
             <UserListToolbar
               numSelected={selected.length}
@@ -340,20 +341,22 @@ export default function TeamApplicationList() {
                             </TableCell>
 
                             <TableCell align="right">
-                              <TeamApplicationMenu
-                                onApprove={() => {
-                                  _handleChangeTeamApplicationStatus(
-                                    teamApplication,
-                                    TeamApplicationStatus.APPROVED
-                                  );
-                                }}
-                                onReject={() => {
-                                  _handleChangeTeamApplicationStatus(
-                                    teamApplication,
-                                    TeamApplicationStatus.REJECTED
-                                  );
-                                }}
-                              />
+                              {user?.role !== AuthorizeRole.STUDENT && (
+                                <TeamApplicationMenu
+                                  onApprove={() => {
+                                    _handleChangeTeamApplicationStatus(
+                                      teamApplication,
+                                      TeamApplicationStatus.APPROVED
+                                    );
+                                  }}
+                                  onReject={() => {
+                                    _handleChangeTeamApplicationStatus(
+                                      teamApplication,
+                                      TeamApplicationStatus.REJECTED
+                                    );
+                                  }}
+                                />
+                              )}
                             </TableCell>
                           </TableRow>
                         );

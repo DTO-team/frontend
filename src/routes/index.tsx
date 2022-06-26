@@ -113,7 +113,13 @@ export default function Router() {
             { path: ':id', element: <TeamDetail /> }
           ]
         },
-        { path: 'topics', element: <TopicList /> },
+        {
+          path: 'topics',
+          children: [
+            { path: '/', element: <TopicList /> },
+            { path: ':id', element: <TopicDetail /> }
+          ]
+        },
         {
           path: 'user',
           children: [
@@ -340,6 +346,7 @@ const CompanyList = Loadable(lazy(() => import('../pages/dashboard/CompanyList')
 const LecturerList = Loadable(lazy(() => import('../pages/dashboard/LecturerList')));
 const TeamList = Loadable(lazy(() => import('../pages/dashboard/TeamList')));
 const TopicList = Loadable(lazy(() => import('../pages/topic/TopicList')));
+const TopicDetail = Loadable(lazy(() => import('../pages/topic/topic-detail/TopicDetail')));
 const UserAccount = Loadable(lazy(() => import('../pages/dashboard/UserAccount')));
 const UserCreate = Loadable(lazy(() => import('../pages/dashboard/UserCreate')));
 const UserInfo = Loadable(lazy(() => import('../pages/dashboard/UserInfo')));
