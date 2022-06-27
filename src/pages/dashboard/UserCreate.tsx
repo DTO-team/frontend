@@ -13,7 +13,7 @@ import useSettings from '../../hooks/useSettings';
 // components
 import Page from '../../components/Page';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
-import UserNewForm from '../../components/_dashboard/user/UserNewForm';
+import UserNewForm from '../../components/_dashboard/user/UserInfoForm';
 
 // ----------------------------------------------------------------------
 

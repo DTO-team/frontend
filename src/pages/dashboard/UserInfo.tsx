@@ -13,15 +13,17 @@ import useSettings from '../../hooks/useSettings';
 // components
 import Page from '../../components/Page';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
-import UserNewForm from '../../components/_dashboard/user/UserNewForm';
+import UserInfoForm from '../../components/_dashboard/user/UserInfoForm';
 import useAuth from '../../hooks/useAuth';
 import Page500 from 'pages/Page500';
 import { AxiosResponse } from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 interface AxiosResponseChild extends AxiosResponse {
   userName: string;
   fullName: string;
   email: string;
+  id: string;
 }
 
 export default function UserCreate() {
@@ -42,7 +44,7 @@ export default function UserCreate() {
     }
   };
 
-  if (!userInfo) return <Page500 />;
+  if (!userInfo) return null;
 
   return (
     <Page title={`User: ${userInfo?.fullName} | DTO`}>
@@ -56,7 +58,7 @@ export default function UserCreate() {
           ]}
         />
 
-        <UserNewForm isEdit={id === user?.id} currentUser={userInfo} />
+        <UserInfoForm isEdit={id === user?.id} currentUser={userInfo} />
       </Container>
     </Page>
   );

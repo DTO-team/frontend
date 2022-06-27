@@ -7,6 +7,7 @@ import { styled } from '@material-ui/core/styles';
 import { Link, Card, Typography, CardHeader, Stack } from '@material-ui/core';
 import { Box } from '@material-ui/system';
 import Avatar from 'components/Avatar';
+import { useNavigate } from 'react-router-dom';
 // ----------------------------------------------------------------------
 
 const IconStyle = styled(Icon)(({ theme }) => ({
@@ -24,7 +25,7 @@ interface TeamInformationProps {
 
 export default function TeamMemberList({ teamDetail }: TeamInformationProps) {
   // const { quote, country, email, role, company, school } = profile;
-
+  const navigate = useNavigate();
   return (
     <Card>
       <CardHeader title="Team members" />
@@ -34,7 +35,16 @@ export default function TeamMemberList({ teamDetail }: TeamInformationProps) {
           teamDetail.members.length > 0 &&
           teamDetail.members.map((member: any) => (
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '175px' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  width: '175px',
+                  cursor: 'pointer'
+                }}
+                onClick={() => navigate(`/dashboard/user/profile/${member.id}`)}
+              >
                 <Avatar displayName={member.fullName} />
                 <Box>
                   <h4>{member.fullName}</h4>
