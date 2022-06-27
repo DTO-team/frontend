@@ -108,12 +108,17 @@ function AuthProvider({ children }: { children: ReactNode }) {
                 payload: { isAuthenticated: true, user: userAttribute }
               });
               axios.defaults.headers.common.Authorization = `Bearer ${response.accessToken}`;
+
               if (!sessionStorage.getItem('currentSemester')) {
                 const semesterResponse = await getSemesterList();
                 const currentSemesterData = currentSemester(semesterResponse);
                 sessionStorage.setItem('currentSemester', JSON.stringify(currentSemesterData));
+                axios.defaults.headers.common['currentSemester'] =
+                  sessionStorage.getItem('currentSemester');
                 rootStoreDispatch(setSelectedSemester(currentSemesterData));
               } else {
+                axios.defaults.headers.common['currentSemester'] =
+                  sessionStorage.getItem('currentSemester');
                 await getSemesterList();
                 rootStoreDispatch(setSelectedSemester(JSON.parse(sessionStorage.currentSemester)));
               }
@@ -213,6 +218,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
     const user = await Auth.currentAuthenticatedUser();
     if (user) {
       Auth.signOut();
+      sessionStorage.clear();
       dispatch({ type: Types.logout });
     }
   };

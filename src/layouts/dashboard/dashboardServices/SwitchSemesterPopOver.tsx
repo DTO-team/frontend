@@ -1,10 +1,9 @@
 import { FormControl, MenuItem, Select } from '@material-ui/core';
 import _ from 'lodash';
-import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getSemesterList, setSelectedSemester } from 'redux/slices/management';
+import { setSelectedSemester } from 'redux/slices/management';
 import { RootState } from 'redux/store';
-import { currentSemester } from 'utils/currentSemester';
+import axiosInstance from 'utils/axios';
 
 export default function SwitchSemesterPopOver() {
   const dispatch = useDispatch();
