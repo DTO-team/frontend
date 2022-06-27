@@ -111,7 +111,10 @@ export default function SemesterListModal(props: ISemesterListModalProps) {
   };
 
   useEffect(() => {
-    dispatch(getSemesterList());
+    async function getData() {
+      await getSemesterList();
+    }
+    getData();
   }, [dispatch]);
 
   return (
