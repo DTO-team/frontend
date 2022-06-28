@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { Semester } from '../../@types/management';
 import axiosInstance from 'utils/axios';
+import { Semester } from '../../@types/management';
 // utils
 import { dispatch } from '../store';
 
@@ -10,12 +10,19 @@ type ManagementState = {
   isLoading: boolean;
   error: boolean;
   semesters: Semester[];
+  selectedSemester: Semester;
 };
 
 const initialState: ManagementState = {
   isLoading: false,
   error: false,
-  semesters: []
+  semesters: [],
+  selectedSemester: {
+    id: '',
+    year: 0,
+    season: '',
+    status: 0
+  }
 };
 
 const slice = createSlice({
@@ -33,10 +40,14 @@ const slice = createSlice({
       state.error = action.payload;
     },
 
-    // SET TOKEN
     setSemesters(state, action) {
       state.isLoading = false;
       state.semesters = action.payload;
+    },
+
+    setSelectedSemester(state, action) {
+      state.isLoading = false;
+      state.selectedSemester = action.payload;
     }
   }
 });
@@ -45,21 +56,20 @@ const slice = createSlice({
 export default slice.reducer;
 
 // Actions
-/* export const {} = slice.actions; */
+export const { setSelectedSemester } = slice.actions;
 
 // ----------------------------------------------------------------------
 
-export function getSemesterList() {
-  return async () => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axiosInstance.get('v1/semesters');
-      dispatch(slice.actions.setSemesters(response));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-      console.log(error);
-    }
-  };
+export async function getSemesterList() {
+  dispatch(slice.actions.startLoading());
+  try {
+    const response = await axiosInstance.get('v1/semesters');
+    dispatch(slice.actions.setSemesters(response));
+    return response;
+  } catch (error) {
+    dispatch(slice.actions.hasError(error));
+    console.log(error);
+  }
 }
 
 export function updateSemesterStatus(payload: any) {
@@ -67,7 +77,7 @@ export function updateSemesterStatus(payload: any) {
   return async () => {
     try {
       await axiosInstance.put(`v1/semesters/${id}`, payload);
-      dispatch(getSemesterList());
+      await getSemesterList();
     } catch (error) {
       console.log(error);
     }

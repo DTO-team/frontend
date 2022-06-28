@@ -1,13 +1,17 @@
 /* eslint-disable no-use-before-define */
 import { CognitoHostedUIIdentityProvider } from '@aws-amplify/auth';
+
 import Amplify, { Auth } from 'aws-amplify';
 import { createContext, ReactNode, useCallback, useEffect, useReducer } from 'react';
 // @types
-import { ActionMap, AuthState, AuthUser, AWSCognitoContextType } from '../@types/authentication';
 import { AccountSession } from '../@types/account';
+import { ActionMap, AuthState, AuthUser, AWSCognitoContextType } from '../@types/authentication';
 //
 import { awsConfig } from '../config';
 // utils
+import { useDispatch } from 'react-redux';
+import { getSemesterList, setSelectedSemester } from 'redux/slices/management';
+import { currentSemester } from 'utils/currentSemester';
 import axios from '../utils/axios';
 
 // ----------------------------------------------------------------------
@@ -61,6 +65,7 @@ const AuthContext = createContext<AWSCognitoContextType | null>(null);
 
 function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  const rootStoreDispatch = useDispatch();
 
   /* const getUserAttributes = useCallback(
     (currentUser: CognitoUser): Record<string, any> =>
@@ -103,6 +108,20 @@ function AuthProvider({ children }: { children: ReactNode }) {
                 payload: { isAuthenticated: true, user: userAttribute }
               });
               axios.defaults.headers.common.Authorization = `Bearer ${response.accessToken}`;
+
+              if (!sessionStorage.getItem('currentSemester')) {
+                const semesterResponse = await getSemesterList();
+                const currentSemesterData = currentSemester(semesterResponse);
+                sessionStorage.setItem('currentSemester', JSON.stringify(currentSemesterData));
+                axios.defaults.headers.common['currentSemester'] =
+                  sessionStorage.getItem('currentSemester');
+                rootStoreDispatch(setSelectedSemester(currentSemesterData));
+              } else {
+                axios.defaults.headers.common['currentSemester'] =
+                  sessionStorage.getItem('currentSemester');
+                await getSemesterList();
+                rootStoreDispatch(setSelectedSemester(JSON.parse(sessionStorage.currentSemester)));
+              }
             } catch (error) {
               console.log('Failed to get session: ', error);
               dispatch({
@@ -137,7 +156,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
         }
       });
     }
-  }, [state.isAuthenticated]);
+  }, [state.isAuthenticated, rootStoreDispatch]);
 
   const initial = useCallback(async () => {
     try {
@@ -199,6 +218,7 @@ function AuthProvider({ children }: { children: ReactNode }) {
     const user = await Auth.currentAuthenticatedUser();
     if (user) {
       Auth.signOut();
+      sessionStorage.clear();
       dispatch({ type: Types.logout });
     }
   };

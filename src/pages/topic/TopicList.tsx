@@ -96,7 +96,7 @@ export default function TopicList() {
 
   const { user } = useAuth();
   const { userList } = useSelector((state: RootState) => state.user);
-  const { topic, student } = useSelector((state: RootState) => state);
+  const { topic, student, management } = useSelector((state: RootState) => state);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [selected, setSelected] = useState<string[]>([]);
@@ -118,6 +118,7 @@ export default function TopicList() {
     }
     setSelected([]);
   };
+
 
   const handleClick = (name: string) => {
     const selectedIndex = selected.indexOf(name);
@@ -256,7 +257,7 @@ export default function TopicList() {
                           <TableCell align="right">
                             <TopicMoreMenu
                               onRegisterThisTopic={() => _handleRegisterTopic(topicId)}
-                              onViewTopicDetail={() => {}}
+                              topicId={topicId}
                             />
                           </TableCell>
 

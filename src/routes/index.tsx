@@ -117,7 +117,7 @@ export default function Router() {
           path: 'topics',
           children: [
             { path: '/', element: <TopicList /> },
-            { path: ':id', element: <TopicDetail /> }
+            { path: ':topicId', element: <TopicDetail /> }
           ]
         },
         {

@@ -9,12 +9,20 @@ type TopicState = {
   isLoading: boolean;
   error: boolean;
   topicList: ITopicDetail[];
+  topicDetail: ITopicDetail;
 };
 
 const initialState: TopicState = {
   isLoading: false,
   error: false,
-  topicList: []
+  topicList: [],
+  topicDetail: {
+    topicId: '',
+    topicName: '',
+    description: '',
+    companyDetail: undefined,
+    lecturersDetails: []
+  }
 };
 
 const slice = createSlice({
@@ -35,6 +43,11 @@ const slice = createSlice({
     setTopicList(state, action) {
       state.isLoading = false;
       state.topicList = action.payload;
+    },
+
+    setTopicDetail(state, action) {
+      state.isLoading = false;
+      state.topicDetail = action.payload;
     }
   }
 });
@@ -54,4 +67,14 @@ export function getTopicList() {
       dispatch(slice.actions.hasError(error));
     }
   };
+}
+
+export async function getTopicDetail(topicId: string) {
+  dispatch(slice.actions.startLoading());
+  try {
+    const response = await axios.get(`/v1/topics/${topicId}`);
+    dispatch(slice.actions.setTopicDetail(response));
+  } catch (error) {
+    dispatch(slice.actions.hasError(error));
+  }
 }

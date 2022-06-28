@@ -75,7 +75,10 @@ export default function TimelineComponent() {
   const dispatch = useDispatch();
   //
   useEffect(() => {
-    dispatch(getSemesterList());
+    async function getData() {
+      await getSemesterList();
+    }
+    getData();
   }, [dispatch]);
   //
   return (

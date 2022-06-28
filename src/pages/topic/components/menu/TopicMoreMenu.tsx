@@ -3,19 +3,22 @@ import moreVerticalFill from '@iconify/icons-eva/more-vertical-fill';
 import paperPlaneFill from '@iconify/icons-eva/paper-plane-fill';
 import { Icon } from '@iconify/react';
 import { useRef, useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 // material
 import { IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from '@material-ui/core';
+import { paramCase } from 'change-case';
+import { PATH_DASHBOARD } from 'routes/paths';
 // routes
 
 // ----------------------------------------------------------------------
 
 interface ITopicMoreMenuProps {
   onRegisterThisTopic: () => void;
-  onViewTopicDetail: () => void;
+  topicId: string;
 }
 
 export default function TopicMoreMenu(props: ITopicMoreMenuProps) {
-  const { onRegisterThisTopic, onViewTopicDetail } = props;
+  const { onRegisterThisTopic, topicId } = props;
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -42,7 +45,11 @@ export default function TopicMoreMenu(props: ITopicMoreMenuProps) {
           <ListItemText primary="Register Topic" primaryTypographyProps={{ variant: 'body2' }} />
         </MenuItem>
 
-        <MenuItem onClick={onViewTopicDetail} sx={{ color: 'text.secondary' }}>
+        <MenuItem
+          sx={{ color: 'text.secondary' }}
+          component={RouterLink}
+          to={`${PATH_DASHBOARD.fptuCapstone.topics}/${paramCase(topicId)}`}
+        >
           <ListItemIcon>
             <Icon icon={eyeFill} width={24} height={24} />
           </ListItemIcon>
