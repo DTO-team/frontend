@@ -30,6 +30,7 @@ const TeamDetail = () => {
 
   useEffect(() => {
     dispatch(getLecturerList());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teamDetail]);
 
   //   if (!teamDetail) return <Page404 />;
