@@ -3,7 +3,6 @@ import _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedSemester } from 'redux/slices/management';
 import { RootState } from 'redux/store';
-import axiosInstance from 'utils/axios';
 
 export default function SwitchSemesterPopOver() {
   const dispatch = useDispatch();

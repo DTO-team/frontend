@@ -19,8 +19,6 @@ interface TeamInformationProps {
   teamDetail: any;
 }
 export default function TeamInformation({ teamDetail }: TeamInformationProps) {
-  console.log(teamDetail);
-
   return (
     <Card>
       <CardHeader

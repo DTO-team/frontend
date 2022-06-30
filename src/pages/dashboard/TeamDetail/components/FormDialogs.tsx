@@ -19,7 +19,6 @@ import { useSnackbar } from 'notistack5';
 import { callAPIForCreateNewTeam, callAPIForJoinTeam } from '_apis_/team';
 import { useNavigate } from 'react-router-dom';
 import { LoadingButton } from '@material-ui/lab';
-
 import { useSelector } from 'react-redux';
 import { RootState } from 'redux/store';
 import useAuth from 'hooks/useAuth';

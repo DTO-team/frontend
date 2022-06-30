@@ -5,17 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Form, FormikProvider, useFormik } from 'formik';
 // material
 import { LoadingButton } from '@material-ui/lab';
-import {
-  Box,
-  Card,
-  Grid,
-  Stack,
-  Switch,
-  TextField,
-  Typography,
-  FormHelperText,
-  FormControlLabel
-} from '@material-ui/core';
+import { Box, Card, Grid, Stack, TextField, Typography } from '@material-ui/core';
 // utils
 import { fData } from '../../../utils/formatNumber';
 import fakeRequest from '../../../utils/fakeRequest';
@@ -28,7 +18,9 @@ import Label from '../../Label';
 import { UploadAvatar } from '../../upload';
 import countries from './countries';
 import Avatar from 'components/Avatar';
-import { updateUserInfo } from 'redux/slices/user';
+import { updateUserInfo, updateLecturerInfo } from 'redux/slices/user';
+import useAuth from 'hooks/useAuth';
+import { AuthorizeRole } from 'utils/enum-utils';
 
 // ----------------------------------------------------------------------
 
@@ -45,14 +37,13 @@ type UserNewFormProps = {
 export default function UserNewForm({ isEdit, currentUser }: UserNewFormProps) {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
+  const { user } = useAuth();
 
   const NewUserSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     email: Yup.string().required('Email is required').email(),
     username: Yup.string().required('Username is required')
   });
-
-  console.log(currentUser);
 
   const formik = useFormik({
     enableReinitialize: true,
@@ -65,12 +56,20 @@ export default function UserNewForm({ isEdit, currentUser }: UserNewFormProps) {
     validationSchema: NewUserSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
       try {
-        await updateUserInfo(values);
-        // await fakeRequest(500);
-        // resetForm();
-        // setSubmitting(false);
-        enqueueSnackbar(isEdit ? 'Failed' : 'Failed', { variant: 'error' });
-        // navigate(PATH_DASHBOARD.user.list);
+        let statusCode;
+        if (user?.role === AuthorizeRole.STUDENT) {
+          const { statusCode: statusCodeStudent } = await updateUserInfo(values);
+          statusCode = statusCodeStudent;
+        } else {
+          const { statusCode: statusCodeLecturer } = await updateLecturerInfo(values);
+          statusCode = statusCodeLecturer;
+        }
+        enqueueSnackbar(statusCode === 200 ? 'Updated successfully' : 'Failed to update', {
+          variant: statusCode === 200 ? 'success' : 'error'
+        });
+        if (statusCode === 200) {
+          window.location.reload();
+        }
       } catch (error) {
         console.error(error);
         setSubmitting(false);
@@ -126,69 +125,7 @@ export default function UserNewForm({ isEdit, currentUser }: UserNewFormProps) {
                 <Typography variant="h5" sx={{ marginTop: '1rem' }}>
                   {currentUser?.fullName}
                 </Typography>
-                {/* <UploadAvatar
-                  accept="image/*"
-                  file={null}
-                  maxSize={3145728}
-                  onDrop={handleDrop}
-                  caption={
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        mt: 2,
-                        mx: 'auto',
-                        display: 'block',
-                        textAlign: 'center',
-                        color: 'text.secondary'
-                      }}
-                    >
-                      Allowed *.jpeg, *.jpg, *.png, *.gif
-                      <br /> max size of {fData(3145728)}
-                    </Typography>
-                  }
-                /> */}
               </Box>
-
-              {/* {isEdit && (
-                <FormControlLabel
-                  labelPlacement="start"
-                  control={
-                    <Switch
-                      onChange={(event) =>
-                        setFieldValue('status', event.target.checked ? 'banned' : 'active')
-                      }
-                      checked={values.status !== 'active'}
-                    />
-                  }
-                  label={
-                    <>
-                      <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                        Banned
-                      </Typography>
-                      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        Apply disable account
-                      </Typography>
-                    </>
-                  }
-                  sx={{ mx: 0, mb: 3, width: 1, justifyContent: 'space-between' }}
-                />
-              )} */}
-
-              {/* <FormControlLabel
-                labelPlacement="start"
-                control={<Switch {...getFieldProps('isVerified')} checked={values.isVerified} />}
-                label={
-                  <>
-                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                      Email Verified
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Disabling this will automatically send the user a verification email
-                    </Typography>
-                  </>
-                }
-                sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
-              /> */}
             </Card>
           </Grid>
 
@@ -198,7 +135,7 @@ export default function UserNewForm({ isEdit, currentUser }: UserNewFormProps) {
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
                   <TextField
                     fullWidth
-                    disabled={!isEdit}
+                    disabled={!isEdit || user?.role === AuthorizeRole.ADMIN}
                     label="Full Name"
                     {...getFieldProps('name')}
                     error={Boolean(touched.name && errors.name)}
@@ -206,7 +143,7 @@ export default function UserNewForm({ isEdit, currentUser }: UserNewFormProps) {
                   />
                   <TextField
                     fullWidth
-                    disabled={!isEdit}
+                    disabled={true}
                     label="Email Address"
                     {...getFieldProps('email')}
                     error={Boolean(touched.email && errors.email)}
@@ -217,7 +154,7 @@ export default function UserNewForm({ isEdit, currentUser }: UserNewFormProps) {
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 3, sm: 2 }}>
                   <TextField
                     fullWidth
-                    disabled={!isEdit}
+                    disabled={!isEdit || user?.role === AuthorizeRole.ADMIN}
                     label="Username"
                     {...getFieldProps('username')}
                     error={Boolean(touched.username && errors.username)}
@@ -225,7 +162,7 @@ export default function UserNewForm({ isEdit, currentUser }: UserNewFormProps) {
                   />
                 </Stack>
 
-                {isEdit && (
+                {isEdit && user?.role !== AuthorizeRole.ADMIN && (
                   <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
                     {isEdit && (
                       <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
