@@ -54,7 +54,7 @@ export default function FormDialogs({
   const [mentors, setMentors] = useState({
     mentorId: [],
     newLecturerId: [],
-    projectId: teamDetail.teamId
+    projectId: teamDetail.projectId
   });
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
