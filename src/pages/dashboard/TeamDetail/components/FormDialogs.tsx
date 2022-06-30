@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 // material
 import {
   Button,
@@ -16,7 +16,11 @@ import {
 } from '@material-ui/core';
 import _ from 'lodash';
 import { useSnackbar } from 'notistack5';
-import { callAPIForCreateNewTeam, callAPIForJoinTeam } from '_apis_/team';
+import {
+  callAPIForCreateNewTeam,
+  callAPIForJoinTeam,
+  callAPIForUpdateTeamMentor
+} from '_apis_/team';
 import { useNavigate } from 'react-router-dom';
 import { LoadingButton } from '@material-ui/lab';
 import { useSelector } from 'react-redux';
@@ -44,11 +48,13 @@ export default function FormDialogs({
   inputPlaceholder
 }: FormDialogsProps) {
   const { lecturerList } = useSelector((state: RootState) => state.lecturer);
+  const ref = useRef(0);
   const { user } = useAuth();
 
   const [mentors, setMentors] = useState({
     mentorId: [],
-    newLecturerId: []
+    newLecturerId: [],
+    projectId: teamDetail.teamId
   });
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
@@ -73,35 +79,26 @@ export default function FormDialogs({
     setOpen(false);
   };
 
-  const handleChangeMentor = (e: any) => {
-    console.log(e);
+  const handleChangeMentor = (data: any) => {
+    setMentors({
+      ...mentors,
+      newLecturerId: data.map((mentor: any) => mentor.id)
+    });
   };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    if (id === 'createTeam') {
-      const { statusCode, data } = await callAPIForCreateNewTeam(text);
-      console.log(statusCode, data);
-      if (statusCode === 201) {
-        enqueueSnackbar('Create successfully!');
-        setOpen(false);
-        navigate(data.teamId, { replace: true });
-      } else if (statusCode === 400) {
-        enqueueSnackbar('You already in another class!');
-      } else {
-        enqueueSnackbar('Something went wrong, try again!');
-      }
+    if (ref.current === 0) {
+      ref.current = 1;
+      return;
     }
-    if (id === 'joinTeam') {
-      const { statusCode, data } = await callAPIForJoinTeam('add', '/student', text);
+    if (ref.current !== 0) {
+      const { statusCode } = await callAPIForUpdateTeamMentor(mentors);
       if (statusCode === 200) {
-        enqueueSnackbar('Create successfully!');
-        setOpen(false);
-        navigate(data.teamId, { replace: true });
-      } else if (statusCode === 400) {
-        enqueueSnackbar('You already in another class!');
+        enqueueSnackbar('Update successfully!', { variant: 'success' });
+        window.location.reload();
       } else {
-        enqueueSnackbar('Something went wrong, try again!');
+        enqueueSnackbar('Something went wrong!', { variant: 'error' });
       }
     }
   };
@@ -115,7 +112,7 @@ export default function FormDialogs({
             loading={false}
             onClick={handleClickOpen}
           >
-            Update mentor (developing)
+            Update mentor
           </LoadingButton>
           <Dialog open={open} onClose={handleClose}>
             <DialogTitle>{title}</DialogTitle>
