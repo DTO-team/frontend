@@ -12,6 +12,7 @@ import TeamMemberList from './TeamMemberList';
 import TeamMentor from './TeamMentor';
 import Page404 from 'pages/Page404';
 import { clearTeamDetail, getTeamDetail } from 'redux/slices/team';
+import { getLecturerList } from 'redux/slices/lecturer';
 
 const TeamDetail = () => {
   let { id } = useParams();
@@ -26,6 +27,10 @@ const TeamDetail = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  useEffect(() => {
+    dispatch(getLecturerList());
+  }, [teamDetail]);
 
   //   if (!teamDetail) return <Page404 />;
 
