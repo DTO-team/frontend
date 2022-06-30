@@ -275,7 +275,29 @@ export async function getUserInfoById(id: string): Promise<any> {
 
 export async function updateUserInfo(data: any): Promise<any> {
   try {
-    const response: AxiosResponseChild = await axios.put(`/v1/students`, data);
+    const response: AxiosResponseChild = await axios.put(`/v1/students/${data.id}`, {
+      fullName: data.name || '',
+      userName: data.username || ''
+    });
+    return {
+      fullName: response.fullName,
+      userName: response.userName,
+      email: response.email,
+      statusCode: 200
+    };
+  } catch (error) {
+    return {
+      statusCode: 400
+    };
+  }
+}
+
+export async function updateLecturerInfo(data: any): Promise<any> {
+  try {
+    const response: AxiosResponseChild = await axios.put(`/v1/lecturers/${data.id}`, {
+      fullName: data.name || '',
+      userName: data.username || ''
+    });
     return {
       fullName: response.fullName,
       userName: response.userName,
