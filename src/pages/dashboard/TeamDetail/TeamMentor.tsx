@@ -1,10 +1,7 @@
 import { Icon } from '@iconify/react';
 import pinFill from '@iconify/icons-eva/pin-fill';
-import emailFill from '@iconify/icons-eva/email-fill';
-import roundBusinessCenter from '@iconify/icons-ic/round-business-center';
 // material
 import { styled } from '@material-ui/core/styles';
-import { LoadingButton } from '@material-ui/lab';
 import { Link, Card, Typography, CardHeader, Stack, Box } from '@material-ui/core';
 import FormDialogs from './components/FormDialogs';
 // ----------------------------------------------------------------------
@@ -30,7 +27,7 @@ export default function TeamInformation({ teamDetail }: TeamInformationProps) {
       />
 
       <Stack spacing={2} sx={{ p: 3 }}>
-        {teamDetail.mentors && teamDetail.mentors.length && (
+        {teamDetail?.mentors.length ? (
           <>
             <Stack direction="row">
               <IconStyle icon={pinFill} />
@@ -55,17 +52,20 @@ export default function TeamInformation({ teamDetail }: TeamInformationProps) {
             </Stack>
             <Stack>
               <Box sx={{ mt: 0, display: 'flex' }}>
-                <FormDialogs
-                  id={'addMentor'}
-                  buttonContent="Add Mentor"
-                  title="Add mentor for team"
-                  inputPlaceholder="Team name:"
-                  content="Choose mentor for team:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-                />
+                {teamDetail && teamDetail?.isApplicationApprove && (
+                  <FormDialogs
+                    teamDetail={teamDetail}
+                    id={'update'}
+                    buttonContent="Add Mentor"
+                    title="Add mentor for team"
+                    inputPlaceholder="Team name:"
+                    content="Choose mentor for team:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+                  />
+                )}
               </Box>
             </Stack>
           </>
-        )}
+        ) : null}
       </Stack>
     </Card>
   );

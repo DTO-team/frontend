@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 // material
 import {
   Button,
@@ -10,11 +10,17 @@ import {
   DialogContentText,
   FormControl,
   MenuItem,
-  Select
+  Select,
+  Autocomplete,
+  Stack
 } from '@material-ui/core';
 import _ from 'lodash';
 import { useSnackbar } from 'notistack5';
-import { callAPIForCreateNewTeam, callAPIForJoinTeam } from '_apis_/team';
+import {
+  callAPIForCreateNewTeam,
+  callAPIForJoinTeam,
+  callAPIForUpdateTeamMentor
+} from '_apis_/team';
 import { useNavigate } from 'react-router-dom';
 import { LoadingButton } from '@material-ui/lab';
 import { useSelector } from 'react-redux';
@@ -25,6 +31,7 @@ import { AuthorizeRole } from 'utils/enum-utils';
 // ----------------------------------------------------------------------
 
 interface FormDialogsProps {
+  teamDetail?: any;
   buttonContent: string;
   title: string;
   content?: string;
@@ -33,6 +40,7 @@ interface FormDialogsProps {
 }
 
 export default function FormDialogs({
+  teamDetail,
   buttonContent,
   title,
   content,
@@ -40,11 +48,28 @@ export default function FormDialogs({
   inputPlaceholder
 }: FormDialogsProps) {
   const { lecturerList } = useSelector((state: RootState) => state.lecturer);
+  const ref = useRef(0);
   const { user } = useAuth();
+
+  const [mentors, setMentors] = useState({
+    mentorId: [],
+    newLecturerId: [],
+    projectId: teamDetail.teamId
+  });
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   let navigate = useNavigate();
+
+  useEffect(() => {
+    if (teamDetail && teamDetail.mentors.length > 0) {
+      setMentors({
+        ...mentors,
+        mentorId: teamDetail.mentors.map((mentor: any) => mentor.id)
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [teamDetail]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -54,35 +79,26 @@ export default function FormDialogs({
     setOpen(false);
   };
 
-  const handleChangeMentor = (e: any) => {
-    console.log(e);
+  const handleChangeMentor = (data: any) => {
+    setMentors({
+      ...mentors,
+      newLecturerId: data.map((mentor: any) => mentor.id)
+    });
   };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    if (id === 'createTeam') {
-      const { statusCode, data } = await callAPIForCreateNewTeam(text);
-      console.log(statusCode, data);
-      if (statusCode === 201) {
-        enqueueSnackbar('Create successfully!');
-        setOpen(false);
-        navigate(data.teamId, { replace: true });
-      } else if (statusCode === 400) {
-        enqueueSnackbar('You already in another class!');
-      } else {
-        enqueueSnackbar('Something went wrong, try again!');
-      }
+    if (ref.current === 0) {
+      ref.current = 1;
+      return;
     }
-    if (id === 'joinTeam') {
-      const { statusCode, data } = await callAPIForJoinTeam('add', '/student', text);
+    if (ref.current !== 0) {
+      const { statusCode } = await callAPIForUpdateTeamMentor(mentors);
       if (statusCode === 200) {
-        enqueueSnackbar('Create successfully!');
-        setOpen(false);
-        navigate(data.teamId, { replace: true });
-      } else if (statusCode === 400) {
-        enqueueSnackbar('You already in another class!');
+        enqueueSnackbar('Update successfully!', { variant: 'success' });
+        window.location.reload();
       } else {
-        enqueueSnackbar('Something went wrong, try again!');
+        enqueueSnackbar('Something went wrong!', { variant: 'error' });
       }
     }
   };
@@ -96,29 +112,28 @@ export default function FormDialogs({
             loading={false}
             onClick={handleClickOpen}
           >
-            Update mentor (developing)
+            Update mentor
           </LoadingButton>
           <Dialog open={open} onClose={handleClose}>
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
               <DialogContentText>{content}</DialogContentText>
               <FormControl fullWidth>
-                <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  defaultValue={JSON.stringify(lecturerList[0].fullName)}
-                  onChange={(event) => handleChangeMentor(event)}
-                >
-                  {_.map(lecturerList, (lecturer) => {
-                    const { id, fullName } = lecturer;
-
-                    return (
-                      <MenuItem key={id} value={JSON.stringify(lecturer.fullName)}>
-                        {fullName}
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
+                <Autocomplete
+                  multiple
+                  id="update-mentor"
+                  options={lecturerList}
+                  getOptionLabel={(option) => option.fullName}
+                  defaultValue={teamDetail.mentors.map((lecturer: any) => ({
+                    fullName: lecturer.fullName,
+                    id: lecturer.id
+                  }))}
+                  onChange={(event: any, value) => handleChangeMentor(value)}
+                  filterSelectedOptions
+                  renderInput={(params) => (
+                    <TextField {...params} label="Update mentor" placeholder="Add more mentor" />
+                  )}
+                />
               </FormControl>
             </DialogContent>
             <DialogActions>
@@ -126,7 +141,7 @@ export default function FormDialogs({
                 Cancel
               </Button>
               <Button onClick={handleSubmit} variant="contained" type="submit">
-                {id === 'addMentor' ? 'Add' : 'Remove'}
+                {id === 'update' ? 'Update' : 'Remove'}
               </Button>
             </DialogActions>
           </Dialog>
