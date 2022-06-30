@@ -25,6 +25,20 @@ export const callAPIForCreateNewTeam = async (teamName: string): Promise<StatusC
   }
 };
 
+export const callAPIForUpdateTeamMentor = async (teamName: string): Promise<StatusCode> => {
+  try {
+    const result: AxiosResponseChild = await axios.patch('/v1/teams/mentor', {
+      teamName
+    });
+    return { statusCode: 201, data: result };
+  } catch (error) {
+    return {
+      statusCode: error.toString().indexOf('400') === -1 ? 500 : 400,
+      data: error
+    };
+  }
+};
+
 export const callAPIForJoinTeam = async (
   op: string,
   path: string,
