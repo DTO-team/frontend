@@ -24,6 +24,7 @@ interface AxiosResponseChild extends AxiosResponse {
   fullName: string;
   email: string;
   id: string;
+  avatarUrl: string;
 }
 
 export default function UserCreate() {

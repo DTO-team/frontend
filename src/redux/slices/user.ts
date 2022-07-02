@@ -252,6 +252,7 @@ interface AxiosResponseChild extends AxiosResponse {
   fullName?: string;
   userName?: string;
   email?: string;
+  avatarUrl?: string;
   statusCode: Number;
   id?: string;
 }
@@ -264,6 +265,7 @@ export async function getUserInfoById(id: string): Promise<any> {
       fullName: response.fullName,
       userName: response.userName,
       email: response.email,
+      avatarUrl: response.avatarUrl,
       statusCode: 200
     };
   } catch (error) {
@@ -277,7 +279,8 @@ export async function updateUserInfo(data: any): Promise<any> {
   try {
     const response: AxiosResponseChild = await axios.put(`/v1/students/${data.id}`, {
       fullName: data.name || '',
-      userName: data.username || ''
+      userName: data.username || '',
+      avatarUrl: data.avatarUrl || ''
     });
     return {
       fullName: response.fullName,
@@ -296,7 +299,8 @@ export async function updateLecturerInfo(data: any): Promise<any> {
   try {
     const response: AxiosResponseChild = await axios.put(`/v1/lecturers/${data.id}`, {
       fullName: data.name || '',
-      userName: data.username || ''
+      userName: data.username || '',
+      avatarUrl: data.avatarUrl || ''
     });
     return {
       fullName: response.fullName,

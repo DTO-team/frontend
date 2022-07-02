@@ -18,6 +18,7 @@ export type AuthUser = null | {
   role: string;
   statusId: number;
   photoURL?: string | null;
+  avatarUrl?: string | null;
   phoneNumber?: string | null;
   country?: string | null;
   address?: string | null;

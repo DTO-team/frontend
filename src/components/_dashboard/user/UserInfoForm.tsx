@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Form, FormikProvider, useFormik } from 'formik';
 // material
 import { LoadingButton } from '@material-ui/lab';
-import { Box, Card, Grid, Stack, TextField, Typography } from '@material-ui/core';
+import { Box, Card, Grid, Stack, TextField, Typography, FormHelperText } from '@material-ui/core';
 // utils
 import { fData } from '../../../utils/formatNumber';
 import fakeRequest from '../../../utils/fakeRequest';
@@ -21,6 +21,7 @@ import Avatar from 'components/Avatar';
 import { updateUserInfo, updateLecturerInfo } from 'redux/slices/user';
 import useAuth from 'hooks/useAuth';
 import { AuthorizeRole } from 'utils/enum-utils';
+import { setStorage } from 'firebase/methods/setStorage';
 
 // ----------------------------------------------------------------------
 
@@ -31,6 +32,7 @@ type UserNewFormProps = {
     email: string;
     userName: string;
     id: string;
+    avatarUrl: any;
   };
 };
 
@@ -45,23 +47,41 @@ export default function UserNewForm({ isEdit, currentUser }: UserNewFormProps) {
     username: Yup.string().required('Username is required')
   });
 
+  console.log(currentUser?.avatarUrl);
+
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
       name: currentUser?.fullName || '',
       email: currentUser?.email || '',
       username: currentUser?.userName || '',
-      id: currentUser?.id
+      id: currentUser?.id,
+      avatarUrl: currentUser?.avatarUrl || ''
     },
     validationSchema: NewUserSchema,
     onSubmit: async (values, { setSubmitting, resetForm, setErrors }) => {
       try {
         let statusCode;
+        let url;
+        const { uploadAvatar } = setStorage();
+
+        if (values.avatarUrl && values.avatarUrl.file) {
+          url = await uploadAvatar(currentUser?.id, values.avatarUrl.file);
+        }
+
+        console.log(url);
+
         if (user?.role === AuthorizeRole.STUDENT) {
-          const { statusCode: statusCodeStudent } = await updateUserInfo(values);
+          const { statusCode: statusCodeStudent } = await updateUserInfo({
+            ...values,
+            avatarUrl: url
+          });
           statusCode = statusCodeStudent;
         } else {
-          const { statusCode: statusCodeLecturer } = await updateLecturerInfo(values);
+          const { statusCode: statusCodeLecturer } = await updateLecturerInfo({
+            ...values,
+            avatarUrl: url
+          });
           statusCode = statusCodeLecturer;
         }
         enqueueSnackbar(statusCode === 200 ? 'Updated successfully' : 'Failed to update', {
@@ -86,7 +106,7 @@ export default function UserNewForm({ isEdit, currentUser }: UserNewFormProps) {
       const file = acceptedFiles[0];
       if (file) {
         setFieldValue('avatarUrl', {
-          ...file,
+          file,
           preview: URL.createObjectURL(file)
         });
       }
@@ -118,10 +138,40 @@ export default function UserNewForm({ isEdit, currentUser }: UserNewFormProps) {
                   flexDirection: 'column'
                 }}
               >
-                <Avatar
-                  displayName={currentUser?.fullName}
-                  sx={{ height: '144px', width: '144px' }}
-                />
+                {isEdit && user?.role !== AuthorizeRole.ADMIN ? (
+                  <UploadAvatar
+                    accept="image/*"
+                    file={values.avatarUrl}
+                    maxSize={3145728}
+                    onDrop={handleDrop}
+                    error={Boolean(touched.avatarUrl && errors.avatarUrl)}
+                    caption={
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          mt: 2,
+                          mx: 'auto',
+                          display: 'block',
+                          textAlign: 'center',
+                          color: 'text.secondary'
+                        }}
+                      >
+                        Allowed *.jpeg, *.jpg, *.png, *.gif
+                        <br /> max size of {fData(3145728)}
+                      </Typography>
+                    }
+                  />
+                ) : (
+                  <Avatar
+                    photoURL={currentUser?.avatarUrl || ''}
+                    displayName={currentUser?.fullName}
+                    sx={{ height: '144px', width: '144px' }}
+                  />
+                )}
+
+                <FormHelperText error sx={{ px: 2, textAlign: 'center' }}>
+                  {touched.avatarUrl && errors.avatarUrl}
+                </FormHelperText>
                 <Typography variant="h5" sx={{ marginTop: '1rem' }}>
                   {currentUser?.fullName}
                 </Typography>

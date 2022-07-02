@@ -52,7 +52,7 @@ export default function TeamInformation({ teamDetail }: TeamInformationProps) {
             </Stack>
             <Stack>
               <Box sx={{ mt: 0, display: 'flex' }}>
-                {teamDetail && teamDetail?.isApplicationApprove && (
+                {teamDetail && teamDetail?.isApplicationApproved && (
                   <FormDialogs
                     teamDetail={teamDetail}
                     id={'update'}

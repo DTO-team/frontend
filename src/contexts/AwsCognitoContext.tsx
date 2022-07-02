@@ -101,7 +101,8 @@ function AuthProvider({ children }: { children: ReactNode }) {
                 displayName: response.fullName,
                 role: response.role,
                 statusId: response.statusId,
-                email: response.email
+                email: response.email,
+                avatarUrl: response.avatarUrl
               };
               dispatch({
                 type: Types.auth,
