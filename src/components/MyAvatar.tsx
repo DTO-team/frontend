@@ -12,9 +12,9 @@ export default function MyAvatar({ ...other }: MAvatarProps) {
 
   return (
     <MAvatar
-      src={user?.photoURL || ''}
+      src={user?.avatarUrl || ''}
       alt={user?.displayName}
-      color={user?.photoURL ? 'default' : createAvatar(user?.displayName || 'Minimals').color}
+      color={user?.avatarUrl ? 'default' : createAvatar(user?.displayName || 'Minimals').color}
       {...other}
     >
       {createAvatar(user?.displayName || 'Minimals').name}
