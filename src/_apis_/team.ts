@@ -25,10 +25,10 @@ export const callAPIForCreateNewTeam = async (teamName: string): Promise<StatusC
   }
 };
 
-export const callAPIForUpdateTeamMentor = async (data: any): Promise<StatusCode> => {
+export const callAPIForUpdateTeamMentor = async (data: any, op: string): Promise<StatusCode> => {
   try {
     const result: AxiosResponseChild = await axios.patch('/v1/teams/mentor', {
-      op: 'add',
+      op,
       ...data
     });
     return { statusCode: 200, data: result };
