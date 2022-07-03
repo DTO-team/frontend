@@ -130,7 +130,7 @@ export default function FormDialogs({
           enqueueSnackbar('Something went wrong!', { variant: 'error' });
         }
       }
-      if (teamDetail.length !== mentors.mentorId.length) {
+      if (teamDetail.mentors.length !== mentors.mentorId.length) {
         const { statusCode } = await callAPIForUpdateTeamMentor(
           {
             ...mentors,
