@@ -45,7 +45,7 @@ export default function TeamMemberList({ teamDetail }: TeamInformationProps) {
                 }}
                 onClick={() => navigate(`/dashboard/user/profile/${member.id}`)}
               >
-                <Avatar displayName={member.fullName} />
+                <Avatar displayName={member.fullName} photoURL={member.avatarUrl} />
                 <Box>
                   <h4>{member.fullName}</h4>
                   <Typography variant="body2">{member.code}</Typography>
