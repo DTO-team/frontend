@@ -7,4 +7,5 @@ export interface ITopicDetail {
   description: string;
   companyDetail?: ICompanyDetail;
   lecturersDetails?: LecturerManager[];
+  isRegistered?: boolean;
 }

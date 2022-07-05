@@ -14,7 +14,7 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   minWidth: 600,
-  maxWidth: '75%',
+  maxWidth: '100%',
   overflow: 'auto',
   width: 'fit-content',
   bgcolor: 'background.paper',

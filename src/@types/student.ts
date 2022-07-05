@@ -12,5 +12,8 @@ export type StudentManager = {
   code: string;
   semester: 'SPRING' | 'FALL' | ' SUMMER';
   role: 'STUDENT';
-  statusId: Number;
+  status: {
+    statusId: Number;
+    statusName: string;
+  };
 };

@@ -114,6 +114,13 @@ export default function Router() {
           ]
         },
         {
+          path: 'project',
+          children: [
+            { path: '/', element: <TeamList /> },
+            { path: 'project-details', element: <ProjectDetail /> }
+          ]
+        },
+        {
           path: 'topics',
           children: [
             { path: '/', element: <TopicList /> },
@@ -448,3 +455,4 @@ const AdminManagementSettingsPage = Loadable(lazy(() => import('../pages/adminMa
 const TeamApplicationList = Loadable(
   lazy(() => import('../pages/team-application/TeamApplicationList'))
 );
+const ProjectDetail = Loadable(lazy(() => import('../pages/project/project-detail/ProjectDetail')));
