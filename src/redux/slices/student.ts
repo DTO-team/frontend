@@ -23,7 +23,10 @@ const studentInit: StudentManager = {
   id: '',
   role: 'STUDENT',
   semester: 'SPRING',
-  statusId: 0,
+  status: {
+    statusId: 0,
+    statusName: ''
+  },
   userName: ''
 };
 

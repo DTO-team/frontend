@@ -1,43 +1,30 @@
-import { filter } from 'lodash';
-import { Icon } from '@iconify/react';
-import { sentenceCase } from 'change-case';
-import { useState, useEffect } from 'react';
 import plusFill from '@iconify/icons-eva/plus-fill';
+import { Icon } from '@iconify/react';
+import { filter } from 'lodash';
+import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 // material
-import { useTheme } from '@material-ui/core/styles';
 import {
-  Card,
-  Table,
-  Stack,
-  Avatar,
-  Button,
-  Checkbox,
-  TableRow,
-  TableBody,
-  TableCell,
-  Container,
-  Typography,
-  TableContainer,
-  TablePagination
+  Button, Card, Checkbox, Container, Table, TableBody,
+  TableCell, TableContainer,
+  TablePagination, TableRow
 } from '@material-ui/core';
+import { useTheme } from '@material-ui/core/styles';
 // redux
-import { RootState, useDispatch, useSelector } from '../../redux/store';
 import { getStudentList } from '../../redux/slices/student';
+import { RootState, useDispatch, useSelector } from '../../redux/store';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
 import useSettings from '../../hooks/useSettings';
 // @types
-import { UserManager } from '../../@types/user';
 import { StudentManager } from '../../@types/student';
 // components
+import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import Page from '../../components/Page';
-import Label from '../../components/Label';
 import Scrollbar from '../../components/Scrollbar';
 import SearchNotFound from '../../components/SearchNotFound';
-import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
-import { UserListHead, UserListToolbar, UserMoreMenu } from '../../components/_dashboard/user/list';
+import { UserListHead, UserListToolbar } from '../../components/_dashboard/user/list';
 
 // ----------------------------------------------------------------------
 

@@ -69,7 +69,7 @@ export function getTopicList() {
   };
 }
 
-export async function getTopicDetail(topicId: string) {
+export async function getTopicDetail(topicId: string | undefined) {
   dispatch(slice.actions.startLoading());
   try {
     const response = await axios.get(`/v1/topics/${topicId}`);

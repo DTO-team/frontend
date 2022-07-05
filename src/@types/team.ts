@@ -16,5 +16,7 @@ export type TeamManager = {
   teamName: string;
   leader: LeaderDetail;
   totalMember: Number;
-  members?: StudentManager[]
+  members?: StudentManager[];
+  projectId?: string;
+  isApplicationApproved?: boolean;
 };

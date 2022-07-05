@@ -109,6 +109,10 @@ const sidebarConfig = [
   // },
 
   {
+    subheader: 'My Project',
+    items: [{ title: 'Project', path: PATH_DASHBOARD.myProject.projectDetail, icon: ICONS.user }]
+  },
+  {
     subheader: 'fptu-capstone',
     items: [
       { title: 'team list', path: PATH_DASHBOARD.fptuCapstone.teams, icon: ICONS.kanban },
