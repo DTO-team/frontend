@@ -54,6 +54,7 @@ export default function FormDialogs({
   const [mentors, setMentors] = useState({
     mentorId: [],
     newLecturerId: [],
+    newMentorId: [],
     projectId: teamDetail.projectId
   });
   const [open, setOpen] = useState(false);
@@ -62,47 +63,59 @@ export default function FormDialogs({
   let navigate = useNavigate();
 
   useEffect(() => {
-    if (teamDetail && teamDetail.mentors.length > 0) {
-      setMentors({
-        ...mentors,
-        mentorId: teamDetail.mentors.map((mentor: any) => ({
-          fullName: mentor.fullName,
-          id: mentor.id
-        }))
-      });
-    }
+    handleInitialState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teamDetail]);
 
+  const handleInitialState = () => {
+    if (teamDetail && teamDetail.mentors.length > 0) {
+      let mentorsLoop = teamDetail.mentors.map((mentor: any) => ({
+        fullName: mentor.fullName,
+        id: mentor.id
+      }));
+
+      setMentors({
+        ...mentors,
+        mentorId: mentorsLoop,
+        newMentorId: mentorsLoop
+      });
+    }
+  };
+
   const handleClickOpen = () => {
+    handleInitialState();
     setOpen(true);
   };
 
   const handleClose = async () => {
-    setMentors({
-      mentorId: [],
-      newLecturerId: [],
-      projectId: teamDetail.projectId
-    });
     setOpen(false);
   };
 
   const handleChangeMentor = (data: any) => {
-    console.log(data);
-    console.log(mentors);
     if (!Boolean(data.length)) {
       setMentors({
         ...mentors,
-        mentorId: [],
-        newLecturerId: []
+        newMentorId: []
       });
     } else {
       const results = data.filter(
-        (mentor: any) => !teamDetail.mentors.some((mentorX: any) => mentorX.id === mentor.id)
+        (mentor: any) => !mentors.mentorId.some((mentorX: any) => mentorX.id === mentor.id)
       );
+
+      let verifyMentor: any = [];
+
+      for (let i = 0; i < mentors.mentorId.length; i++) {
+        const mentor: any = mentors.mentorId[i];
+        for (let j = 0; j < data.length; j++) {
+          if (mentor.id === data[j].id) {
+            verifyMentor.push(mentor);
+          }
+        }
+      }
+
       setMentors({
         ...mentors,
-        mentorId: [],
+        newMentorId: verifyMentor,
         newLecturerId: results.map((mentor: any) => mentor.id)
       });
     }
@@ -110,41 +123,50 @@ export default function FormDialogs({
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    if (!Boolean(mentors.mentorId.length) && !Boolean(mentors.newLecturerId.length)) {
+    if (!Boolean(mentors.newMentorId.length)) {
       enqueueSnackbar('Each team must have at least one mentor!', { variant: 'info' });
     } else {
-      const arraysEqual =
-        teamDetail.mentors.length === mentors.mentorId.length &&
-        teamDetail.mentors.every((o: any, idx: any) =>
-          objectsEqual({ fullName: o.fullName, id: o.id }, mentors.mentorId[idx])
-        );
-      if (arraysEqual) {
-        enqueueSnackbar('Please add or remove!', { variant: 'info' });
-        return;
-      }
       if (Boolean(mentors.newLecturerId.length)) {
-        const { statusCode } = await callAPIForUpdateTeamMentor(mentors, 'add');
+        const { statusCode } = await callAPIForUpdateTeamMentor(
+          {
+            projectId: mentors.projectId,
+            mentorId: [],
+            newLecturerId: mentors.newLecturerId
+          },
+          'add'
+        );
         if (statusCode === 200) {
           enqueueSnackbar('Update successfully!', { variant: 'success' });
+          window.location.reload();
         } else {
           enqueueSnackbar('Something went wrong!', { variant: 'error' });
         }
       }
-      if (teamDetail.mentors.length !== mentors.mentorId.length) {
+      if (teamDetail.mentors.length !== mentors.newMentorId.length) {
         const { statusCode } = await callAPIForUpdateTeamMentor(
           {
-            ...mentors,
+            projectId: mentors.projectId,
+            mentorId: mentors.newMentorId.map((mentor: any) => mentor.id),
             newLecturerId: []
           },
           'remove'
         );
         if (statusCode === 200) {
           enqueueSnackbar('Update successfully!', { variant: 'success' });
+          window.location.reload();
         } else {
           enqueueSnackbar('Something went wrong!', { variant: 'error' });
         }
       }
-      window.location.reload();
+      const arraysEqual =
+        teamDetail.mentors.length === mentors.newMentorId.length &&
+        teamDetail.mentors.every((o: any, idx: any) =>
+          objectsEqual({ fullName: o.fullName, id: o.id }, mentors.newMentorId[idx])
+        );
+      if (arraysEqual && !Boolean(mentors.newLecturerId)) {
+        enqueueSnackbar('Please add or remove!', { variant: 'info' });
+        return;
+      }
     }
   };
   return user && user.role === AuthorizeRole.ADMIN && lecturerList && lecturerList.length > 0 ? (
