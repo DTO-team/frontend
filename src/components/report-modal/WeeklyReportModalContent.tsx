@@ -1,22 +1,16 @@
-import {
-  Card,
-  CardHeader,
-  Divider,
-  FormControl,
-  Modal,
-  TextField,
-  Typography
-} from '@material-ui/core';
+import Icon from '@iconify/react';
+import { Button, Divider, FormControl, Modal, styled, Typography } from '@material-ui/core';
 import { Box } from '@material-ui/system';
 import { QuillEditor } from 'components/editor';
 import Scrollbar from 'components/Scrollbar';
-
-interface IWeeklyReportModalContentProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  children?: React.ReactNode;
-}
+import _ from 'lodash';
+import { useState } from 'react';
+import { ReportActionType } from 'utils/enum-utils';
+import closeFill from '@iconify/icons-eva/close-fill';
+import { createReport } from 'redux/slices/report';
+import { useSelector } from 'react-redux';
+import { RootState } from 'redux/store';
+import { useSnackbar } from 'notistack5';
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -31,8 +25,92 @@ const style = {
   p: 4
 };
 
+const IconStyle = styled(Icon)(({ theme }) => ({
+  width: 30,
+  height: 30,
+  marginTop: 1,
+  flexShrink: 0,
+  marginRight: theme.spacing(1)
+}));
+
+interface IWeeklyReportModalContentProps {
+  isOpen: boolean;
+  onClose: () => void;
+  children?: React.ReactNode;
+}
+
+interface IReportPayload {
+  projectId: string | undefined;
+  isTeamReport: boolean;
+  completedTasks: string;
+  inProgressTasks: string;
+  nextWeekTasks: string;
+  urgentIssues: string;
+  selfAssessment: string;
+  reportEvidences?: [];
+}
+
+const reportPayloadInit = {
+  projectId: '',
+  isTeamReport: false,
+  completedTasks: '',
+  inProgressTasks: '',
+  nextWeekTasks: '',
+  urgentIssues: '',
+  selfAssessment: ''
+};
+
 export default function WeeklyReportModalContent(props: IWeeklyReportModalContentProps) {
-  const { children, isOpen, onClose, title } = props;
+  const { isOpen, onClose } = props;
+  const [reportPayload, setReportPayload] = useState<IReportPayload>(reportPayloadInit);
+  const { student } = useSelector((state: RootState) => state);
+  const { enqueueSnackbar } = useSnackbar();
+
+  const _handleOnchangeReportPayload = (value: string, reportAction: ReportActionType) => {
+    const newPayload = _.cloneDeep(reportPayload);
+    switch (reportAction) {
+      case ReportActionType.TASK_COMPLETED: {
+        newPayload.completedTasks = value;
+        break;
+      }
+      case ReportActionType.TASK_INPROGRESS: {
+        newPayload.inProgressTasks = value;
+        break;
+      }
+      case ReportActionType.NEXT_WEEK_TASK: {
+        newPayload.nextWeekTasks = value;
+        break;
+      }
+      case ReportActionType.URGENT_ISSUE: {
+        newPayload.urgentIssues = value;
+        break;
+      }
+      case ReportActionType.SELF_ASSESSMENT: {
+        newPayload.selfAssessment = value;
+        break;
+      }
+    }
+    setReportPayload(newPayload);
+  };
+
+  const _handleCreateReport = async () => {
+    let newReportPayload = reportPayload;
+    newReportPayload.projectId = student.studentTeam.projectId;
+    newReportPayload.isTeamReport = true;
+    newReportPayload.reportEvidences = [];
+    try {
+      const response = await createReport(newReportPayload);
+      if (response !== undefined) {
+        enqueueSnackbar('Create report successfully', { variant: 'success' });
+        onClose();
+      } else {
+        enqueueSnackbar('Oops! Something went wrong, please try again later', { variant: 'error' });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <Modal
       open={isOpen}
@@ -46,13 +124,17 @@ export default function WeeklyReportModalContent(props: IWeeklyReportModalConten
       }}
     >
       <Box sx={{ ...style, overflow: 'auto' }}>
-        <Typography id="modal-modal-title" variant="h6" component="h2" sx={{ mb: 2 }}>
-          Send new report
-        </Typography>
+        <Box sx={{ position: 'relative', display: 'flex' }}>
+          <Typography id="modal-modal-title" variant="h6" component="h2" sx={{ mb: 2 }}>
+            Send new report
+          </Typography>
+          <Box sx={{ position: 'absolute', right: 0, cursor: 'pointer' }} onClick={onClose}>
+            <IconStyle icon={closeFill} />
+          </Box>
+        </Box>
         <Divider />
         <Box sx={{ mt: 3, display: 'flex', justifyItems: 'center' }}>
           <Scrollbar>
-            <Box>Team section, datepicker</Box>
             <FormControl>
               <Box sx={{ p: 2 }}>
                 <Typography variant="body2" fontWeight={'bold'} sx={{ mb: 0.5 }}>
@@ -61,12 +143,12 @@ export default function WeeklyReportModalContent(props: IWeeklyReportModalConten
                 <QuillEditor
                   id="taskcompleted"
                   sx={{ width: 'full' }}
+                  value={reportPayload.completedTasks}
                   onChange={(value) => {
-                    console.log('value 1', value);
+                    _handleOnchangeReportPayload(value, ReportActionType.TASK_COMPLETED);
                   }}
                 />
               </Box>
-
               <Divider />
               <Box sx={{ p: 2 }}>
                 <Typography variant="body2" fontWeight={'bold'} sx={{ mb: 0.5 }}>
@@ -75,8 +157,9 @@ export default function WeeklyReportModalContent(props: IWeeklyReportModalConten
                 <QuillEditor
                   id="inprogresstask"
                   sx={{ width: 'full' }}
+                  value={reportPayload.inProgressTasks}
                   onChange={(value) => {
-                    console.log('value 1', value);
+                    _handleOnchangeReportPayload(value, ReportActionType.TASK_INPROGRESS);
                   }}
                 />
               </Box>
@@ -89,8 +172,9 @@ export default function WeeklyReportModalContent(props: IWeeklyReportModalConten
                 <QuillEditor
                   id="nextweektask"
                   sx={{ width: 'full' }}
+                  value={reportPayload.nextWeekTasks}
                   onChange={(value) => {
-                    console.log('value 1', value);
+                    _handleOnchangeReportPayload(value, ReportActionType.NEXT_WEEK_TASK);
                   }}
                 />
               </Box>
@@ -103,8 +187,9 @@ export default function WeeklyReportModalContent(props: IWeeklyReportModalConten
                 <QuillEditor
                   id="urgentissues"
                   sx={{ width: 'full' }}
+                  value={reportPayload.urgentIssues}
                   onChange={(value) => {
-                    console.log('value 1', value);
+                    _handleOnchangeReportPayload(value, ReportActionType.URGENT_ISSUE);
                   }}
                 />
               </Box>
@@ -117,14 +202,22 @@ export default function WeeklyReportModalContent(props: IWeeklyReportModalConten
                 <QuillEditor
                   id="selfassessments"
                   sx={{ width: 'full' }}
+                  value={reportPayload.selfAssessment}
                   onChange={(value) => {
-                    console.log('value 1', value);
+                    _handleOnchangeReportPayload(value, ReportActionType.SELF_ASSESSMENT);
                   }}
                 />
               </Box>
             </FormControl>
 
-            <Box sx={{ display: 'flex-column' }}></Box>
+            <Box sx={{ display: 'flex', justifyContent: 'end', mt: 2 }}>
+              <Button variant="outlined" sx={{ mr: 2 }} onClick={onClose}>
+                Discard
+              </Button>
+              <Button variant="contained" onClick={_handleCreateReport}>
+                Send Report
+              </Button>
+            </Box>
           </Scrollbar>
         </Box>
       </Box>

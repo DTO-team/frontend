@@ -6,14 +6,14 @@ import { dispatch } from '../store';
 
 // ----------------------------------------------------------------------
 
-type ManagementState = {
+type ReportState = {
   isLoading: boolean;
   error: boolean;
   semesters: Semester[];
   selectedSemester: Semester;
 };
 
-const initialState: ManagementState = {
+const initialState: ReportState = {
   isLoading: false,
   error: false,
   semesters: [],
@@ -60,25 +60,13 @@ export const { setSelectedSemester } = slice.actions;
 
 // ----------------------------------------------------------------------
 
-export async function getSemesterList() {
+export async function createReport(payload: any) {
   dispatch(slice.actions.startLoading());
   try {
-    const response = await axiosInstance.get('v1/semesters');
-    dispatch(slice.actions.setSemesters(response));
+    const response = await axiosInstance.post(`v1/reports/${payload.projectId}`, payload);
     return response;
   } catch (error) {
     dispatch(slice.actions.hasError(error));
-    console.log(error);
-  }
-}
-
-export async function updateSemesterStatus(payload: any) {
-  const { id } = payload;
-  try {
-    const response = await axiosInstance.put(`v1/semesters/${id}`, payload);
-    await getSemesterList();
-    return response;
-  } catch (error) {
     console.log(error);
   }
 }
