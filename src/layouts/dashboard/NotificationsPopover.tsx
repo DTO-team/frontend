@@ -7,6 +7,7 @@ import { Icon } from '@iconify/react';
 import bellFill from '@iconify/icons-eva/bell-fill';
 import clockFill from '@iconify/icons-eva/clock-fill';
 import doneAllFill from '@iconify/icons-eva/done-all-fill';
+import useAuth from 'hooks/useAuth';
 // material
 import {
   Box,
@@ -28,6 +29,7 @@ import { mockImgAvatar } from '../../utils/mockImages';
 import Scrollbar from '../../components/Scrollbar';
 import MenuPopover from '../../components/MenuPopover';
 import { MIconButton } from '../../components/@material-extend';
+import { projectFirestore } from '../../firebase/config';
 
 // ----------------------------------------------------------------------
 
@@ -131,6 +133,22 @@ function renderContent(notification: TNotificationPopover) {
 
 function NotificationItem({ notification }: { notification: TNotificationPopover }) {
   const { avatar, title } = renderContent(notification);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const subscriber = projectFirestore
+      .collection('notification')
+      .doc(user.userId)
+      .collection('messages')
+      .orderBy('createdAt', 'desc')
+      .onSnapshot((querySnapshot) => {
+        let messagesRealtime = [];
+        let seen = 0;
+      });
+
+    // Stop listening for updates when no longer required
+    return () => subscriber();
+  }, []);
 
   return (
     <ListItemButton
