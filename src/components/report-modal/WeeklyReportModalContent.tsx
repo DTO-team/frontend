@@ -11,6 +11,7 @@ import { createReport } from 'redux/slices/report';
 import { useSelector } from 'react-redux';
 import { RootState } from 'redux/store';
 import { useSnackbar } from 'notistack5';
+import { setCollection } from 'firebase/methods/setCollection';
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -65,6 +66,7 @@ export default function WeeklyReportModalContent(props: IWeeklyReportModalConten
   const [reportPayload, setReportPayload] = useState<IReportPayload>(reportPayloadInit);
   const { student } = useSelector((state: RootState) => state);
   const { enqueueSnackbar } = useSnackbar();
+  const { addDocWithID } = setCollection();
 
   const _handleOnchangeReportPayload = (value: string, reportAction: ReportActionType) => {
     const newPayload = _.cloneDeep(reportPayload);
