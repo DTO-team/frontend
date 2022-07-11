@@ -138,12 +138,32 @@ function NotificationItem({ notification }: { notification: TNotificationPopover
   useEffect(() => {
     const subscriber = projectFirestore
       .collection('notification')
-      .doc(user.userId)
+      .doc(user?.id)
       .collection('messages')
       .orderBy('createdAt', 'desc')
       .onSnapshot((querySnapshot) => {
-        let messagesRealtime = [];
+        let messagesRealtime: any = [];
         let seen = 0;
+        querySnapshot.forEach((doc) => {
+          if (doc.exists) {
+            let id = doc.id;
+            let data: any = { ...doc.data(), id };
+            if (!data?.seen) seen += 1;
+            messagesRealtime.push(data);
+          }
+        });
+        console.log(messagesRealtime);
+        if (messagesRealtime.length > 0) {
+          // setMessages({
+          //   alert: seen,
+          //   messages: messagesRealtime
+          // });
+          // if (!firstRef.current) {
+          //   firstRef.current = true;
+          // } else {
+          //   toggle();
+          // }
+        }
       });
 
     // Stop listening for updates when no longer required
