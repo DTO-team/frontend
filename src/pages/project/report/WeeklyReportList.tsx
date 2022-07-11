@@ -93,7 +93,7 @@ export default function WeeklyReportList() {
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [isOpenCreateApplicationModal, setIsOpenCreateApplicationModal] = useState(false);
+  const [isOpenCreatReportModal, setIsOpenCreatReportModal] = useState(false);
   const [isOpenConfirmDialog, setIsOpenConfirmDialog] = useState(false);
 
   const handleRequestSort = (property: string) => {
@@ -135,8 +135,7 @@ export default function WeeklyReportList() {
   };
 
   const onClose = () => {
-    setIsOpenCreateApplicationModal(false);
-    setIsOpenConfirmDialog(false);
+    setIsOpenCreatReportModal(false);
   };
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
@@ -146,8 +145,7 @@ export default function WeeklyReportList() {
   const isUserNotFound = application.teamApplicationList.length === 0;
 
   useEffect(() => {
-    async function getData() {
-    }
+    async function getData() {}
     getData();
   }, [dispatch]);
 
@@ -172,14 +170,20 @@ export default function WeeklyReportList() {
         onCancle={() => onClose()}
       />
 
-      <WeeklyReportModalContent title="" isOpen={false} onClose={() => {}} />
+      <WeeklyReportModalContent isOpen={isOpenCreatReportModal} onClose={onClose} />
 
       <Card>
         <CardHeader
           title="Weekly Reports"
           sx={{ mb: 3 }}
           action={
-            <Button variant="contained" startIcon={<Icon icon={plusFill} />} onClick={() => {}}>
+            <Button
+              variant="contained"
+              startIcon={<Icon icon={plusFill} />}
+              onClick={() => {
+                setIsOpenCreatReportModal(true);
+              }}
+            >
               Report
             </Button>
           }

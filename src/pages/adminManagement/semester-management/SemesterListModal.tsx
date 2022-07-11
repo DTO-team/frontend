@@ -12,6 +12,7 @@ import { RootState, useDispatch } from 'redux/store';
 import palette from 'theme/palette';
 import { SemesterStatus } from 'utils/enum-utils';
 import AlertDialog from 'components/dialog/AlertDialog';
+import SemesterTimeSelectModal from './SemesterTimeSelectModal';
 
 interface ISemesterListModalProps {
   isOpen: boolean;
@@ -22,11 +23,13 @@ export default function SemesterListModal(props: ISemesterListModalProps) {
   const { isOpen, onClose } = props;
   const [isLoading, setIsLoading] = useState(false);
   const [isOpenConfirmDialog, setIsOpenConfirmDialog] = useState(false);
+  const [isOpenSelectedDateDialog, setIsOpenSelectedDateDialog] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [currentUpdateSemester, setCurrentUpdateSemester] = useState<Semester>();
   const dispatch = useDispatch();
   const { semesters } = useSelector((state: RootState) => state.management);
 
-  const _handleChangeStatus = (semester: Semester, isForward: boolean) => {
+  /* const _handleChangeStatus = (semester: Semester, isForward: boolean) => {
     setIsLoading(true);
     const { id, status } = semester;
     let payload = { id: '', status: 0 };
@@ -64,9 +67,9 @@ export default function SemesterListModal(props: ISemesterListModalProps) {
       }
     }
     setIsLoading(false);
-  };
+  }; */
 
-  const _handleChangeStatusToEnded = () => {
+  /* const _handleChangeStatusToEnded = () => {
     setIsLoading(true);
     const payload = {
       id: currentUpdateSemester?.id,
@@ -80,7 +83,7 @@ export default function SemesterListModal(props: ISemesterListModalProps) {
     setIsLoading(false);
     setIsOpenConfirmDialog(false);
     setCurrentUpdateSemester(undefined);
-  };
+  }; */
 
   const _handleClassifyStatusColor = (status: number) => {
     let bgColor;
@@ -110,6 +113,10 @@ export default function SemesterListModal(props: ISemesterListModalProps) {
     return { bgColor, statusTextColor, statusName };
   };
 
+  const _handleCloseDialog = () => {
+    setIsOpenSelectedDateDialog(false);
+  };
+
   useEffect(() => {
     async function getData() {
       await getSemesterList();
@@ -119,7 +126,7 @@ export default function SemesterListModal(props: ISemesterListModalProps) {
 
   return (
     <>
-      <AlertDialog
+      {/* <AlertDialog
         isOpen={isOpenConfirmDialog}
         title={'Changing status alert'}
         description={
@@ -131,7 +138,7 @@ export default function SemesterListModal(props: ISemesterListModalProps) {
         }
         onAgree={() => _handleChangeStatusToEnded()}
         onCancle={() => setIsOpenConfirmDialog(false)}
-      />
+      /> */}
 
       <ActionModal
         isOpen={isOpen}
@@ -157,23 +164,32 @@ export default function SemesterListModal(props: ISemesterListModalProps) {
                   >
                     <Typography sx={{ fontWeight: 'bold' }}>{`${year} ${season}`}</Typography>
                     <Box sx={{ display: 'flex' }}>
-                      <div
+                      {/* <div
                         style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                         onClick={() => _handleChangeStatus(semester, false)}
                       >
                         <Icon icon={arrowIosBackFill} />
-                      </div>
+                      </div> */}
                       <Typography sx={{ fontWeight: 'bold' }} color={statusTextColor}>
                         {statusName}
                       </Typography>
                       <div
                         style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                        onClick={() => _handleChangeStatus(semester, true)}
+                        onClick={() => {
+                          setIsOpenSelectedDateDialog(true);
+                          setCurrentUpdateSemester(semester);
+                        }}
                       >
                         <Icon icon={arrowIosForwardFill} />
                       </div>
                     </Box>
                   </Box>
+                  {/* Child modal */}
+                  <SemesterTimeSelectModal
+                    isOpen={isOpenSelectedDateDialog}
+                    onClose={_handleCloseDialog}
+                    semester={currentUpdateSemester}
+                  />
                 </Grid>
               );
             })}
