@@ -17,10 +17,11 @@ const IconStyle = styled(Icon)(({ theme }) => ({
 
 interface IMatchedTopicSectionProps {
   isLoading: boolean;
+  project: any;
 }
 
 // ----------------------------------------------------------------------
-export default function MatchedTopicSection({ isLoading }: IMatchedTopicSectionProps) {
+export default function MatchedTopicSection({ isLoading, project }: IMatchedTopicSectionProps) {
   const { studentTeam } = useSelector((state: RootState) => state.student);
 
   return (
@@ -38,13 +39,13 @@ export default function MatchedTopicSection({ isLoading }: IMatchedTopicSectionP
                   <b>Assigned to</b>
                 </Typography>
                 <Typography variant="h6">
-                  [SU22-SWD-SE1503-04] Capstone Project - Viva Day
+                   {project && project.topicsResponse.topicName}
                 </Typography>
               </Box>
             </Stack>
             <Stack direction="row">
               <Typography variant="body2" color={palette.light.grey[500]}>
-                Capstone Project - Viva Day
+               {project && project.topicsResponse.description}
               </Typography>
             </Stack>
           </Box>

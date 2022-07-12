@@ -15,11 +15,12 @@ import MatchedTopicSection from './MatchedTopicSection';
 import ProjectTeamMemberList from './ProjectTeamMemberList';
 import TeamInformationSection from './TeamInformationSection';
 import { getTopicDetail } from 'redux/slices/topic';
+import { getProjectById } from 'redux/slices/project';
 
 const ProjectDetail = () => {
   const { user } = useAuth();
   const { themeStretch } = useSettings();
-  const { student } = useSelector((state: RootState) => state);
+  const { student, project } = useSelector((state: RootState) => state);
   const [isLoading, setIsLoading] = useState(false);
 
   //   if (!ProjectDetail) return <Page404 />;
@@ -40,7 +41,7 @@ const ProjectDetail = () => {
     async function getProject() {
       if (user?.role === AuthorizeRole.STUDENT) {
         if (student.studentTeam.isApplicationApproved) {
-          await getTopicDetail(student.studentTeam.projectId);
+          await getProjectById(student.studentTeam.projectId);
         }
       }
     }
@@ -58,7 +59,7 @@ const ProjectDetail = () => {
         <Grid container spacing={3}>
           <Grid item container xs={8} spacing={2}>
             <Grid item xs={12}>
-              <MatchedTopicSection isLoading={false} />
+              <MatchedTopicSection isLoading={false} project = {project.project} />
             </Grid>
             <Grid item xs={12}>
               <WeeklyReportList />
@@ -67,7 +68,7 @@ const ProjectDetail = () => {
 
           <Grid item container xs={4}>
             <Grid item xs={12}>
-              <TeamInformationSection isLoading={false} />
+              <TeamInformationSection isLoading={false} project = {project.project} />
             </Grid>
             <Grid item xs={12} sx={{ mt: 3 }}>
               <ProjectTeamMemberList teamDetail={student.studentTeam} />

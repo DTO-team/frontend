@@ -22,6 +22,7 @@ const IconStyle = styled(Icon)(({ theme }) => ({
 
 interface ITeamInformationSectionProps {
   isLoading: boolean;
+  project: any;
 }
 
 // ----------------------------------------------------------------------
@@ -73,7 +74,11 @@ export default function TeamInformationSection({ isLoading }: ITeamInformationSe
           <IconStyle icon={userOutlined} />
           <Typography variant="body1">
             Mentor: &nbsp;
-            <Link component="span" variant="subtitle1" color="text.primary"></Link>
+            {studentTeam.mentors.map((mentor) => 
+              <Link key={mentor.id} component="span" variant="subtitle1" color="text.primary">
+                {mentor.fullName}
+              </Link>
+            )}
           </Typography>
         </Stack>
 
@@ -81,7 +86,7 @@ export default function TeamInformationSection({ isLoading }: ITeamInformationSe
         <Stack direction="row">
           <Typography variant="body1">
             <b>Description:</b>
-            <Typography component="div" variant="body1" color="text.primary">
+            <Typography variant="body1" color="text.primary">
               SU22-SWD-SE1503-UniBean-Mentor-Mentee Connect
             </Typography>
           </Typography>

@@ -38,6 +38,7 @@ const initialState: StudentState = {
   studentTeam: {
     teamId: '',
     teamName: '',
+    mentors:[],
     leader: {
       id: '',
       code: '',

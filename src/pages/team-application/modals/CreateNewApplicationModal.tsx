@@ -35,6 +35,7 @@ const selectedTopicInit: ITopicDetail = {
 };
 
 const selectedTeamInit: TeamManager = {
+  mentors:[],
   teamId: '',
   teamName: '',
   leader: {

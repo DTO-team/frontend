@@ -16,6 +16,7 @@ import kanbanReducer from './slices/kanban';
 import managementReducer from './slices/management';
 import topicReducer from './slices/topic';
 import applicationReducer from './slices/team-application';
+import projectReducer from './slices/project';
 import reportReducer from './slices/report';
 
 // ----------------------------------------------------------------------
@@ -49,6 +50,7 @@ const rootReducer = combineReducers({
   management: managementReducer,
   topic: topicReducer,
   application: applicationReducer,
+  project: projectReducer,
   report: reportReducer
 });
 
