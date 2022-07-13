@@ -15,12 +15,32 @@ import MatchedTopicSection from './MatchedTopicSection';
 import ProjectTeamMemberList from './ProjectTeamMemberList';
 import TeamInformationSection from './TeamInformationSection';
 import { getTopicDetail } from 'redux/slices/topic';
+import { TeamManager } from '../../../@types/team';
+import { getProjectDetail } from 'redux/slices/project';
+
+const StudentTeamInit: TeamManager = {
+  teamId: '',
+  teamName: '',
+  leader: {
+    id: '',
+    code: '',
+    fullName: '',
+    email: '',
+    role: '',
+    semester: '',
+    status: '',
+    avatarUrl: ''
+  },
+  totalMember: 0
+};
 
 const ProjectDetail = () => {
   const { user } = useAuth();
   const { themeStretch } = useSettings();
   const { student } = useSelector((state: RootState) => state);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentStudentTeam, setCurrentStudentTeam] = useState<any>();
+  const [currentTeamTopic, setCurrentTeamTopic] = useState<any>();
 
   //   if (!ProjectDetail) return <Page404 />;
 
@@ -29,6 +49,7 @@ const ProjectDetail = () => {
     async function getData() {
       if (user?.role === AuthorizeRole.STUDENT) {
         const studentTeam = await getTeamByStudentId(user?.id);
+        setCurrentStudentTeam(studentTeam);
       }
     }
     getData();
@@ -40,7 +61,8 @@ const ProjectDetail = () => {
     async function getProject() {
       if (user?.role === AuthorizeRole.STUDENT) {
         if (student.studentTeam.isApplicationApproved) {
-          await getTopicDetail(student.studentTeam.projectId);
+          const response: any = await getProjectDetail(student.studentTeam.projectId);
+          setCurrentTeamTopic(response.topicsResponse);
         }
       }
     }
@@ -58,10 +80,10 @@ const ProjectDetail = () => {
         <Grid container spacing={3}>
           <Grid item container xs={8} spacing={2}>
             <Grid item xs={12}>
-              <MatchedTopicSection isLoading={false} />
+              <MatchedTopicSection currentStudentTeam={currentStudentTeam} currentTeamTopic={currentTeamTopic} isLoading={false} />
             </Grid>
             <Grid item xs={12}>
-              <WeeklyReportList />
+              <WeeklyReportList currentStudentTeam={currentStudentTeam} />
             </Grid>
           </Grid>
 

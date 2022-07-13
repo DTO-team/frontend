@@ -17,6 +17,7 @@ import managementReducer from './slices/management';
 import topicReducer from './slices/topic';
 import applicationReducer from './slices/team-application';
 import reportReducer from './slices/report';
+import projectReducer from './slices/project';
 
 // ----------------------------------------------------------------------
 
@@ -49,7 +50,8 @@ const rootReducer = combineReducers({
   management: managementReducer,
   topic: topicReducer,
   application: applicationReducer,
-  report: reportReducer
+  report: reportReducer,
+  project: projectReducer
 });
 
 export { rootPersistConfig, rootReducer };
