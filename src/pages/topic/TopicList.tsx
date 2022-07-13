@@ -102,7 +102,7 @@ export default function TopicList() {
   const [selected, setSelected] = useState<string[]>([]);
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const handleRequestSort = (property: string) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -118,7 +118,6 @@ export default function TopicList() {
     }
     setSelected([]);
   };
-
 
   const handleClick = (name: string) => {
     const selectedIndex = selected.indexOf(name);
@@ -291,7 +290,7 @@ export default function TopicList() {
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={(e, page) => setPage(page)}
-            onRowsPerPageChange={(e) => handleChangeRowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Card>
       </Container>

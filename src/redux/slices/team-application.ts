@@ -63,17 +63,16 @@ export async function createTeamApplication(teamId: string, topicId: string) {
   }
 }
 
-export function getTeamApplicationList() {
-  return async () => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/v1/applications');
-      dispatch(slice.actions.setTeamApplicationList(response.data));
-      dispatch(slice.actions.hasError(false));
-    } catch (error) {
-      dispatch(slice.actions.hasError(true));
-    }
-  };
+export async function getTeamApplicationList(payload: any) {
+  dispatch(slice.actions.startLoading());
+  try {
+    const response = await axios.get(`/v1/applications?pageNumber=${payload.pageNumber}`);
+    dispatch(slice.actions.setTeamApplicationList(response.data));
+    dispatch(slice.actions.hasError(false));
+    return response;
+  } catch (error) {
+    dispatch(slice.actions.hasError(true));
+  }
 }
 
 export function updateTeamApplicationStatus(
@@ -84,7 +83,7 @@ export function updateTeamApplicationStatus(
     dispatch(slice.actions.startLoading());
     try {
       await axios.patch(`/v1/applications/status?id=${teamApplicationId}`, { op: action });
-      dispatch(getTeamApplicationList());
+      await getTeamApplicationList({ pageNumber: 0 });
       dispatch(slice.actions.hasError(false));
     } catch (error) {
       dispatch(slice.actions.hasError(true));

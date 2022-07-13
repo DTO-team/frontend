@@ -56,10 +56,10 @@ const TopicDetail = () => {
 
           <Grid item container xs={5}>
             <Grid item xs={12}>
-              <TopicInformation isLoading={isLoading} topicDetail={topic.topicDetail} />
+              {/* <TopicInformation isLoading={isLoading} topicDetail={topic.topicDetail} /> */}
             </Grid>
             <Grid item xs={12} sx={{ mt: 3 }}>
-              <TopicInformation isLoading={isLoading} topicDetail={topic.topicDetail} />
+              {/* <TopicInformation isLoading={isLoading} topicDetail={topic.topicDetail} /> */}
             </Grid>
           </Grid>
         </Grid>

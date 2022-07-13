@@ -141,14 +141,15 @@ export default function TeamApplicationList() {
   const { user } = useAuth();
   const { userList } = useSelector((state: RootState) => state.user);
   const { application } = useSelector((state: RootState) => state);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState<any>(0);
+  const [totalRecord, setTotalRecord] = useState<any>(0);
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [selected, setSelected] = useState<string[]>([]);
   const [selectedTeamApplication, setSelectedTeamApplication] = useState<TeamApplication>();
   const [updateStatusAction, setUpdateStatusAction] = useState<TeamApplicationStatus>();
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isOpenCreateApplicationModal, setIsOpenCreateApplicationModal] = useState(false);
   const [isOpenConfirmDialog, setIsOpenConfirmDialog] = useState(false);
 
@@ -219,9 +220,15 @@ export default function TeamApplicationList() {
   const isUserNotFound = application.teamApplicationList.length === 0;
 
   useEffect(() => {
-    dispatch(getUserList());
-    dispatch(getTeamApplicationList());
-  }, [dispatch]);
+    async function getData() {
+      dispatch(getUserList());
+      const response: any = await getTeamApplicationList({ pageNumber: page });
+      if (response) {
+        setTotalRecord(response.totalRecords);
+      }
+    }
+    getData();
+  }, [dispatch, page]);
 
   return (
     <>
@@ -284,83 +291,81 @@ export default function TeamApplicationList() {
                     onSelectAllClick={handleSelectAllClick}
                   />
                   <TableBody>
-                    {application.teamApplicationList
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      .map((teamApplication) => {
-                        const { applyTeam, topic, status, applicationId } = teamApplication;
-                        const isItemSelected = selected.indexOf(applicationId) !== -1;
-                        let statusColor: LabelColor;
-                        switch (status) {
-                          case TeamApplicationStatus.APPROVED: {
-                            statusColor = 'success';
-                            break;
-                          }
-                          case TeamApplicationStatus.PENDING: {
-                            statusColor = 'warning';
-                            break;
-                          }
-                          case TeamApplicationStatus.REJECTED: {
-                            statusColor = 'error';
-                            break;
-                          }
-                          default: {
-                            statusColor = 'success';
-                          }
+                    {application.teamApplicationList.map((teamApplication) => {
+                      const { applyTeam, topic, status, applicationId } = teamApplication;
+                      const isItemSelected = selected.indexOf(applicationId) !== -1;
+                      let statusColor: LabelColor;
+                      switch (status) {
+                        case TeamApplicationStatus.APPROVED: {
+                          statusColor = 'success';
+                          break;
                         }
+                        case TeamApplicationStatus.PENDING: {
+                          statusColor = 'warning';
+                          break;
+                        }
+                        case TeamApplicationStatus.REJECTED: {
+                          statusColor = 'error';
+                          break;
+                        }
+                        default: {
+                          statusColor = 'success';
+                        }
+                      }
 
-                        return (
-                          <TableRow
-                            hover
-                            key={applicationId}
-                            tabIndex={-1}
-                            role="checkbox"
-                            selected={isItemSelected}
-                            aria-checked={isItemSelected}
-                          >
-                            <TableCell padding="checkbox">
-                              <Checkbox
-                                checked={isItemSelected}
-                                onClick={() => handleClick(applicationId)}
+                      return (
+                        <TableRow
+                          hover
+                          key={applicationId}
+                          tabIndex={-1}
+                          role="checkbox"
+                          selected={isItemSelected}
+                          aria-checked={isItemSelected}
+                        >
+                          <TableCell padding="checkbox">
+                            <Checkbox
+                              checked={isItemSelected}
+                              onClick={() => handleClick(applicationId)}
+                            />
+                          </TableCell>
+                          <TableCell component="th" scope="row" padding="none">
+                            <Stack direction="row" alignItems="center" spacing={2}>
+                              <Typography variant="subtitle2" noWrap>
+                                {applyTeam.teamName}
+                              </Typography>
+                            </Stack>
+                          </TableCell>
+                          <TableCell align="left">{topic.topicName}</TableCell>
+                          <TableCell align="left">
+                            <Label
+                              variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
+                              color={statusColor}
+                            >
+                              {sentenceCase(status)}
+                            </Label>
+                          </TableCell>
+
+                          <TableCell align="right">
+                            {user?.role !== AuthorizeRole.STUDENT && (
+                              <TeamApplicationMenu
+                                onApprove={() => {
+                                  _handleChangeTeamApplicationStatus(
+                                    teamApplication,
+                                    TeamApplicationStatus.APPROVED
+                                  );
+                                }}
+                                onReject={() => {
+                                  _handleChangeTeamApplicationStatus(
+                                    teamApplication,
+                                    TeamApplicationStatus.REJECTED
+                                  );
+                                }}
                               />
-                            </TableCell>
-                            <TableCell component="th" scope="row" padding="none">
-                              <Stack direction="row" alignItems="center" spacing={2}>
-                                <Typography variant="subtitle2" noWrap>
-                                  {applyTeam.teamName}
-                                </Typography>
-                              </Stack>
-                            </TableCell>
-                            <TableCell align="left">{topic.topicName}</TableCell>
-                            <TableCell align="left">
-                              <Label
-                                variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-                                color={statusColor}
-                              >
-                                {sentenceCase(status)}
-                              </Label>
-                            </TableCell>
-
-                            <TableCell align="right">
-                              {user?.role !== AuthorizeRole.STUDENT && (
-                                <TeamApplicationMenu
-                                  onApprove={() => {
-                                    _handleChangeTeamApplicationStatus(
-                                      teamApplication,
-                                      TeamApplicationStatus.APPROVED
-                                    );
-                                  }}
-                                  onReject={() => {
-                                    _handleChangeTeamApplicationStatus(
-                                      teamApplication,
-                                      TeamApplicationStatus.REJECTED
-                                    );
-                                  }}
-                                />
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                     {emptyRows > 0 && (
                       <TableRow style={{ height: 53 * emptyRows }}>
                         <TableCell colSpan={6} />
@@ -383,11 +388,11 @@ export default function TeamApplicationList() {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={userList.length}
+              count={totalRecord}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={(e, page) => setPage(page)}
-              onRowsPerPageChange={(e) => handleChangeRowsPerPage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
             />
           </Card>
         </Container>

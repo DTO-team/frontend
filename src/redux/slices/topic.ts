@@ -74,6 +74,7 @@ export async function getTopicDetail(topicId: string | undefined) {
   try {
     const response = await axios.get(`/v1/topics/${topicId}`);
     dispatch(slice.actions.setTopicDetail(response));
+    return response;
   } catch (error) {
     dispatch(slice.actions.hasError(error));
   }
