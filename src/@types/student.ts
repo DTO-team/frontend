@@ -1,3 +1,4 @@
+import { IDepartment } from './department';
 // ----------------------------------------------------------------------
 
 import { TeamManager } from './team';
@@ -8,7 +9,6 @@ export type StudentManager = {
   email: string;
   userName: string;
   fullName: string;
-  teamDetail?: TeamManager;
   code: string;
   semester: 'SPRING' | 'FALL' | ' SUMMER';
   role: 'STUDENT';
@@ -16,4 +16,7 @@ export type StudentManager = {
     statusId: Number;
     statusName: string;
   };
+  avatarUrl?: string;
+  teamDetail?: TeamManager;
+  department?: IDepartment;
 };

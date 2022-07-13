@@ -1,14 +1,18 @@
-import { sentenceCase } from 'change-case';
 /* import { filter } from 'lodash'; */
 import { useEffect, useState } from 'react';
 // material
 import plusFill from '@iconify/icons-eva/plus-fill';
 import Icon from '@iconify/react';
 import {
+  Box,
   Button,
   Card,
   CardHeader,
   Checkbox,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   Stack,
   Table,
   TableBody,
@@ -19,24 +23,26 @@ import {
   Typography
 } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
-import Label, { LabelColor } from 'components/Label';
 import WeeklyReportModalContent from 'components/report-modal/WeeklyReportModalContent';
 import Scrollbar from 'components/Scrollbar';
 import { UserListHead } from 'components/_dashboard/user/list';
 import useAuth from 'hooks/useAuth';
+import _ from 'lodash';
 import { useSelector } from 'react-redux';
-import { getCurrentWeekOfSemester } from 'redux/slices/management';
+import { getAllWeeksOfSemester, getCurrentWeekOfSemester } from 'redux/slices/management';
 import { getTeamReports } from 'redux/slices/team';
 import { RootState, useDispatch } from 'redux/store';
-import { AuthorizeRole, TeamApplicationStatus } from 'utils/enum-utils';
+import { AuthorizeRole } from 'utils/enum-utils';
+import { ISemesterWeek } from '../../../@types/management';
+import { IReport } from '../../../@types/report';
 import { TeamManager } from '../../../@types/team';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'reportName', label: 'Report Name', alignRight: false },
+  { id: 'memberName', label: 'Member Name', alignRight: false },
   { id: 'mentorFeedback', label: 'Mentor Feedback', alignRight: false },
-  { id: 'deadLine', label: 'Deadline', alignRight: false },
+  { id: 'totalFeedBack', label: 'Total Feedback', alignRight: false },
   { id: '' }
 ];
 
@@ -94,6 +100,10 @@ export default function WeeklyReportList({ currentStudentTeam }: IWeeklyReportLi
   const [orderBy, setOrderBy] = useState('name');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [isOpenCreatReportModal, setIsOpenCreatReportModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [semesterWeekList, setSemesterWeekList] = useState<ISemesterWeek[]>([]);
+  const [selectedWeek, setSelectedWeek] = useState<ISemesterWeek>();
+  const [reportList, setReportList] = useState<IReport[]>([]);
 
   const handleRequestSort = (property: string) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -137,22 +147,35 @@ export default function WeeklyReportList({ currentStudentTeam }: IWeeklyReportLi
     setIsOpenCreatReportModal(false);
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - userList.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - reportList.length) : 0;
 
   /* const filteredUsers = applySortFilter(userList, getComparator(order, orderBy), filterName); */
 
-  const isUserNotFound = application.teamApplicationList.length === 0;
+  const isUserNotFound = reportList.length === 0;
 
   useEffect(() => {
+    setIsLoading(true);
     async function getData() {
-      if (currentStudentTeam) {
-        await getTeamReports({ teamId: currentStudentTeam.teamId });
-        const currentWeek: any = await getCurrentWeekOfSemester(user?.currentSemesterId);
-        console.log(currentWeek);
-      }
+      const allWeeks = await getAllWeeksOfSemester(user?.currentSemesterId);
+      const currentWeek = await getCurrentWeekOfSemester(user?.currentSemesterId);
+      if (allWeeks) setSemesterWeekList(_.sortBy(allWeeks, ['number']));
+      if (currentWeek) setSelectedWeek(currentWeek);
     }
     getData();
+    setIsLoading(false);
   }, [dispatch, currentStudentTeam, user]);
+
+  useEffect(() => {
+    setIsLoading(true);
+    async function getReportList() {
+      if (currentStudentTeam) {
+        await getTeamReports({ teamId: currentStudentTeam.teamId, week: selectedWeek?.number });
+      }
+    }
+    getReportList();
+    setIsLoading(false);
+    // eslint-disable-next-line
+  }, [selectedWeek]);
 
   return (
     <>
@@ -182,15 +205,39 @@ export default function WeeklyReportList({ currentStudentTeam }: IWeeklyReportLi
           title="Weekly Reports"
           sx={{ mb: 3 }}
           action={
-            <Button
-              variant="contained"
-              startIcon={<Icon icon={plusFill} />}
-              onClick={() => {
-                setIsOpenCreatReportModal(true);
-              }}
-            >
-              Report
-            </Button>
+            <Box>
+              <FormControl sx={{ width: 120, mr: 2 }} fullWidth size="small">
+                <InputLabel id="demo-simple-select-helper-label">Current Week</InputLabel>
+                <Select
+                  labelId="demo-simple-select-helper-label"
+                  id="demo-simple-select-helper"
+                  label="Current Week"
+                  disabled={isLoading}
+                  value={JSON.stringify(selectedWeek)}
+                  onChange={(event) => {
+                    setSelectedWeek(JSON.parse(event.target.value));
+                  }}
+                >
+                  {_.map(semesterWeekList, (week) => {
+                    const { id, number } = week;
+                    return (
+                      <MenuItem key={id} value={`${JSON.stringify(week)}`}>
+                        Week {number}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
+              <Button
+                variant="contained"
+                startIcon={<Icon icon={plusFill} />}
+                onClick={() => {
+                  setIsOpenCreatReportModal(true);
+                }}
+              >
+                Report
+              </Button>
+            </Box>
           }
         />
 
@@ -201,70 +248,42 @@ export default function WeeklyReportList({ currentStudentTeam }: IWeeklyReportLi
                 order={order}
                 orderBy={orderBy}
                 headLabel={TABLE_HEAD}
-                rowCount={userList.length}
+                rowCount={reportList.length}
                 numSelected={selected.length}
                 onRequestSort={handleRequestSort}
                 onSelectAllClick={handleSelectAllClick}
               />
               <TableBody>
-                {application.teamApplicationList
+                {reportList
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((teamApplication) => {
-                    const { applyTeam, topic, status, applicationId } = teamApplication;
-                    const isItemSelected = selected.indexOf(applicationId) !== -1;
-                    let statusColor: LabelColor;
-                    switch (status) {
-                      case TeamApplicationStatus.APPROVED: {
-                        statusColor = 'success';
-                        break;
-                      }
-                      case TeamApplicationStatus.PENDING: {
-                        statusColor = 'warning';
-                        break;
-                      }
-                      case TeamApplicationStatus.REJECTED: {
-                        statusColor = 'error';
-                        break;
-                      }
-                      default: {
-                        statusColor = 'success';
-                      }
-                    }
+                  .map((report) => {
+                    const { reporter, feedback, id } = report;
+                    const isItemSelected = selected.indexOf(id) !== -1;
+                    const firstFeedback = _.first(feedback);
 
                     return (
                       <TableRow
                         hover
-                        key={applicationId}
+                        key={id}
                         tabIndex={-1}
                         role="checkbox"
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
                       >
                         <TableCell padding="checkbox">
-                          <Checkbox
-                            checked={isItemSelected}
-                            onClick={() => handleClick(applicationId)}
-                          />
+                          <Checkbox checked={isItemSelected} onClick={() => handleClick(id)} />
                         </TableCell>
                         <TableCell component="th" scope="row" padding="none">
                           <Stack direction="row" alignItems="center" spacing={2}>
                             <Typography variant="subtitle2" noWrap>
-                              {applyTeam.teamName}
+                              {reporter.fullName}
                             </Typography>
                           </Stack>
                         </TableCell>
-                        <TableCell align="left">{topic.topicName}</TableCell>
-                        <TableCell align="left">
-                          <Label
-                            variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-                            color={statusColor}
-                          >
-                            {sentenceCase(status)}
-                          </Label>
-                        </TableCell>
+                        <TableCell align="left">{firstFeedback?.author.fullName}</TableCell>
+                        <TableCell align="left">{feedback.length}</TableCell>
 
                         <TableCell align="right">
-                          {user?.role !== AuthorizeRole.STUDENT && <></>}
                         </TableCell>
                       </TableRow>
                     );
@@ -279,7 +298,7 @@ export default function WeeklyReportList({ currentStudentTeam }: IWeeklyReportLi
                 <TableBody>
                   <TableRow>
                     <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                      You haven't sent any report yet
+                      You haven't sent any report this week yet
                     </TableCell>
                   </TableRow>
                 </TableBody>

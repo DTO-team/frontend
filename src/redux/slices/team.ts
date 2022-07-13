@@ -92,12 +92,10 @@ export function getTeamDetail(id: string) {
 }
 
 export async function getTeamReports(payload: any) {
-  dispatch(slice.actions.startLoading());
   try {
-    const response = await axios.get(`v1/teams/${payload.teamId}/reports`);
+    const response = await axios.get(`v1/teams/${payload?.teamId}/reports?week=${payload?.week}`);
     return response;
   } catch (error) {
-    dispatch(slice.actions.hasError(error));
     console.log(error);
   }
 }
