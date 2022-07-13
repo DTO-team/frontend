@@ -1,5 +1,7 @@
 import menu2Fill from '@iconify/icons-eva/menu-2-fill';
 import { Icon } from '@iconify/react';
+import { useState, useEffect } from 'react';
+
 // material
 import { AppBar, Box, IconButton, Stack, Toolbar } from '@material-ui/core';
 import { alpha, styled } from '@material-ui/core/styles';
@@ -11,11 +13,11 @@ import AccountPopover from './AccountPopover';
 import NotificationsPopover from './NotificationsPopover';
 import Searchbar from './Searchbar';
 import ReadFilePopOver from './ReadFilePopOver';
-import { useSelector, RootState } from 'redux/store';
 import { AuthorizeRole } from '../../utils/enum-utils';
 // hooks
 import useAuth from '../../hooks/useAuth';
 import SwitchSemesterPopOver from './dashboardServices/SwitchSemesterPopOver';
+import { projectFirestore } from 'firebase/config';
 // ----------------------------------------------------------------------
 
 const DRAWER_WIDTH = 280;
@@ -51,6 +53,38 @@ type DashboardNavbarProps = {
 export default function DashboardNavbar({ onOpenSidebar }: DashboardNavbarProps) {
   const { isCollapse } = useCollapseDrawer();
   const { user } = useAuth();
+  const [notis, setNotis] = useState([]);
+
+  useEffect(() => {
+    let subscriber: any;
+    if (Boolean(user)) {
+      subscriber = projectFirestore
+        .collection('reports')
+        .doc(user?.id)
+        .collection(user?.role === AuthorizeRole.LECTURER ? 'mentors' : 'students')
+        .orderBy('createdAt', 'asc')
+        .onSnapshot((querySnapshot) => {
+          let messagesRealtime: any = [];
+          let seen = 0;
+          querySnapshot.forEach((doc) => {
+            if (doc.exists) {
+              let id = doc.id;
+              let data: any = { ...doc.data(), id };
+              if (!data?.seen) seen += 1;
+              messagesRealtime.push(data);
+            }
+          });
+          if (messagesRealtime.length > 0) {
+            setNotis(messagesRealtime);
+          }
+        });
+    }
+
+    // Stop listening for updates when no longer required
+    return () => subscriber();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <RootStyle
       sx={{
@@ -72,7 +106,7 @@ export default function DashboardNavbar({ onOpenSidebar }: DashboardNavbarProps)
         <Stack direction="row" alignItems="center" spacing={{ xs: 0.5, sm: 1.5 }}>
           <SwitchSemesterPopOver />
           {user && user.role === AuthorizeRole.ADMIN && <ReadFilePopOver />}
-          <NotificationsPopover />
+          <NotificationsPopover msgs={notis} />
           <AccountPopover />
         </Stack>
       </ToolbarStyle>

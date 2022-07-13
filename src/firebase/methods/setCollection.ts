@@ -1,4 +1,4 @@
-import { projectFirestore } from '../config';
+import { projectFirestore, timestamp } from '../config';
 import { generateUniqSerial } from 'utils/uuid';
 
 export const setCollection = () => {
@@ -6,7 +6,7 @@ export const setCollection = () => {
     collection: string,
     subCollection: string,
     doc: any,
-    userID: string
+    userID: string | undefined
   ) => {
     try {
       const res = await projectFirestore
@@ -16,6 +16,7 @@ export const setCollection = () => {
         .doc(generateUniqSerial())
         .set({
           ...doc,
+          createdAt: timestamp(),
           seen: false
         });
     } catch (err) {
@@ -26,14 +27,15 @@ export const setCollection = () => {
   const updateSeenMessageField = async (
     collection: string,
     subCollection: string,
-    userID: string
+    userID: string | undefined,
+    id: string | undefined
   ) => {
     try {
       await projectFirestore
         .collection(collection)
         .doc(userID)
         .collection(subCollection)
-        .doc(generateUniqSerial())
+        .doc(id)
         .update({
           seen: true
         });

@@ -47,6 +47,7 @@ const selectedTeamInit: TeamManager = {
     status: '',
     avatarUrl: ''
   },
+  mentors: [],
   totalMember: 0
 };
 
