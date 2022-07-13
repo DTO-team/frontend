@@ -31,6 +31,7 @@ const StudentTeamInit: TeamManager = {
     status: '',
     avatarUrl: ''
   },
+  mentors: [],
   totalMember: 0
 };
 
@@ -80,7 +81,11 @@ const ProjectDetail = () => {
         <Grid container spacing={3}>
           <Grid item container xs={8} spacing={2}>
             <Grid item xs={12}>
-              <MatchedTopicSection currentStudentTeam={currentStudentTeam} currentTeamTopic={currentTeamTopic} isLoading={false} />
+              <MatchedTopicSection
+                currentStudentTeam={currentStudentTeam}
+                currentTeamTopic={currentTeamTopic}
+                isLoading={false}
+              />
             </Grid>
             <Grid item xs={12}>
               <WeeklyReportList currentStudentTeam={currentStudentTeam} />

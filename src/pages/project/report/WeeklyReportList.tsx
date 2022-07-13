@@ -148,7 +148,6 @@ export default function WeeklyReportList({ currentStudentTeam }: IWeeklyReportLi
       if (currentStudentTeam) {
         await getTeamReports({ teamId: currentStudentTeam.teamId });
         const currentWeek: any = await getCurrentWeekOfSemester(user?.currentSemesterId);
-        console.log(currentWeek);
       }
     }
     getData();
@@ -175,7 +174,11 @@ export default function WeeklyReportList({ currentStudentTeam }: IWeeklyReportLi
         onCancle={() => onClose()}
       /> */}
 
-      <WeeklyReportModalContent isOpen={isOpenCreatReportModal} onClose={onClose} />
+      <WeeklyReportModalContent
+        isOpen={isOpenCreatReportModal}
+        onClose={onClose}
+        currentStudentTeam={currentStudentTeam}
+      />
 
       <Card>
         <CardHeader
