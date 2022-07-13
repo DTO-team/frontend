@@ -27,6 +27,7 @@ export type AuthUser = null | {
   zipCode?: string | null;
   about?: string | null;
   isPublic?: boolean | null;
+  currentSemesterId?: string | null;
 };
 
 export type AuthState = {

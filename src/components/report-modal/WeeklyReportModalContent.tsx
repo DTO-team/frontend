@@ -1,16 +1,16 @@
+import closeFill from '@iconify/icons-eva/close-fill';
 import Icon from '@iconify/react';
 import { Button, Divider, FormControl, Modal, styled, Typography } from '@material-ui/core';
 import { Box } from '@material-ui/system';
 import { QuillEditor } from 'components/editor';
 import Scrollbar from 'components/Scrollbar';
 import _ from 'lodash';
-import { useState } from 'react';
-import { ReportActionType } from 'utils/enum-utils';
-import closeFill from '@iconify/icons-eva/close-fill';
-import { createReport } from 'redux/slices/report';
-import { useSelector } from 'react-redux';
-import { RootState } from 'redux/store';
 import { useSnackbar } from 'notistack5';
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { createTeamReport } from 'redux/slices/team';
+import { RootState } from 'redux/store';
+import { ReportActionType } from 'utils/enum-utils';
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -99,7 +99,10 @@ export default function WeeklyReportModalContent(props: IWeeklyReportModalConten
     newReportPayload.isTeamReport = true;
     newReportPayload.reportEvidences = [];
     try {
-      const response = await createReport(newReportPayload);
+      const response = await createTeamReport({
+        ...newReportPayload,
+        teamId: student.studentTeam.teamId
+      });
       if (response !== undefined) {
         enqueueSnackbar('Create report successfully', { variant: 'success' });
         onClose();
@@ -110,6 +113,10 @@ export default function WeeklyReportModalContent(props: IWeeklyReportModalConten
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    setReportPayload(reportPayloadInit);
+  }, [isOpen]);
 
   return (
     <Modal

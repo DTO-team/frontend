@@ -102,27 +102,33 @@ function AuthProvider({ children }: { children: ReactNode }) {
                 role: response.role,
                 statusId: response.statusId,
                 email: response.email,
-                avatarUrl: response.avatarUrl
+                avatarUrl: response.avatarUrl,
+                currentSemesterId: ''
               };
-              dispatch({
-                type: Types.auth,
-                payload: { isAuthenticated: true, user: userAttribute }
-              });
               axios.defaults.headers.common.Authorization = `Bearer ${response.accessToken}`;
 
               if (!sessionStorage.getItem('currentSemester')) {
+                //If there is no current semester get it
                 const semesterResponse = await getSemesterList();
                 const currentSemesterData = currentSemester(semesterResponse);
+                userAttribute.currentSemesterId = currentSemesterData.id;
                 sessionStorage.setItem('currentSemester', JSON.stringify(currentSemesterData));
                 axios.defaults.headers.common['currentSemester'] =
                   sessionStorage.getItem('currentSemester');
                 rootStoreDispatch(setSelectedSemester(currentSemesterData));
               } else {
+                //else assign it
                 axios.defaults.headers.common['currentSemester'] =
                   sessionStorage.getItem('currentSemester');
                 await getSemesterList();
-                rootStoreDispatch(setSelectedSemester(JSON.parse(sessionStorage.currentSemester)));
+                const currentSemesterData = JSON.parse(sessionStorage.currentSemester);
+                userAttribute.currentSemesterId = currentSemesterData.id;
+                rootStoreDispatch(setSelectedSemester(currentSemesterData));
               }
+              dispatch({
+                type: Types.auth,
+                payload: { isAuthenticated: true, user: userAttribute }
+              });
             } catch (error) {
               console.log('Failed to get session: ', error);
               dispatch({

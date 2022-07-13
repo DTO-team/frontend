@@ -90,3 +90,25 @@ export function getTeamDetail(id: string) {
     }
   };
 }
+
+export async function getTeamReports(payload: any) {
+  dispatch(slice.actions.startLoading());
+  try {
+    const response = await axios.get(`v1/teams/${payload.teamId}/reports`);
+    return response;
+  } catch (error) {
+    dispatch(slice.actions.hasError(error));
+    console.log(error);
+  }
+}
+
+export async function createTeamReport(payload: any) {
+  dispatch(slice.actions.startLoading());
+  try {
+    const response = await axios.post(`v1/teams/${payload.teamId}/reports`, payload);
+    return response;
+  } catch (error) {
+    dispatch(slice.actions.hasError(error));
+    console.log(error);
+  }
+}

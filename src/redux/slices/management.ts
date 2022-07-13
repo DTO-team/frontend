@@ -82,3 +82,12 @@ export async function updateSemesterStatus(payload: any) {
     console.log(error);
   }
 }
+
+export async function getCurrentWeekOfSemester(semesterId: any) {
+  try {
+    const response = await axiosInstance.get(`v1/semesters/${semesterId}/weeks/current`);
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}

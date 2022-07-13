@@ -9,7 +9,6 @@ import {
   Card,
   CardHeader,
   Checkbox,
-  Container,
   Stack,
   Table,
   TableBody,
@@ -20,17 +19,17 @@ import {
   Typography
 } from '@material-ui/core';
 import { useTheme } from '@material-ui/core/styles';
-import AlertDialog from 'components/dialog/AlertDialog';
 import Label, { LabelColor } from 'components/Label';
+import WeeklyReportModalContent from 'components/report-modal/WeeklyReportModalContent';
 import Scrollbar from 'components/Scrollbar';
 import { UserListHead } from 'components/_dashboard/user/list';
 import useAuth from 'hooks/useAuth';
 import { useSelector } from 'react-redux';
-import { updateTeamApplicationStatus } from 'redux/slices/team-application';
+import { getCurrentWeekOfSemester } from 'redux/slices/management';
+import { getTeamReports } from 'redux/slices/team';
 import { RootState, useDispatch } from 'redux/store';
 import { AuthorizeRole, TeamApplicationStatus } from 'utils/enum-utils';
-import { TeamApplication } from '../../../@types/application';
-import WeeklyReportModalContent from 'components/report-modal/WeeklyReportModalContent';
+import { TeamManager } from '../../../@types/team';
 
 // ----------------------------------------------------------------------
 
@@ -78,7 +77,11 @@ const TABLE_HEAD = [
   return stabilizedThis.map((el) => el[0]);
 } */
 
-export default function WeeklyReportList() {
+interface IWeeklyReportListProps {
+  currentStudentTeam: TeamManager;
+}
+
+export default function WeeklyReportList({ currentStudentTeam }: IWeeklyReportListProps) {
   const theme = useTheme();
   const dispatch = useDispatch();
 
@@ -88,13 +91,9 @@ export default function WeeklyReportList() {
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [selected, setSelected] = useState<string[]>([]);
-  const [selectedTeamApplication, setSelectedTeamApplication] = useState<TeamApplication>();
-  const [updateStatusAction, setUpdateStatusAction] = useState<TeamApplicationStatus>();
   const [orderBy, setOrderBy] = useState('name');
-  const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [isOpenCreatReportModal, setIsOpenCreatReportModal] = useState(false);
-  const [isOpenConfirmDialog, setIsOpenConfirmDialog] = useState(false);
 
   const handleRequestSort = (property: string) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -145,13 +144,19 @@ export default function WeeklyReportList() {
   const isUserNotFound = application.teamApplicationList.length === 0;
 
   useEffect(() => {
-    async function getData() {}
+    async function getData() {
+      if (currentStudentTeam) {
+        await getTeamReports({ teamId: currentStudentTeam.teamId });
+        const currentWeek: any = await getCurrentWeekOfSemester(user?.currentSemesterId);
+        console.log(currentWeek);
+      }
+    }
     getData();
-  }, [dispatch]);
+  }, [dispatch, currentStudentTeam, user]);
 
   return (
     <>
-      <AlertDialog
+      {/* <AlertDialog
         isOpen={isOpenConfirmDialog}
         title="Update Application Status"
         description={
@@ -168,7 +173,7 @@ export default function WeeklyReportList() {
           onClose();
         }}
         onCancle={() => onClose()}
-      />
+      /> */}
 
       <WeeklyReportModalContent isOpen={isOpenCreatReportModal} onClose={onClose} />
 
