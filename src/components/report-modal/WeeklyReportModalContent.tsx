@@ -81,8 +81,6 @@ export default function WeeklyReportModalContent(props: IWeeklyReportModalConten
   const { addDocWithID } = setCollection();
   const { uploadEvidences } = setStorage();
 
-  console.log(evidences);
-
   useEffect(() => {
     setReportPayload(reportPayloadInit);
   }, [isOpen]);
