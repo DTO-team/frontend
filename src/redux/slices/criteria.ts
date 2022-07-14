@@ -1,22 +1,22 @@
+import { ICriteria } from './../../@types/criterion';
 import { createSlice } from '@reduxjs/toolkit';
 import { dispatch } from '../store';
 // utils
-import { ITopicDetail } from '../../@types/topic';
 import axios from '../../utils/axios';
 // ----------------------------------------------------------------------
 
-type PropjectState = {
+type CriteriaState = {
   isLoading: boolean;
   error: boolean;
 };
 
-const initialState: PropjectState = {
+const initialState: CriteriaState = {
   isLoading: false,
   error: false
 };
 
 const slice = createSlice({
-  name: 'report',
+  name: 'criteria',
   initialState,
   reducers: {
     // START LOADING
@@ -37,12 +37,9 @@ export default slice.reducer;
 
 // ----------------------------------------------------------------------
 
-export async function getProjectDetail(projectId: string | undefined) {
-  dispatch(slice.actions.startLoading());
+export async function getCriteriaList() {
   try {
-    const response = await axios.get(`/v1/projects/${projectId}`);
+    const response: ICriteria[] = await axios.get(`/v1/criterions`);
     return response;
-  } catch (error) {
-    dispatch(slice.actions.hasError(error));
-  }
+  } catch (error) {}
 }

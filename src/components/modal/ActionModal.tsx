@@ -11,6 +11,7 @@ interface IActionModalProps {
   children?: React.ReactNode;
   style?: SxProps<Theme>;
   isChildModal?: boolean;
+  boxStyleOverride?: object;
 }
 
 const boxStyle = {
@@ -37,7 +38,7 @@ const IconStyle = styled(Icon)(({ theme }) => ({
 }));
 
 export default function ActionModal(props: IActionModalProps) {
-  const { children, isOpen, onClose, title, style, isChildModal = false } = props;
+  const { children, isOpen, onClose, title, style, isChildModal = false, boxStyleOverride } = props;
   return (
     <Modal
       open={isOpen}
@@ -47,10 +48,11 @@ export default function ActionModal(props: IActionModalProps) {
       BackdropProps={{ invisible: true }}
       sx={{
         backdropFilter: 'blur(1px)',
+        overflowY: 'auto',
         ...style
       }}
     >
-      <Box sx={boxStyle}>
+      <Box sx={boxStyleOverride ? boxStyleOverride : boxStyle}>
         <Box sx={{ position: 'relative', display: 'flex' }}>
           <Typography
             id={isChildModal ? 'child-modal-title' : 'parent-modal-title'}

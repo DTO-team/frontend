@@ -21,10 +21,7 @@ interface ISemesterListModalProps {
 
 export default function SemesterListModal(props: ISemesterListModalProps) {
   const { isOpen, onClose } = props;
-  const [isLoading, setIsLoading] = useState(false);
-  const [isOpenConfirmDialog, setIsOpenConfirmDialog] = useState(false);
   const [isOpenSelectedDateDialog, setIsOpenSelectedDateDialog] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [currentUpdateSemester, setCurrentUpdateSemester] = useState<Semester>();
   const dispatch = useDispatch();
   const { semesters } = useSelector((state: RootState) => state.management);
