@@ -11,9 +11,11 @@ import { useSelector } from 'react-redux';
 import { createTeamReport } from 'redux/slices/team';
 import { RootState } from 'redux/store';
 import { setCollection } from 'firebase/methods/setCollection';
+import { setStorage } from 'firebase/methods/setStorage';
 import { ReportActionType } from 'utils/enum-utils';
 import useAuth from 'hooks/useAuth';
 import { TeamManager } from '../../@types/team';
+import Upload from './Upload';
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -51,7 +53,12 @@ interface IReportPayload {
   nextWeekTasks: string;
   urgentIssues: string;
   selfAssessment: string;
-  reportEvidences?: [];
+  reportEvidences?: IEvidences[];
+}
+
+interface IEvidences {
+  name: string;
+  url: string;
 }
 
 const reportPayloadInit = {
@@ -67,10 +74,30 @@ const reportPayloadInit = {
 export default function WeeklyReportModalContent(props: IWeeklyReportModalContentProps) {
   const { isOpen, onClose, currentStudentTeam } = props;
   const [reportPayload, setReportPayload] = useState<IReportPayload>(reportPayloadInit);
+  const [evidences, setEvidences] = useState([]);
   const { student } = useSelector((state: RootState) => state);
   const { user } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
   const { addDocWithID } = setCollection();
+  const { uploadEvidences } = setStorage();
+
+  console.log(evidences);
+
+  useEffect(() => {
+    setReportPayload(reportPayloadInit);
+  }, [isOpen]);
+
+  const handleUploadFilesToCloud = async (evidences: any) => {
+    const data = [];
+    for (let evidence of evidences) {
+      let url = await uploadEvidences(reportPayload.projectId || 'global', evidence);
+      data.push({
+        name: evidence.name,
+        url: url
+      });
+    }
+    return data;
+  };
 
   const _handleOnchangeReportPayload = (value: string, reportAction: ReportActionType) => {
     const newPayload = _.cloneDeep(reportPayload);
@@ -103,7 +130,7 @@ export default function WeeklyReportModalContent(props: IWeeklyReportModalConten
     let newReportPayload = reportPayload;
     newReportPayload.projectId = student.studentTeam.projectId;
     newReportPayload.isTeamReport = true;
-    newReportPayload.reportEvidences = [];
+    newReportPayload.reportEvidences = await handleUploadFilesToCloud(evidences);
     try {
       const response = await createTeamReport({
         ...newReportPayload,
@@ -137,9 +164,9 @@ export default function WeeklyReportModalContent(props: IWeeklyReportModalConten
     }
   };
 
-  useEffect(() => {
-    setReportPayload(reportPayloadInit);
-  }, [isOpen]);
+  const onChangeFiles = (files: any): void => {
+    setEvidences(files);
+  };
 
   return (
     <Modal
@@ -237,6 +264,12 @@ export default function WeeklyReportModalContent(props: IWeeklyReportModalConten
                     _handleOnchangeReportPayload(value, ReportActionType.SELF_ASSESSMENT);
                   }}
                 />
+              </Box>
+              <Box sx={{ p: 2 }}>
+                <Typography variant="body2" fontWeight={'bold'} sx={{ mb: 0.5 }}>
+                  Evidences
+                </Typography>
+                <Upload onChangeFiles={onChangeFiles} />
               </Box>
             </FormControl>
 
