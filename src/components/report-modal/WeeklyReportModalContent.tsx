@@ -10,7 +10,10 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { createTeamReport } from 'redux/slices/team';
 import { RootState } from 'redux/store';
+import { setCollection } from 'firebase/methods/setCollection';
 import { ReportActionType } from 'utils/enum-utils';
+import useAuth from 'hooks/useAuth';
+import { TeamManager } from '../../@types/team';
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -37,6 +40,7 @@ interface IWeeklyReportModalContentProps {
   isOpen: boolean;
   onClose: () => void;
   children?: React.ReactNode;
+  currentStudentTeam: TeamManager;
 }
 
 interface IReportPayload {
@@ -61,10 +65,12 @@ const reportPayloadInit = {
 };
 
 export default function WeeklyReportModalContent(props: IWeeklyReportModalContentProps) {
-  const { isOpen, onClose } = props;
+  const { isOpen, onClose, currentStudentTeam } = props;
   const [reportPayload, setReportPayload] = useState<IReportPayload>(reportPayloadInit);
   const { student } = useSelector((state: RootState) => state);
+  const { user } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
+  const { addDocWithID } = setCollection();
 
   const _handleOnchangeReportPayload = (value: string, reportAction: ReportActionType) => {
     const newPayload = _.cloneDeep(reportPayload);
@@ -105,9 +111,26 @@ export default function WeeklyReportModalContent(props: IWeeklyReportModalConten
       });
       if (response !== undefined) {
         enqueueSnackbar('Create report successfully', { variant: 'success' });
+        for (const mentor of currentStudentTeam.mentors) {
+          await addDocWithID(
+            'reports',
+            'mentors',
+            {
+              id: user?.id,
+              displayName: user?.displayName,
+              avatarUrl: user?.avatarUrl,
+              currentSemesterId: user?.currentSemesterId,
+              email: user?.email,
+              role: user?.role
+            },
+            mentor.id
+          );
+        }
         onClose();
       } else {
-        enqueueSnackbar('Oops! Something went wrong, please try again later', { variant: 'error' });
+        enqueueSnackbar('Oops! Something went wrong, please try again later', {
+          variant: 'error'
+        });
       }
     } catch (error) {
       console.log(error);

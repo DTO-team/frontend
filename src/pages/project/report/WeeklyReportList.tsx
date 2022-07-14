@@ -198,7 +198,11 @@ export default function WeeklyReportList({ currentStudentTeam }: IWeeklyReportLi
         onCancle={() => onClose()}
       /> */}
 
-      <WeeklyReportModalContent isOpen={isOpenCreatReportModal} onClose={onClose} />
+      <WeeklyReportModalContent
+        isOpen={isOpenCreatReportModal}
+        onClose={onClose}
+        currentStudentTeam={currentStudentTeam}
+      />
 
       <Card>
         <CardHeader

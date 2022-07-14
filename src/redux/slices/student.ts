@@ -49,6 +49,7 @@ const initialState: StudentState = {
       avatarUrl: ''
     },
     totalMember: 0,
+    mentors: [],
     members: []
   }
 };

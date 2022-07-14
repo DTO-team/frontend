@@ -1,20 +1,17 @@
-import faker from 'faker';
-import { noCase } from 'change-case';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { set, sub, formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNowStrict } from 'date-fns';
+import { vi } from 'date-fns/locale';
 import { Icon } from '@iconify/react';
 import bellFill from '@iconify/icons-eva/bell-fill';
 import clockFill from '@iconify/icons-eva/clock-fill';
-import doneAllFill from '@iconify/icons-eva/done-all-fill';
+import useAuth from 'hooks/useAuth';
 // material
 import {
   Box,
   List,
   Badge,
-  Button,
   Avatar,
-  Tooltip,
   Divider,
   Typography,
   ListItemText,
@@ -22,62 +19,11 @@ import {
   ListItemAvatar,
   ListItemButton
 } from '@material-ui/core';
-// utils
-import { mockImgAvatar } from '../../utils/mockImages';
 // components
 import Scrollbar from '../../components/Scrollbar';
 import MenuPopover from '../../components/MenuPopover';
 import { MIconButton } from '../../components/@material-extend';
-
-// ----------------------------------------------------------------------
-
-const NOTIFICATIONS = [
-  {
-    id: faker.datatype.uuid(),
-    title: 'Your order is placed',
-    description: 'waiting for shipping',
-    avatar: null,
-    type: 'order_placed',
-    createdAt: set(new Date(), { hours: 10, minutes: 30 }),
-    isUnRead: true
-  },
-  {
-    id: faker.datatype.uuid(),
-    title: faker.name.findName(),
-    description: 'answered to your comment on the Minimal',
-    avatar: mockImgAvatar(2),
-    type: 'friend_interactive',
-    createdAt: sub(new Date(), { hours: 3, minutes: 30 }),
-    isUnRead: true
-  },
-  {
-    id: faker.datatype.uuid(),
-    title: 'You have new message',
-    description: '5 unread messages',
-    avatar: null,
-    type: 'chat_message',
-    createdAt: sub(new Date(), { days: 1, hours: 3, minutes: 30 }),
-    isUnRead: false
-  },
-  {
-    id: faker.datatype.uuid(),
-    title: 'You have new mail',
-    description: 'sent from Guido Padberg',
-    avatar: null,
-    type: 'mail',
-    createdAt: sub(new Date(), { days: 2, hours: 3, minutes: 30 }),
-    isUnRead: false
-  },
-  {
-    id: faker.datatype.uuid(),
-    title: 'Delivery processing',
-    description: 'Your order is being shipped',
-    avatar: null,
-    type: 'order_shipped',
-    createdAt: sub(new Date(), { days: 3, hours: 3, minutes: 30 }),
-    isUnRead: false
-  }
-];
+import { setCollection } from 'firebase/methods/setCollection';
 
 type TNotificationPopover = {
   id: string;
@@ -85,55 +31,58 @@ type TNotificationPopover = {
   description: string;
   avatar: string | null;
   type: string;
-  createdAt: Date;
-  isUnRead: boolean;
+  createdAt: string;
+  seen: boolean;
+  avatarUrl?: string;
+  displayName?: string;
+  role?: string;
 };
 
 function renderContent(notification: TNotificationPopover) {
   const title = (
     <Typography variant="subtitle2">
-      {notification.title}
+      {notification.displayName}
       <Typography component="span" variant="body2" sx={{ color: 'text.secondary' }}>
-        &nbsp; {noCase(notification.description)}
+        &nbsp; sent their report
       </Typography>
     </Typography>
   );
-
-  if (notification.type === 'order_placed') {
-    return {
-      avatar: <img alt={notification.title} src="/static/icons/ic_notification_package.svg" />,
-      title
-    };
-  }
-  if (notification.type === 'order_shipped') {
-    return {
-      avatar: <img alt={notification.title} src="/static/icons/ic_notification_shipping.svg" />,
-      title
-    };
-  }
-  if (notification.type === 'mail') {
-    return {
-      avatar: <img alt={notification.title} src="/static/icons/ic_notification_mail.svg" />,
-      title
-    };
-  }
-  if (notification.type === 'chat_message') {
-    return {
-      avatar: <img alt={notification.title} src="/static/icons/ic_notification_chat.svg" />,
-      title
-    };
-  }
   return {
-    avatar: notification.avatar ? <img alt={notification.title} src={notification.avatar} /> : null,
+    avatar: notification.avatarUrl ? (
+      <img alt={notification.title} src={notification.avatarUrl} />
+    ) : null,
     title
   };
 }
 
+const handleRenderTime = (timeCreatedAt: any) => {
+  let date = new Date(timeCreatedAt.seconds * 1000);
+  date.toISOString().substring(0, 10);
+  let time = formatDistanceToNowStrict(date, {
+    locale: vi
+  });
+  return time;
+};
+
 function NotificationItem({ notification }: { notification: TNotificationPopover }) {
-  const { avatar, title } = renderContent(notification);
+  const { title, avatar } = renderContent(notification);
+  const { updateSeenMessageField } = setCollection();
+  const { user } = useAuth();
+
+  const handleSeen = async (id: string) => {
+    if (Boolean(user)) {
+      await updateSeenMessageField(
+        'reports',
+        notification.role === 'STUDENT' ? 'mentors' : 'students',
+        user?.id,
+        notification.id
+      );
+    }
+  };
 
   return (
     <ListItemButton
+      onClick={() => handleSeen(notification.id)}
       to="#"
       disableGutters
       key={notification.id}
@@ -142,7 +91,7 @@ function NotificationItem({ notification }: { notification: TNotificationPopover
         py: 1.5,
         px: 2.5,
         '&:not(:last-of-type)': { mb: '1px' },
-        ...(notification.isUnRead && {
+        ...(!notification.seen && {
           bgcolor: 'action.selected'
         })
       }}
@@ -163,7 +112,7 @@ function NotificationItem({ notification }: { notification: TNotificationPopover
             }}
           >
             <Box component={Icon} icon={clockFill} sx={{ mr: 0.5, width: 16, height: 16 }} />
-            {formatDistanceToNow(new Date(notification.createdAt))}
+            {handleRenderTime(notification.createdAt)}
           </Typography>
         }
       />
@@ -171,11 +120,25 @@ function NotificationItem({ notification }: { notification: TNotificationPopover
   );
 }
 
-export default function NotificationsPopover() {
+type NotificationsPopoverProps = {
+  msgs: any;
+};
+
+export default function NotificationsPopover({ msgs }: NotificationsPopoverProps) {
   const anchorRef = useRef(null);
   const [open, setOpen] = useState(false);
-  const [notifications, setNotifications] = useState(NOTIFICATIONS);
-  const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
+  const [unreadMsgs, setUnreadMsgs] = useState([]);
+  const [notis, setNotis] = useState([]);
+
+  useEffect(() => {
+    setNotis(msgs);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [msgs]);
+
+  useEffect(() => {
+    handleUnreadNumber();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notis]);
 
   const handleOpen = () => {
     setOpen(true);
@@ -185,13 +148,11 @@ export default function NotificationsPopover() {
     setOpen(false);
   };
 
-  const handleMarkAllAsRead = () => {
-    setNotifications(
-      notifications.map((notification) => ({
-        ...notification,
-        isUnRead: false
-      }))
-    );
+  const handleUnreadNumber = () => {
+    if (Boolean(notis.length)) {
+      setUnreadMsgs(notis.filter((comment: any) => comment.seen === false));
+    }
+    return [];
   };
 
   return (
@@ -202,9 +163,13 @@ export default function NotificationsPopover() {
         color={open ? 'primary' : 'default'}
         onClick={handleOpen}
       >
-        <Badge badgeContent={totalUnRead} color="error">
+        {unreadMsgs.length > 0 ? (
+          <Badge badgeContent={unreadMsgs.length} color="error">
+            <Icon icon={bellFill} width={20} height={20} />
+          </Badge>
+        ) : (
           <Icon icon={bellFill} width={20} height={20} />
-        </Badge>
+        )}
       </MIconButton>
 
       <MenuPopover
@@ -217,35 +182,38 @@ export default function NotificationsPopover() {
           <Box sx={{ flexGrow: 1 }}>
             <Typography variant="subtitle1">Notifications</Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              You have {totalUnRead} unread messages
+              You have {unreadMsgs.length} unread messages
             </Typography>
           </Box>
 
-          {totalUnRead > 0 && (
+          {/* {handleUnreadNumber().length > 0 && (
             <Tooltip title=" Mark all as read">
               <MIconButton color="primary" onClick={handleMarkAllAsRead}>
                 <Icon icon={doneAllFill} width={20} height={20} />
               </MIconButton>
             </Tooltip>
-          )}
+          )} */}
         </Box>
 
         <Divider />
 
         <Scrollbar sx={{ height: { xs: 340, sm: 'auto' } }}>
-          <List
-            disablePadding
-            subheader={
-              <ListSubheader disableSticky sx={{ py: 1, px: 2.5, typography: 'overline' }}>
-                New
-              </ListSubheader>
-            }
-          >
-            {notifications.slice(0, 2).map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
-            ))}
-          </List>
-
+          {Boolean(unreadMsgs.length) && (
+            <List
+              disablePadding
+              subheader={
+                <ListSubheader disableSticky sx={{ py: 1, px: 2.5, typography: 'overline' }}>
+                  New
+                </ListSubheader>
+              }
+            >
+              {unreadMsgs.map((message: any) => (
+                <NotificationItem key={message.id} notification={message} />
+              ))}
+            </List>
+          )}
+        </Scrollbar>
+        {Boolean(notis.length) && unreadMsgs.length < notis.length && (
           <List
             disablePadding
             subheader={
@@ -254,19 +222,12 @@ export default function NotificationsPopover() {
               </ListSubheader>
             }
           >
-            {notifications.slice(2, 5).map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
-            ))}
+            {notis.map(
+              (message: any) =>
+                message.seen && <NotificationItem key={message.id} notification={message} />
+            )}
           </List>
-        </Scrollbar>
-
-        <Divider />
-
-        <Box sx={{ p: 1 }}>
-          <Button fullWidth disableRipple component={RouterLink} to="#">
-            View All
-          </Button>
-        </Box>
+        )}
       </MenuPopover>
     </>
   );
