@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import axiosInstance from 'utils/axios';
-import { Semester } from '../../@types/management';
+import { ISemesterWeek, Semester } from '../../@types/management';
 // utils
 import { dispatch } from '../store';
 
@@ -85,7 +85,18 @@ export async function updateSemesterStatus(payload: any) {
 
 export async function getCurrentWeekOfSemester(semesterId: any) {
   try {
-    const response = await axiosInstance.get(`v1/semesters/${semesterId}/weeks/current`);
+    const response: ISemesterWeek = await axiosInstance.get(
+      `v1/semesters/${semesterId}/weeks/current`
+    );
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getAllWeeksOfSemester(semesterId: any) {
+  try {
+    const response: ISemesterWeek[] = await axiosInstance.get(`v1/semesters/${semesterId}/weeks`);
     return response;
   } catch (error) {
     console.log(error);
