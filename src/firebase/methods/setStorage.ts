@@ -16,7 +16,20 @@ export const setStorage = () => {
     }
   };
 
+  const uploadEvidences = async (projectId: string, file: any) => {
+    filePath = `evidences/${projectId}/${file.name}`;
+    const storageRef = projectStorage.ref(filePath);
+    try {
+      const res = await storageRef.put(file);
+      let url = await res.ref.getDownloadURL();
+      return url;
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
   return {
-    uploadAvatar
+    uploadAvatar,
+    uploadEvidences
   };
 };
