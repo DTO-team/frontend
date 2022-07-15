@@ -26,7 +26,7 @@ const initialState: ReportState = {
 };
 
 const slice = createSlice({
-  name: 'management',
+  name: 'report',
   initialState,
   reducers: {
     // START LOADING

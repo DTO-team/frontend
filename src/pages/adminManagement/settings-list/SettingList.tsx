@@ -1,6 +1,7 @@
 import { Box, Grid, Typography } from '@material-ui/core';
 import ItemCard from 'components/card/ItemCard';
 import { useState } from 'react';
+import CreateEvaluationSessionModal from '../evaluation-session/CreateEvaluationSessionModal';
 import SemesterListModal from '../semester-management/SemesterListModal';
 
 export default function SettingList() {
@@ -15,10 +16,8 @@ export default function SettingList() {
 
   return (
     <>
-      {isOpenSemesterManagement && (
-        <SemesterListModal isOpen={isOpenSemesterManagement} onClose={onClose} />
-      )}
-
+      <SemesterListModal isOpen={isOpenSemesterManagement} onClose={onClose} />
+      <CreateEvaluationSessionModal isOpen={true} onClose={onClose} />
       <Box sx={{ m: 8 }}>
         <Typography variant="h4" sx={{ mb: 4 }}>
           Admin management settings:{' '}
@@ -32,11 +31,7 @@ export default function SettingList() {
             />
           </Grid>
           <Grid item xs={3}>
-            <ItemCard
-              onClick={() => {}}
-              title="Week Management"
-              description="Management week "
-            />
+            <ItemCard onClick={() => {}} title="Week Management" description="Management week " />
           </Grid>
           <Grid item xs={3}>
             <ItemCard
