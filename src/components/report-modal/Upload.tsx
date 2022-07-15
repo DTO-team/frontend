@@ -48,6 +48,7 @@ export default function Upload({ onChangeFiles }: UploadProps) {
       setFiles(files);
       onChangeFiles(files);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [setFiles]
   );
 
