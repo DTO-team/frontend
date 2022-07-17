@@ -206,7 +206,5 @@ export default function FormDialogs({
         </DialogActions>
       </Dialog>
     </>
-  ) : (
-    <p>loading</p>
-  );
+  ) : null;
 }

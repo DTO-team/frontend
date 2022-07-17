@@ -11,25 +11,40 @@ import TeamInformation from './TeamInfomation';
 import TeamMemberList from './TeamMemberList';
 import TeamMentor from './TeamMentor';
 import Page404 from 'pages/Page404';
-import { clearTeamDetail, getTeamDetail } from 'redux/slices/team';
+import {
+  clearTeamDetail,
+  clearTeamTopicDetail,
+  getTeamDetail,
+  getTeamTopicDetail
+} from 'redux/slices/team';
 import { getLecturerList } from 'redux/slices/lecturer';
+import { batch } from 'react-redux';
+import TeamProject from './TeamProject';
 
 const TeamDetail = () => {
   let { id } = useParams();
   const { themeStretch } = useSettings();
   const dispatch = useDispatch();
-  const { teamDetail } = useSelector((state: RootState) => state.team);
+  const { teamDetail, topic } = useSelector((state: RootState) => state.team);
 
   useEffect(() => {
     dispatch(getTeamDetail(id));
     return () => {
-      clearTeamDetail();
+      batch(() => {
+        clearTeamDetail();
+        clearTeamTopicDetail();
+      });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   useEffect(() => {
-    dispatch(getLecturerList());
+    batch(() => {
+      dispatch(getLecturerList());
+      if (teamDetail && teamDetail?.projectId) {
+        dispatch(getTeamTopicDetail(teamDetail.projectId));
+      }
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teamDetail]);
 
@@ -53,6 +68,8 @@ const TeamDetail = () => {
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
               <TeamInformation teamDetail={teamDetail} />
+              <br />
+              <TeamProject teamProject={topic} />
               <br />
               <TeamMentor teamDetail={teamDetail} />
             </Grid>

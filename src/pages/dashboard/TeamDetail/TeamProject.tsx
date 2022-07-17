@@ -17,23 +17,19 @@ const IconStyle = styled(Icon)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 interface TeamInformationProps {
-  teamDetail: any;
+  teamProject: any;
 }
-export default function TeamInformation({ teamDetail }: TeamInformationProps) {
-  return (
+export default function TeamProject({ teamProject }: TeamInformationProps) {
+  return teamProject && teamProject?.topicsResponse ? (
     <Card>
-      <CardHeader
-        title="Team information
-"
-      />
-
+      <CardHeader title="Team Project" />
       <Stack spacing={2} sx={{ p: 3 }}>
         <Stack direction="row">
           <IconStyle icon={pinFill} />
           <Typography variant="body2">
-            Team name: &nbsp;
+            Project name: &nbsp;
             <Link component="span" variant="subtitle2" color="text.primary">
-              {teamDetail.teamName}
+              {teamProject.topicsResponse.topicName}
             </Link>
           </Typography>
         </Stack>
@@ -41,23 +37,21 @@ export default function TeamInformation({ teamDetail }: TeamInformationProps) {
         <Stack direction="row">
           <IconStyle icon={roundBusinessCenter} />
           <Typography variant="body2">
-            Total member: &nbsp;
+            Project description: &nbsp;
             <Link component="span" variant="subtitle2" color="text.primary">
-              {teamDetail.totalMember}
-            </Link>
-          </Typography>
-        </Stack>
-
-        <Stack direction="row">
-          <IconStyle icon={roundBusinessCenter} />
-          <Typography variant="body2">
-            Team leader: &nbsp;
-            <Link component="span" variant="subtitle2" color="text.primary">
-              {teamDetail.leader.fullName}
+              {teamProject.topicsResponse.description}
             </Link>
           </Typography>
         </Stack>
       </Stack>
+    </Card>
+  ) : (
+    <Card>
+      <CardHeader
+        title="No project assigned to this team yet!
+"
+      />
+      <br />
     </Card>
   );
 }
