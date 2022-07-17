@@ -60,11 +60,9 @@ const ProjectDetail = () => {
   useEffect(() => {
     setIsLoading(true);
     async function getProject() {
-      if (user?.role === AuthorizeRole.STUDENT) {
-        if (student.studentTeam.isApplicationApproved) {
-          const response: any = await getProjectDetail(student.studentTeam.projectId);
-          setCurrentTeamTopic(response.topicsResponse);
-        }
+      if (student.studentTeam.isApplicationApproved) {
+        const response: any = await getProjectDetail(student.studentTeam.projectId);
+        setCurrentTeamTopic(response.topicsResponse);
       }
     }
     getProject();

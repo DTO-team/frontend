@@ -1,4 +1,5 @@
 import { Box, Grid, Typography } from '@material-ui/core';
+import { Semester } from '../../../@types/management';
 import ItemCard from 'components/card/ItemCard';
 import { useState } from 'react';
 import CreateEvaluationSessionModal from '../evaluation-session/CreateEvaluationSessionModal';
@@ -6,18 +7,41 @@ import SemesterListModal from '../semester-management/SemesterListModal';
 
 export default function SettingList() {
   const [isOpenSemesterManagement, setIsOpenSemesterManagement] = useState(false);
+  const [selectedSemester, setSelectedSemester] = useState<any>();
+  const [isOpenCreateEvaluation, setIsOpenCreateEvaluation] = useState(false);
   const _handleOpenSemesterManagement = () => {
     setIsOpenSemesterManagement(true);
   };
 
   const onClose = () => {
     setIsOpenSemesterManagement(false);
+    setIsOpenCreateEvaluation(false);
+  };
+
+  const onSelectSemesterToUpdate = (selectedSemester: Semester | null) => {
+    setSelectedSemester(selectedSemester);
+    setIsOpenSemesterManagement(false);
+    setIsOpenCreateEvaluation(true);
   };
 
   return (
     <>
-      <SemesterListModal isOpen={isOpenSemesterManagement} onClose={onClose} />
-      <CreateEvaluationSessionModal isOpen={true} onClose={onClose} />
+      {isOpenSemesterManagement && (
+        <SemesterListModal
+          onChangeSelectedSemester={onSelectSemesterToUpdate}
+          isOpen={isOpenSemesterManagement}
+          onClose={onClose}
+        />
+      )}
+
+      {isOpenCreateEvaluation && (
+        <CreateEvaluationSessionModal
+          semester={selectedSemester}
+          isOpen={isOpenCreateEvaluation}
+          onClose={onClose}
+        />
+      )}
+
       <Box sx={{ m: 8 }}>
         <Typography variant="h4" sx={{ mb: 4 }}>
           Admin management settings:{' '}
