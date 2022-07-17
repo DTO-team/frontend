@@ -11,13 +11,15 @@ type TeamState = {
   error: boolean;
   teamList: TeamManager[];
   teamDetail: any;
+  topic?: any;
 };
 
 const initialState: TeamState = {
   isLoading: false,
   error: false,
   teamList: [],
-  teamDetail: null
+  teamDetail: null,
+  topic: null
 };
 
 const slice = createSlice({
@@ -47,6 +49,12 @@ const slice = createSlice({
       state.teamDetail = action.payload;
     },
 
+    // GET MANAGE USERS
+    getTeamTopicSuccess(state, action) {
+      state.isLoading = false;
+      state.topic = action.payload;
+    },
+
     // DELETE USERS
     deleteTeam(state, action) {
       const deleteTeam = filter(state.teamList, (team) => team.teamId !== action.payload);
@@ -54,6 +62,9 @@ const slice = createSlice({
     },
     clearTeamDetail(state) {
       state.teamDetail = null;
+    },
+    clearTeamTopicDetail(state) {
+      state.topic = null;
     }
   }
 });
@@ -85,6 +96,22 @@ export function getTeamDetail(id: string) {
     try {
       const response = await axios.get(`/v1/teams/${id}`);
       dispatch(slice.actions.getTeamDetailSuccess(response));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+export function clearTeamTopicDetail() {
+  dispatch(slice.actions.clearTeamTopicDetail());
+}
+
+export function getTeamTopicDetail(id: string) {
+  return async () => {
+    dispatch(slice.actions.startLoading());
+    try {
+      const response = await axios.get(`/v1/projects/${id}`);
+      dispatch(slice.actions.getTeamTopicSuccess(response));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
