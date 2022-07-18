@@ -42,7 +42,7 @@ import { TeamManager } from '../../../@types/team';
 const TABLE_HEAD = [
   { id: 'memberName', label: 'Member Name', alignRight: false },
   { id: 'mentorFeedback', label: 'Mentor Feedback', alignRight: false },
-  { id: 'totalFeedBack', label: 'Total Feedback', alignRight: false },
+  { id: 'totalFeedBack', label: 'Total Feedbacks', alignRight: false },
   { id: '' }
 ];
 
@@ -169,7 +169,11 @@ export default function WeeklyReportList({ currentStudentTeam }: IWeeklyReportLi
     setIsLoading(true);
     async function getReportList() {
       if (currentStudentTeam) {
-        await getTeamReports({ teamId: currentStudentTeam.teamId, week: selectedWeek?.number });
+        const responseReports: any = await getTeamReports({
+          teamId: currentStudentTeam.teamId,
+          week: selectedWeek?.number
+        });
+        if (responseReports[0] !== null) setReportList(responseReports);
       }
     }
     getReportList();
@@ -284,11 +288,14 @@ export default function WeeklyReportList({ currentStudentTeam }: IWeeklyReportLi
                             </Typography>
                           </Stack>
                         </TableCell>
-                        <TableCell align="left">{firstFeedback?.author.fullName}</TableCell>
-                        <TableCell align="left">{feedback.length}</TableCell>
-
-                        <TableCell align="right">
+                        <TableCell align="left">
+                          {firstFeedback ? firstFeedback.author.fullName : 'No feedback yet'}
                         </TableCell>
+                        <TableCell align="center">
+                          <b>{feedback.length}</b>
+                        </TableCell>
+
+                        <TableCell align="right"></TableCell>
                       </TableRow>
                     );
                   })}

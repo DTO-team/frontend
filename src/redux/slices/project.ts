@@ -46,3 +46,10 @@ export async function getProjectDetail(projectId: string | undefined) {
     dispatch(slice.actions.hasError(error));
   }
 }
+
+export async function getProjectList() {
+  try {
+    const response = await axios.get(`/v1/projects`);
+    return response;
+  } catch (error) {}
+}

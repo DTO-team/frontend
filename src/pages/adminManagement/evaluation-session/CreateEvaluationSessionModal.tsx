@@ -23,10 +23,13 @@ import moment from 'moment';
 import { useSnackbar } from 'notistack5';
 import React, { useEffect, useState } from 'react';
 import { getCriteriaList } from 'redux/slices/criteria';
+import { getLecturerList } from 'redux/slices/lecturer';
 import { updateSemesterStatus } from 'redux/slices/management';
+import { getProjectList } from 'redux/slices/project';
 import { ICriteria } from '../../../@types/criterion';
 import { Semester } from '../../../@types/management';
 import { SemesterStatus } from '../../../utils/enum-utils';
+import CreateConcil from './CreateConcil';
 
 const boxStyleOverride = {
   position: 'absolute' as 'absolute',
@@ -46,7 +49,7 @@ const boxStyleOverride = {
 const STATUS_LIST = [
   {
     value: SemesterStatus.PREPARING,
-    statusName: 'Preparing'
+    statusName: 'Not Started'
   },
   {
     value: SemesterStatus.ON_GOING,
@@ -69,6 +72,7 @@ interface ICreateEvaluationSessionModalProps {
   isOpen: boolean;
   onClose: () => void;
   semester: Semester | undefined;
+  isReviewSemester: boolean;
 }
 
 interface IUpdateSemesterPayload {
@@ -77,6 +81,15 @@ interface IUpdateSemesterPayload {
   startDayOfSemester: number;
   createEvaluationSessionRequests: IEvaluationSessionPayload[];
 }
+
+interface ICreateConcilRequest {
+  id: string;
+  status: number;
+  createCouncilRequest: {
+    projectId: string[];
+    lecturerId: string[];
+  };
+}
 interface IEvaluationSessionPayload {
   sessionName: string;
   round: number;
@@ -84,12 +97,17 @@ interface IEvaluationSessionPayload {
   status: number;
   deadline: any;
   criterias: any[];
+  createCouncilRequest?: {
+    projectId?: string[];
+    lecturerId?: string[];
+  };
 }
 
 export default function CreateEvaluationSessionModal({
   isOpen,
   onClose,
-  semester
+  semester,
+  isReviewSemester
 }: ICreateEvaluationSessionModalProps) {
   const { enqueueSnackbar } = useSnackbar();
 
@@ -99,10 +117,25 @@ export default function CreateEvaluationSessionModal({
   const [updateSemesterPayload, setUpdateSemesterPayload] =
     useState<IUpdateSemesterPayload>(updateSemeterInit);
   const [availableCriterions, setAvailableCriterions] = useState<ICriteria[]>([]);
+  const [projectList, setProjectList] = useState<any[]>([]);
+  const [lecturerList, setLecturerList] = useState<any[]>([]);
 
   function _disableDayNotMonday(date: any) {
     return date.getDay() !== 1;
   }
+
+  const findEvaluationNeedUpdate = (evaluationIndex: number) => {
+    return _.find(evaluationPayloadList, (evaluation, index) => index === evaluationIndex);
+  };
+
+  const updateEvaluationSessionListPayload = (
+    newEvaluationList: IEvaluationSessionPayload[],
+    evaluationIndex: number,
+    newPayloadData: IEvaluationSessionPayload
+  ) => {
+    newEvaluationList.splice(evaluationIndex, 1, newPayloadData);
+    setEvaluationPayloadList(newEvaluationList);
+  };
 
   const _handleAddMoreEvaluation = () => {
     const newEvaluationList = _.cloneDeep(evaluationPayloadList);
@@ -119,26 +152,31 @@ export default function CreateEvaluationSessionModal({
     setEvaluationPayloadList(newEvaluationList);
   };
 
+  const _handleAddConcil = (evaluationIndex: number) => {
+    let newEvaluationList = _.cloneDeep(evaluationPayloadList);
+    if (!newEvaluationList.length) return;
+    const evaluationNeedUpdate = findEvaluationNeedUpdate(evaluationIndex);
+    if (!evaluationNeedUpdate) return;
+    evaluationNeedUpdate.createCouncilRequest = {
+      projectId: [],
+      lecturerId: []
+    };
+    updateEvaluationSessionListPayload(newEvaluationList, evaluationIndex, evaluationNeedUpdate);
+  };
+
   const _handleChangeStatusValue = (evaluationIndex: number, statusValue: number) => {
     let newEvaluationList = _.cloneDeep(evaluationPayloadList);
     if (!newEvaluationList.length) return;
-    const evaluationNeedUpdate = _.find(
-      evaluationPayloadList,
-      (evaluation, index) => index === evaluationIndex
-    );
+    const evaluationNeedUpdate = findEvaluationNeedUpdate(evaluationIndex);
     if (!evaluationNeedUpdate) return;
     evaluationNeedUpdate.status = statusValue;
-    newEvaluationList.splice(evaluationIndex, 1, evaluationNeedUpdate);
-    setEvaluationPayloadList(newEvaluationList);
+    updateEvaluationSessionListPayload(newEvaluationList, evaluationIndex, evaluationNeedUpdate);
   };
 
   const _handleChangeCriteriaValue = (evaluationIndex: number, newCriterionList: ICriteria[]) => {
     let newEvaluationList = _.cloneDeep(evaluationPayloadList);
     if (!newEvaluationList.length) return;
-    const evaluationNeedUpdate = _.find(
-      evaluationPayloadList,
-      (evaluation, index) => index === evaluationIndex
-    );
+    const evaluationNeedUpdate = findEvaluationNeedUpdate(evaluationIndex);
     if (!evaluationNeedUpdate) return;
     const newCriteriaData = _.map(newCriterionList, (criteria) => {
       return {
@@ -149,34 +187,25 @@ export default function CreateEvaluationSessionModal({
       };
     });
     evaluationNeedUpdate.criterias = newCriteriaData;
-    newEvaluationList.splice(evaluationIndex, 1, evaluationNeedUpdate);
-    setEvaluationPayloadList(newEvaluationList);
+    updateEvaluationSessionListPayload(newEvaluationList, evaluationIndex, evaluationNeedUpdate);
   };
 
   const _handleChangeDeadlineValue = (evaluationIndex: number, newDate: any) => {
     let newEvaluationList = _.cloneDeep(evaluationPayloadList);
     if (!newEvaluationList.length) return;
-    const evaluationNeedUpdate = _.find(
-      evaluationPayloadList,
-      (evaluation, index) => index === evaluationIndex
-    );
+    const evaluationNeedUpdate = findEvaluationNeedUpdate(evaluationIndex);
     if (!evaluationNeedUpdate) return;
     evaluationNeedUpdate.deadline = moment(newDate).format('X').valueOf();
-    newEvaluationList.splice(evaluationIndex, 1, evaluationNeedUpdate);
-    setEvaluationPayloadList(newEvaluationList);
+    updateEvaluationSessionListPayload(newEvaluationList, evaluationIndex, evaluationNeedUpdate);
   };
 
   const _handleChangeIsFinalStatus = (evaluationIndex: number, value: any) => {
     let newEvaluationList = _.cloneDeep(evaluationPayloadList);
     if (!newEvaluationList.length) return;
-    const evaluationNeedUpdate = _.find(
-      evaluationPayloadList,
-      (evaluation, index) => index === evaluationIndex
-    );
+    const evaluationNeedUpdate = findEvaluationNeedUpdate(evaluationIndex);
     if (!evaluationNeedUpdate) return;
     evaluationNeedUpdate.isFinal = value;
-    newEvaluationList.splice(evaluationIndex, 1, evaluationNeedUpdate);
-    setEvaluationPayloadList(newEvaluationList);
+    updateEvaluationSessionListPayload(newEvaluationList, evaluationIndex, evaluationNeedUpdate);
   };
 
   const _handleChangeStartDayOfSemester = (newDate: any) => {
@@ -202,12 +231,48 @@ export default function CreateEvaluationSessionModal({
     }
   };
 
+  const _handleChangeLecturerValue = (evaluationIndex: number, newLecturerList: any) => {
+    let newEvaluationList = _.cloneDeep(evaluationPayloadList);
+    if (!newEvaluationList.length) return;
+    const evaluationNeedUpdate = findEvaluationNeedUpdate(evaluationIndex);
+    if (!evaluationNeedUpdate || !evaluationNeedUpdate.createCouncilRequest) return;
+    evaluationNeedUpdate.createCouncilRequest.lecturerId = _.map(
+      newLecturerList,
+      (lecturer) => lecturer.id
+    );
+    updateEvaluationSessionListPayload(newEvaluationList, evaluationIndex, evaluationNeedUpdate);
+  };
+
+  const _handleChangeProjectValue = (evaluationIndex: number, newProjectList: any) => {
+    let newEvaluationList = _.cloneDeep(evaluationPayloadList);
+    if (!newEvaluationList.length) return;
+    const evaluationNeedUpdate = findEvaluationNeedUpdate(evaluationIndex);
+    if (!evaluationNeedUpdate || !evaluationNeedUpdate.createCouncilRequest) return;
+    evaluationNeedUpdate.createCouncilRequest.projectId = _.map(
+      newProjectList,
+      (project) => project.projectId
+    );
+    console.log(evaluationNeedUpdate.createCouncilRequest.projectId);
+    updateEvaluationSessionListPayload(newEvaluationList, evaluationIndex, evaluationNeedUpdate);
+  };
+
+  const getAllProjectAndLecturer = async () => {
+    const projectsResponse: any = await getProjectList();
+    const lecturersRepsonse: any = await getLecturerList();
+    projectsResponse !== undefined && setProjectList(projectsResponse);
+    lecturersRepsonse !== undefined && setLecturerList(lecturersRepsonse);
+  };
+
   useEffect(() => {
     async function getData() {
       const criterions = await getCriteriaList();
       if (criterions) setAvailableCriterions(criterions);
+      if (isReviewSemester) {
+        await getAllProjectAndLecturer();
+      }
     }
     getData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -225,148 +290,192 @@ export default function CreateEvaluationSessionModal({
       isOpen={isOpen}
       onClose={onClose}
       boxStyleOverride={boxStyleOverride}
-      title="Create Evaluation Session for Semester"
+      title={isReviewSemester ? 'Review Semester' : 'Create Evaluation Session for Semester'}
       children={
         <Box sx={{ minWidth: 1000, maxWidth: 1000, minHeight: 600, position: 'relative' }}>
-          <Card sx={{ my: 3, p: 2 }}>
-            <Typography sx={{ mb: 2 }}>
-              You are about to update status of the semster {semester?.season}_{semester?.year} to{' '}
-              <b>{semester?.status === SemesterStatus.PREPARING ? 'PREPARING' : 'ENDED'}</b>
-              <br />
-              Make sure you check all correctively, this action can't be undone.
-            </Typography>
-            {semester?.status === SemesterStatus.PREPARING && (
-              <>
-                <DatePicker
-                  label="Select Semester Start Date"
-                  shouldDisableDate={_disableDayNotMonday}
-                  value={moment.unix(updateSemesterPayload.startDayOfSemester).toDate()}
-                  onChange={(newValue) => {
-                    _handleChangeStartDayOfSemester(newValue);
-                  }}
-                  renderInput={(params) => <TextField {...params} />}
-                />
-                <Typography variant="body2" color="red">
-                  *Please note that only Monday can be selected to change status of the semester
-                </Typography>
-              </>
-            )}
-          </Card>
+          {!isReviewSemester && (
+            <Card sx={{ my: 3, p: 2 }}>
+              <Typography sx={{ mb: 2 }}>
+                You are about to update status of the semster {semester?.season}_{semester?.year} to{' '}
+                <b>{semester?.status === SemesterStatus.PREPARING ? 'PREPARING' : 'ENDED'}</b>
+                <br />
+                Make sure you check all correctively, this action can't be undone.
+              </Typography>
+              {semester?.status === SemesterStatus.PREPARING && (
+                <>
+                  <DatePicker
+                    label="Select Semester Start Date"
+                    shouldDisableDate={_disableDayNotMonday}
+                    value={moment.unix(updateSemesterPayload.startDayOfSemester).toDate()}
+                    onChange={(newValue) => {
+                      _handleChangeStartDayOfSemester(newValue);
+                    }}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
+                  <Typography variant="body2" color="red">
+                    *Please note that only Monday can be selected to change status of the semester
+                  </Typography>
+                </>
+              )}
+            </Card>
+          )}
 
           <Box>
             {_.map(evaluationPayloadList, (evaluation, index) => {
-              const { sessionName, round, status, deadline, isFinal } = evaluation;
+              const { sessionName, round, status, deadline, isFinal, createCouncilRequest } =
+                evaluation;
               return (
-                <Card key={index} sx={{ my: 3, p: 2 }}>
-                  <Grid container spacing={3}>
-                    <Grid item xs={12}>
-                      <TextField value={sessionName} variant="outlined" disabled />
+                <Grid container spacing={1}>
+                  <Grid item xs={isReviewSemester ? 11 : 12}>
+                    <Card key={index} sx={{ my: 3, p: 2 }}>
+                      <Grid container spacing={3}>
+                        <Grid item xs={12}>
+                          <TextField value={sessionName} variant="outlined" disabled />
 
-                      <TextField
-                        sx={{ width: 120, ml: 2 }}
-                        value={`Round ${round}`}
-                        variant="outlined"
-                        disabled
-                      />
+                          <TextField
+                            sx={{ width: 120, ml: 2 }}
+                            value={`Round ${round}`}
+                            variant="outlined"
+                            disabled
+                          />
 
-                      <FormControl sx={{ width: 120, ml: 2 }}>
-                        <InputLabel>Status</InputLabel>
-                        <Select
-                          labelId={`status-evaluation-select-label-${index}`}
-                          id={`status-evaluation-select-${index}`}
-                          value={status}
-                          label="Status"
-                          onChange={(e) => {
-                            _handleChangeStatusValue(index, e.target.value);
-                          }}
-                        >
-                          {_.map(STATUS_LIST, (status) => (
-                            <MenuItem value={status.value}>
-                              <Tooltip
-                                title={
-                                  <React.Fragment>
-                                    <Typography>
-                                      Round: Hello Round {status.value} is here
-                                    </Typography>
-                                    <Typography>Story: This is explain sesssion</Typography>
-                                  </React.Fragment>
-                                }
-                                placement="top"
-                              >
-                                <Typography sx={{ width: '100%' }}>{status.statusName}</Typography>
-                              </Tooltip>
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                      <Box sx={{ ml: 2 }} component="span">
-                        <DatePicker
-                          label="Select Deadline"
-                          value={moment.unix(deadline).toDate()}
-                          onChange={(newValue) => {
-                            _handleChangeDeadlineValue(index, newValue);
-                          }}
-                          renderInput={(params) => <TextField {...params} />}
-                        />
-                      </Box>
-                      <FormControl sx={{ ml: 2, pt: 1 }}>
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={isFinal}
+                          <FormControl sx={{ width: 130, ml: 2 }}>
+                            <InputLabel>Status</InputLabel>
+                            <Select
+                              labelId={`status-evaluation-select-label-${index}`}
+                              id={`status-evaluation-select-${index}`}
+                              value={status}
+                              label="Status"
+                              disabled={!isReviewSemester}
                               onChange={(e) => {
-                                _handleChangeIsFinalStatus(index, e.target.checked);
+                                _handleChangeStatusValue(index, e.target.value);
+                              }}
+                            >
+                              {_.map(STATUS_LIST, (status) => (
+                                <MenuItem value={status.value}>
+                                  <Typography sx={{ width: '100%' }}>
+                                    {status.statusName}
+                                  </Typography>
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                          <Box sx={{ ml: 2 }} component="span">
+                            <DatePicker
+                              label="Select Deadline"
+                              value={moment.unix(deadline).toDate()}
+                              onChange={(newValue) => {
+                                _handleChangeDeadlineValue(index, newValue);
+                              }}
+                              renderInput={(params) => <TextField {...params} />}
+                            />
+                          </Box>
+                          <FormControl sx={{ ml: 2, pt: 1 }}>
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={isFinal}
+                                  onChange={(e) => {
+                                    _handleChangeIsFinalStatus(index, e.target.checked);
+                                  }}
+                                />
+                              }
+                              label="Is Final"
+                            />
+                          </FormControl>
+                        </Grid>
+
+                        <Grid item xs={12}>
+                          <FormControl fullWidth>
+                            <Autocomplete
+                              multiple
+                              id={`update-criteria-${index}`}
+                              options={availableCriterions}
+                              getOptionLabel={(option) => option.name}
+                              onChange={(event: any, value) => {
+                                _handleChangeCriteriaValue(index, value);
+                              }}
+                              filterSelectedOptions
+                              renderInput={(params) => (
+                                <TextField {...params} label="Add criteria" />
+                              )}
+                              renderOption={(props, option) => {
+                                return (
+                                  <Box component={'li'} {...props}>
+                                    <Tooltip
+                                      title={
+                                        <React.Fragment>
+                                          Question of criteria:
+                                          {_.map(option.questions, (question, questionIndex) => {
+                                            return (
+                                              <Box>
+                                                <Typography component={'div'} variant="body2">
+                                                  {questionIndex + 1}- {question.description}
+                                                </Typography>
+                                                <br />
+                                              </Box>
+                                            );
+                                          })}
+                                        </React.Fragment>
+                                      }
+                                      placement="right"
+                                    >
+                                      <Typography>{option.name}</Typography>
+                                    </Tooltip>
+                                  </Box>
+                                );
                               }}
                             />
-                          }
-                          label="Is Final Session"
-                        />
-                      </FormControl>
-                    </Grid>
+                          </FormControl>
+                        </Grid>
 
-                    <Grid item xs={12}>
-                      <FormControl fullWidth>
-                        <Autocomplete
-                          multiple
-                          id={`update-criteria-${index}`}
-                          options={availableCriterions}
-                          getOptionLabel={(option) => option.name}
-                          onChange={(event: any, value) => {
-                            _handleChangeCriteriaValue(index, value);
-                          }}
-                          filterSelectedOptions
-                          renderInput={(params) => <TextField {...params} label="Add criteria" />}
-                          renderOption={(props, option) => {
-                            return (
-                              <Box component={'li'} {...props}>
-                                <Tooltip
-                                  title={
-                                    <React.Fragment>
-                                      Question of criteria:
-                                      {_.map(option.questions, (question, questionIndex) => {
-                                        return (
-                                          <Box>
-                                            <Typography component={'div'} variant="body2">
-                                              {questionIndex + 1}- {question.description}
-                                            </Typography>
-                                            <br />
-                                          </Box>
-                                        );
-                                      })}
-                                    </React.Fragment>
-                                  }
-                                  placement="right"
-                                >
-                                  <Typography>{option.name}</Typography>
-                                </Tooltip>
-                              </Box>
-                            );
-                          }}
-                        />
-                      </FormControl>
-                    </Grid>
+                        {createCouncilRequest && (
+                          <CreateConcil
+                            lecturerList={lecturerList}
+                            projectList={projectList}
+                            onChangeLecturer={(newLecturerList: any) =>
+                              _handleChangeLecturerValue(index, newLecturerList)
+                            }
+                            onChangeProject={(newProjectList: any) => {
+                              _handleChangeProjectValue(index, newProjectList);
+                            }}
+                          />
+                        )}
+                      </Grid>
+                    </Card>
                   </Grid>
-                </Card>
+                  <Grid container item xs={isReviewSemester ? 1 : undefined}>
+                    {isReviewSemester && (
+                      <>
+                        <Grid item>
+                          <Box sx={{ pt: 3 }}>
+                            <Button
+                              disabled={!!createCouncilRequest}
+                              variant="outlined"
+                              onClick={() => _handleAddConcil(index)}
+                              sx={{ height: 170 }}
+                            >
+                              Add council
+                            </Button>
+                          </Box>
+                        </Grid>
+                        {createCouncilRequest && (
+                          <Grid item>
+                            <Box>
+                              <Button
+                                variant="outlined"
+                                onClick={() => _handleAddConcil(index)}
+                                sx={{ height: 170 }}
+                              >
+                                Update
+                              </Button>
+                            </Box>
+                          </Grid>
+                        )}
+                      </>
+                    )}
+                  </Grid>
+                </Grid>
               );
             })}
             <Button
@@ -374,7 +483,7 @@ export default function CreateEvaluationSessionModal({
               startIcon={<Icon icon={plusOutline} />}
               sx={{ width: '100%' }}
               onClick={_handleAddMoreEvaluation}
-              disabled={semester?.status !== SemesterStatus.PREPARING}
+              /* disabled={semester?.status !== SemesterStatus.PREPARING} */
             >
               Add Evaluation Session
             </Button>
