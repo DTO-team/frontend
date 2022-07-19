@@ -1,13 +1,21 @@
-import roundBusinessCenter from '@iconify/icons-ic/round-business-center';
 import { Icon } from '@iconify/react';
 // material
 import alignLeftOutlined from '@iconify/icons-ant-design/align-left-outlined';
 import userOutlined from '@iconify/icons-ant-design/user-outlined';
 import fileOutline from '@iconify/icons-eva/file-outline';
-import { Card, CardHeader, Divider, Link, Stack, Typography, useTheme } from '@material-ui/core';
+import {
+  Card,
+  CardHeader,
+  Divider,
+  Link,
+  Stack,
+  Typography,
+  useTheme
+} from '@material-ui/core';
 import { styled } from '@material-ui/core/styles';
 import { sentenceCase } from 'change-case';
 import Label from 'components/Label';
+import _ from 'lodash';
 import { useSelector } from 'react-redux';
 import { RootState } from 'redux/store';
 // ----------------------------------------------------------------------
@@ -62,18 +70,14 @@ export default function TeamInformationSection({ isLoading }: ITeamInformationSe
         </Stack>
 
         <Stack direction="row">
-          <IconStyle icon={roundBusinessCenter} />
-          <Typography variant="body1">
-            Company: &nbsp;
-            <Link component="span" variant="subtitle1" color="text.primary"></Link>
-          </Typography>
-        </Stack>
-
-        <Stack direction="row">
           <IconStyle icon={userOutlined} />
           <Typography variant="body1">
-            Mentor: &nbsp;
-            <Link component="span" variant="subtitle1" color="text.primary"></Link>
+            Mentor(s): &nbsp;
+            {_.map(studentTeam.mentors, (mentor) => (
+              <Link component="div" variant="subtitle1" color="text.primary">
+                -{mentor.fullName}
+              </Link>
+            ))}
           </Typography>
         </Stack>
 

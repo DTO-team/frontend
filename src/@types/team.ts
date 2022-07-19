@@ -14,6 +14,7 @@ export type LeaderDetail = {
 
 export type MentorDetail = {
   id: string;
+  fullName: string;
 };
 export type TeamManager = {
   teamId: string;

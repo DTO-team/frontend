@@ -39,8 +39,8 @@ const TeamDetail = () => {
   }, [id]);
 
   useEffect(() => {
-    batch(() => {
-      dispatch(getLecturerList());
+    batch(async () => {
+      await getLecturerList();
       if (teamDetail && teamDetail?.projectId) {
         dispatch(getTeamTopicDetail(teamDetail.projectId));
       }

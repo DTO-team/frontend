@@ -9,7 +9,10 @@ export default function SettingList() {
   const [isOpenSemesterManagement, setIsOpenSemesterManagement] = useState(false);
   const [selectedSemester, setSelectedSemester] = useState<any>();
   const [isOpenCreateEvaluation, setIsOpenCreateEvaluation] = useState(false);
-  const _handleOpenSemesterManagement = () => {
+  const [isReviewSemester, setIsReviewSemester] = useState(false);
+
+  const _handleOpenSemesterManagement = async (isReviewSemester: boolean) => {
+    await setIsReviewSemester(isReviewSemester);
     setIsOpenSemesterManagement(true);
   };
 
@@ -31,6 +34,7 @@ export default function SettingList() {
           onChangeSelectedSemester={onSelectSemesterToUpdate}
           isOpen={isOpenSemesterManagement}
           onClose={onClose}
+          isReviewSemester={isReviewSemester}
         />
       )}
 
@@ -39,6 +43,7 @@ export default function SettingList() {
           semester={selectedSemester}
           isOpen={isOpenCreateEvaluation}
           onClose={onClose}
+          isReviewSemester={isReviewSemester}
         />
       )}
 
@@ -49,7 +54,9 @@ export default function SettingList() {
         <Grid container rowSpacing={2} columnSpacing={0}>
           <Grid item xs={3}>
             <ItemCard
-              onClick={() => _handleOpenSemesterManagement()}
+              onClick={() => {
+                _handleOpenSemesterManagement(false);
+              }}
               title="Semester Status Management"
               description="Management the semester status"
             />
@@ -59,7 +66,9 @@ export default function SettingList() {
           </Grid>
           <Grid item xs={3}>
             <ItemCard
-              onClick={() => {}}
+              onClick={() => {
+                _handleOpenSemesterManagement(true);
+              }}
               title="Review Semester"
               description="Review the whole semester"
             />

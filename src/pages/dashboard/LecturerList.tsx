@@ -102,7 +102,10 @@ export default function LecturerList() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
-    dispatch(getLecturerList());
+    async function getData() {
+      await getLecturerList();
+    }
+    getData();
   }, [dispatch]);
 
   const handleRequestSort = (property: string) => {

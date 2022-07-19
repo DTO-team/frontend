@@ -46,14 +46,12 @@ export default slice.reducer;
 
 // ----------------------------------------------------------------------
 
-export function getLecturerList() {
-  return async () => {
-    dispatch(slice.actions.startLoading());
-    try {
-      const response = await axios.get('/v1/lecturers');
-      dispatch(slice.actions.getLecturerListSuccess(response));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
+export async function getLecturerList() {
+  try {
+    const response = await axios.get('/v1/lecturers');
+    dispatch(slice.actions.getLecturerListSuccess(response));
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
 }

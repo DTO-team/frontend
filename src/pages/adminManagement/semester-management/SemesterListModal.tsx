@@ -1,27 +1,26 @@
-import arrowIosBackFill from '@iconify/icons-eva/arrow-ios-back-fill';
 import arrowIosForwardFill from '@iconify/icons-eva/arrow-ios-forward-fill';
 import { Icon } from '@iconify/react';
 import { Box, Grid, Typography } from '@material-ui/core';
-import { Semester } from '../../../@types/management';
 import ActionModal from 'components/modal/ActionModal';
 import _ from 'lodash';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { getSemesterList, updateSemesterStatus } from 'redux/slices/management';
+import { getSemesterList } from 'redux/slices/management';
 import { RootState, useDispatch } from 'redux/store';
 import palette from 'theme/palette';
 import { SemesterStatus } from 'utils/enum-utils';
-import AlertDialog from 'components/dialog/AlertDialog';
-import SemesterTimeSelectModal from './SemesterTimeSelectModal';
-
+import { Semester } from '../../../@types/management';
+import eyeFill from '@iconify/icons-eva/eye-fill';
+import externalLinkFill from '@iconify/icons-eva/external-link-fill';
 interface ISemesterListModalProps {
   isOpen: boolean;
   onClose: () => void;
   onChangeSelectedSemester: (selectedSemester: Semester | null) => void;
+  isReviewSemester: boolean;
 }
 
 export default function SemesterListModal(props: ISemesterListModalProps) {
-  const { isOpen, onClose, onChangeSelectedSemester } = props;
+  const { isOpen, onClose, onChangeSelectedSemester, isReviewSemester } = props;
   /* const [isOpenSelectedDateDialog, setIsOpenSelectedDateDialog] = useState(false); */
   /* const [currentUpdateSemester, setCurrentUpdateSemester] = useState<Semester>(); */
   const dispatch = useDispatch();
@@ -68,7 +67,7 @@ export default function SemesterListModal(props: ISemesterListModalProps) {
       await getSemesterList();
     }
     getData();
-  }, [dispatch]);
+  }, []);
 
   return (
     <>
@@ -96,23 +95,32 @@ export default function SemesterListModal(props: ISemesterListModalProps) {
                   >
                     <Typography sx={{ fontWeight: 'bold' }}>{`${year} ${season}`}</Typography>
                     <Box sx={{ display: 'flex' }}>
-                      {/* <div
-                        style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                        onClick={() => _handleChangeStatus(semester, false)}
-                      >
-                        <Icon icon={arrowIosBackFill} />
-                      </div> */}
-                      <Typography sx={{ fontWeight: 'bold' }} color={statusTextColor}>
-                        {statusName}
-                      </Typography>
-                      <div
-                        style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                        onClick={() => {
-                          _handleChangeStatusForSemester(semester);
-                        }}
-                      >
-                        <Icon icon={arrowIosForwardFill} />
-                      </div>
+                      {isReviewSemester ? (
+                        <>
+                          <div
+                            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                            onClick={() => {
+                              _handleChangeStatusForSemester(semester);
+                            }}
+                          >
+                            <Icon icon={externalLinkFill  } />
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <Typography sx={{ fontWeight: 'bold' }} color={statusTextColor}>
+                            {statusName}
+                          </Typography>
+                          <div
+                            style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                            onClick={() => {
+                              _handleChangeStatusForSemester(semester);
+                            }}
+                          >
+                            <Icon icon={arrowIosForwardFill} />
+                          </div>
+                        </>
+                      )}
                     </Box>
                   </Box>
                   {/* Child modal */}
