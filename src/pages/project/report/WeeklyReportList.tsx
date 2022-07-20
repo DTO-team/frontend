@@ -32,10 +32,14 @@ import { useSelector } from 'react-redux';
 import { getAllWeeksOfSemester, getCurrentWeekOfSemester } from 'redux/slices/management';
 import { getTeamReports } from 'redux/slices/team';
 import { RootState, useDispatch } from 'redux/store';
-import { AuthorizeRole } from 'utils/enum-utils';
+import { IFeedback } from '../../../@types/feedback';
 import { ISemesterWeek } from '../../../@types/management';
 import { IReport } from '../../../@types/report';
 import { TeamManager } from '../../../@types/team';
+import ViewMentorFeedbackModal from '../feedback/ViewMentorFeedbackModal';
+import WeeklyReportMenu from './WeeklyReportMenu';
+import { useSnackbar } from 'notistack5';
+import CreateReportFeedbackModal from '../feedback/CreateReportFeedback';
 
 // ----------------------------------------------------------------------
 
@@ -43,6 +47,7 @@ const TABLE_HEAD = [
   { id: 'memberName', label: 'Member Name', alignRight: false },
   { id: 'mentorFeedback', label: 'Mentor Feedback', alignRight: false },
   { id: 'totalFeedBack', label: 'Total Feedbacks', alignRight: false },
+  { id: '', label: '', alignRight: false },
   { id: '' }
 ];
 
@@ -94,15 +99,20 @@ export default function WeeklyReportList({ currentStudentTeam }: IWeeklyReportLi
   const { user } = useAuth();
   const { userList } = useSelector((state: RootState) => state.user);
   const { application } = useSelector((state: RootState) => state);
+  const { enqueueSnackbar } = useSnackbar();
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [selected, setSelected] = useState<string[]>([]);
   const [orderBy, setOrderBy] = useState('name');
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [isOpenCreatReportModal, setIsOpenCreatReportModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isOpenCreatReportModal, setIsOpenCreatReportModal] = useState(false);
+  const [isOpenViewFeedback, setIsOpenViewFeedback] = useState(false);
+  const [isOpenCreateFeedbackModal, setIsOpenCreateFeedbackModal] = useState(false);
   const [semesterWeekList, setSemesterWeekList] = useState<ISemesterWeek[]>([]);
   const [selectedWeek, setSelectedWeek] = useState<ISemesterWeek>();
+  const [selectedReport, setSelectedReport] = useState<IReport>();
+  const [selectedFeedbackList, setSelectedFeedbackList] = useState<IFeedback[]>([]);
   const [reportList, setReportList] = useState<IReport[]>([]);
 
   const handleRequestSort = (property: string) => {
@@ -145,6 +155,22 @@ export default function WeeklyReportList({ currentStudentTeam }: IWeeklyReportLi
 
   const onClose = () => {
     setIsOpenCreatReportModal(false);
+  };
+
+  const _handleOpenViewFeedbackModal = (selectedFeedbackList: IFeedback[]) => {
+    if (selectedFeedbackList.length === 0) {
+      enqueueSnackbar('There is no feedback yet', {
+        variant: 'warning'
+      });
+      return;
+    }
+    setSelectedFeedbackList(selectedFeedbackList);
+    setIsOpenViewFeedback(true);
+  };
+
+  const _handleOpenCreateReportFeedback = (selectedReport: IReport) => {
+    setSelectedReport(selectedReport);
+    setIsOpenCreateFeedbackModal(true);
   };
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - reportList.length) : 0;
@@ -201,6 +227,23 @@ export default function WeeklyReportList({ currentStudentTeam }: IWeeklyReportLi
         }}
         onCancle={() => onClose()}
       /> */}
+      {isOpenViewFeedback && (
+        <ViewMentorFeedbackModal
+          isOpen={isOpenViewFeedback}
+          onClose={() => {
+            setIsOpenViewFeedback(false);
+          }}
+          feedbackList={selectedFeedbackList}
+        />
+      )}
+
+      {isOpenCreateFeedbackModal && (
+        <CreateReportFeedbackModal
+          isOpen={isOpenCreateFeedbackModal}
+          onClose={() => setIsOpenCreateFeedbackModal(false)}
+          selectedReport={selectedReport}
+        />
+      )}
 
       <WeeklyReportModalContent
         isOpen={isOpenCreatReportModal}
@@ -271,7 +314,6 @@ export default function WeeklyReportList({ currentStudentTeam }: IWeeklyReportLi
 
                     return (
                       <TableRow
-                        hover
                         key={id}
                         tabIndex={-1}
                         role="checkbox"
@@ -282,7 +324,7 @@ export default function WeeklyReportList({ currentStudentTeam }: IWeeklyReportLi
                           <Checkbox checked={isItemSelected} onClick={() => handleClick(id)} />
                         </TableCell>
                         <TableCell component="th" scope="row" padding="none">
-                          <Stack direction="row" alignItems="center" spacing={2}>
+                          <Stack direction="row" alignItems="center">
                             <Typography variant="subtitle2" noWrap>
                               {reporter.fullName}
                             </Typography>
@@ -295,7 +337,16 @@ export default function WeeklyReportList({ currentStudentTeam }: IWeeklyReportLi
                           <b>{feedback.length}</b>
                         </TableCell>
 
-                        <TableCell align="right"></TableCell>
+                        <TableCell align="center">
+                          <WeeklyReportMenu
+                            onViewFeedbacks={() => {
+                              _handleOpenViewFeedbackModal(feedback);
+                            }}
+                            onGiveFeedBack={() => {
+                              _handleOpenCreateReportFeedback(report);
+                            }}
+                          />
+                        </TableCell>
                       </TableRow>
                     );
                   })}

@@ -137,3 +137,20 @@ export async function createTeamReport(payload: any) {
     console.log(error);
   }
 }
+
+export async function createReportFeedback(payload: any) {
+  const newPayload = {
+    op: 'add',
+    path: '/feedback',
+    value: payload.value || ''
+  };
+  try {
+    const response = await axios.patch(
+      `v1/teams/${payload.teamId}/reports/${payload.reportId}`,
+      newPayload
+    );
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
