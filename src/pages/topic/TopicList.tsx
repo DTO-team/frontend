@@ -166,8 +166,10 @@ export default function TopicList() {
 
   useEffect(() => {
     dispatch(getTopicList());
-    getTeamByStudentId(user?.id);
-  }, [dispatch, user?.id]);
+    if (user?.role === AuthorizeRole.STUDENT) {
+      getTeamByStudentId(user?.id);
+    }
+  }, [dispatch, user?.id, user?.role]);
 
   return (
     <Page title="Topic List | DTO">

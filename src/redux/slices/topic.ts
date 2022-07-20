@@ -62,7 +62,7 @@ export function getTopicList() {
     dispatch(slice.actions.startLoading());
     try {
       const response = await axios.get('/v1/topics');
-      dispatch(slice.actions.setTopicList(response.data));
+      dispatch(slice.actions.setTopicList(response));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
