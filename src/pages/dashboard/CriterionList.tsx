@@ -39,17 +39,17 @@ import Scrollbar from '../../components/Scrollbar';
 import SearchNotFound from '../../components/SearchNotFound';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../../components/_dashboard/user/list';
-import FormDialogs from 'components/dialog/FormDialogs';
+import FormDialogsForCriteria from 'components/dialog/FormDialogsForCriteria';
 import { Link } from 'react-router-dom';
-import useAuth from 'hooks/useAuth';
-import { AuthorizeRole } from 'utils/enum-utils';
+import { getCriteriaList, getCriterionList } from 'redux/slices/criteria';
+import { ICriteria } from '../../@types/criterion';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'teamName', label: 'Team Name', alignRight: false },
-  { id: 'leaderName', label: 'Leader Name', alignRight: false },
-  { id: 'totalMember', label: 'Total Member', alignRight: true },
-  { id: 'action', label: 'Action(s)', alignRight: true }
+  { id: 'code', label: 'Code', alignRight: false },
+  { id: 'name', label: 'Name', alignRight: false },
+  { id: 'evaluation', label: 'Evaluation', alignRight: true },
+  { id: 'actions', label: 'Actions', alignRight: true }
 ];
 
 // ----------------------------------------------------------------------
@@ -73,7 +73,7 @@ function getComparator(order: string, orderBy: string) {
 }
 
 function applySortFilter(
-  array: TeamManager[],
+  array: ICriteria[],
   comparator: (a: any, b: any) => number,
   query: string
 ) {
@@ -86,19 +86,18 @@ function applySortFilter(
   if (query) {
     return filter(
       array,
-      (_team) => _team.teamName.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      (_criteria) => _criteria.name.toLowerCase().indexOf(query.toLowerCase()) !== -1
     );
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function StudentList() {
+export default function CriterionList() {
   const { themeStretch } = useSettings();
   const theme = useTheme();
   const dispatch = useDispatch();
-  const { user } = useAuth();
 
-  const { teamList } = useSelector((state: RootState) => state.team);
+  const { criterionList } = useSelector((state: RootState) => state.criteria);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [selected, setSelected] = useState<string[]>([]);
@@ -107,8 +106,12 @@ export default function StudentList() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
-    dispatch(getTeamList());
+    dispatch(getCriterionList());
   }, [dispatch]);
+
+  const handleRefetch = () => {
+    dispatch(getCriterionList());
+  };
 
   const handleRequestSort = (property: string) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -118,7 +121,7 @@ export default function StudentList() {
 
   const handleSelectAllClick = (checked: boolean) => {
     if (checked) {
-      const newSelecteds = teamList.map((n) => n.teamName);
+      const newSelecteds = criterionList.map((n) => n.code);
       setSelected(newSelecteds);
       return;
     }
@@ -156,43 +159,30 @@ export default function StudentList() {
     // dispatch(deleteUser(userId));
   };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - teamList.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - criterionList.length) : 0;
 
-  const filteredTeams = applySortFilter(teamList, getComparator(order, orderBy), filterName);
+  const filteredTeams = applySortFilter(criterionList, getComparator(order, orderBy), filterName);
 
   const isUserNotFound = filteredTeams.length === 0;
 
   return (
-    <Page title="Team: List | DTO">
+    <Page title="Criteria: List | DTO">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
-          heading="Team List"
+          heading="Criteria List"
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
             { name: 'Management' },
-            { name: 'Team List' }
+            { name: 'Criteria List' }
           ]}
           action={
             <Box sx={{ display: 'flex' }}>
-              {user?.role === AuthorizeRole.STUDENT && (
-                <>
-                  <FormDialogs
-                    id={'createTeam'}
-                    buttonContent="Create Team"
-                    title="Create a team"
-                    inputPlaceholder="Team name:"
-                    content="Enter name of the team &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-                  />
-                  <span style={{ padding: '0.5rem' }} />
-                  <FormDialogs
-                    id={'joinTeam'}
-                    buttonContent="Join Team"
-                    title="Join a team"
-                    inputPlaceholder="Team code:"
-                    content="Enter code of the team &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
-                  />
-                </>
-              )}
+              <FormDialogsForCriteria
+                id={'addNewCriteria'}
+                buttonContent="Add Criteria"
+                title="Add new criteria"
+                onSuccessPost={handleRefetch}
+              />
             </Box>
           }
         />
@@ -202,6 +192,7 @@ export default function StudentList() {
             numSelected={selected.length}
             filterName={filterName}
             onFilterName={handleFilterByName}
+            placeholder="Search criteria"
           />
 
           <Scrollbar>
@@ -211,7 +202,7 @@ export default function StudentList() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={teamList.length}
+                  rowCount={criterionList.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
@@ -220,54 +211,40 @@ export default function StudentList() {
                   {filteredTeams
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const { teamId, teamName, leader, totalMember } = row;
-                      const isItemSelected = selected.indexOf(teamId) !== -1;
+                      const { id, code, name, evaluation, grades, questions } = row;
+                      const isItemSelected = selected.indexOf(id) !== -1;
 
                       return (
                         <TableRow
                           hover
-                          key={teamId}
+                          key={id}
                           tabIndex={-1}
                           role="checkbox"
                           selected={isItemSelected}
                           aria-checked={isItemSelected}
                         >
                           <TableCell padding="checkbox">
-                            <Checkbox
-                              checked={isItemSelected}
-                              onClick={() => handleClick(teamId)}
+                            <Checkbox checked={isItemSelected} onClick={() => handleClick(id)} />
+                          </TableCell>
+                          <TableCell align="left">{code}</TableCell>
+                          <TableCell align="left">{name}</TableCell>
+                          <TableCell
+                            align="left"
+                            sx={{
+                              whiteSpace: 'pre-line'
+                            }}
+                          >
+                            {evaluation}
+                          </TableCell>
+                          <TableCell align="center">
+                            <FormDialogsForCriteria
+                              id={'editNewCriteria'}
+                              buttonContent="Detail"
+                              title="Update criteria"
+                              onSuccessPost={handleRefetch}
+                              data={{ id, code, name, evaluation, grades, questions }}
                             />
                           </TableCell>
-                          {/* <TableCell component="th" scope="row" padding="none">
-                            <Stack direction="row" alignItems="center" spacing={2}>
-                              <Avatar alt={userName} src={avatarUrl} />
-                              <Typography variant="subtitle2" noWrap>
-                                {userName}
-                              </Typography>
-                            </Stack>
-                          </TableCell> */}
-                          <TableCell align="left">{teamName}</TableCell>
-                          <TableCell align="left">{leader.fullName}</TableCell>
-                          <TableCell align="center">{totalMember}</TableCell>
-                          <TableCell align="center">
-                            <Link to={`${teamId}`}>
-                              <Icon icon={eyeFill} style={{ fontSize: '24px' }} />
-                            </Link>
-                          </TableCell>
-                          {/* <TableCell align="left">{userName}</TableCell> */}
-                          {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
-                          {/* <TableCell align="left">
-                            <Label
-                              variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-                              color={(status === 'banned' && 'error') || 'success'}
-                            >
-                              {sentenceCase(status)}
-                            </Label>
-                          </TableCell>
-
-                          <TableCell align="right">
-                            <UserMoreMenu onDelete={() => handleDeleteUser(id)} userName={name} />
-                          </TableCell> */}
                         </TableRow>
                       );
                     })}
@@ -293,7 +270,7 @@ export default function StudentList() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={teamList.length}
+            count={criterionList.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={(e, page) => setPage(page)}

@@ -224,7 +224,7 @@ export default function LecturerList() {
                               onClick={() => handleClick(userName)}
                             />
                           </TableCell>
-                          <TableCell align="left">{department}</TableCell>
+                          <TableCell align="left">{department.name}</TableCell>
                           <TableCell align="left">{userName}</TableCell>
                           <TableCell align="left">{fullName}</TableCell>
                           <TableCell align="left">{role}</TableCell>
