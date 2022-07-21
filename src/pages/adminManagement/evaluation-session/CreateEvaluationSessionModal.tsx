@@ -22,9 +22,13 @@ import _ from 'lodash';
 import moment from 'moment';
 import { useSnackbar } from 'notistack5';
 import React, { useEffect, useState } from 'react';
-import { getCriteriaList } from 'redux/slices/criteria';
+import criteria, { getCriteriaList } from 'redux/slices/criteria';
 import { getLecturerList } from 'redux/slices/lecturer';
-import { updateSemesterStatus } from 'redux/slices/management';
+import {
+  getEvaluationSessionBySemesterId,
+  updateEvaluationsCouncil,
+  updateSemesterStatus
+} from 'redux/slices/management';
 import { getProjectList } from 'redux/slices/project';
 import { ICriteria } from '../../../@types/criterion';
 import { Semester } from '../../../@types/management';
@@ -91,6 +95,7 @@ interface ICreateConcilRequest {
   };
 }
 interface IEvaluationSessionPayload {
+  id?: string;
   sessionName: string;
   round: number;
   isFinal: boolean;
@@ -98,8 +103,8 @@ interface IEvaluationSessionPayload {
   deadline: any;
   criterias: any[];
   createCouncilRequest?: {
-    projectId?: string[];
-    lecturerId?: string[];
+    projectId?: any[];
+    lecturerId?: any[];
   };
 }
 
@@ -137,6 +142,30 @@ export default function CreateEvaluationSessionModal({
     setEvaluationPayloadList(newEvaluationList);
   };
 
+  const _handleLoadDataEvaluationList = (evaluationDataList: any) => {
+    let newDataForSet: IEvaluationSessionPayload[];
+    newDataForSet = _.map(evaluationDataList, (evaluation, index) => {
+      const lecturerIds = _.map(evaluation.lecturerInCouncils, (lecturer) => lecturer.id);
+      const projectIds = _.map(evaluation.projects, (project) => project.projectId);
+      let returnObject: any = {
+        id: evaluation.id,
+        sessionName: `Session number ${index + 1}`,
+        round: evaluation.round,
+        isFinal: evaluation.isFinal,
+        status: evaluation.status,
+        deadline: evaluation.deadLine,
+        criterias: evaluation.semesterCriterias
+      };
+      if (lecturerIds.length !== 0 || projectIds.length !== 0)
+        returnObject.createCouncilRequest = {
+          lecturerId: lecturerIds.length !== 0 ? lecturerIds : [],
+          projectId: projectIds.length !== 0 ? projectIds : []
+        };
+      return returnObject;
+    });
+    setEvaluationPayloadList(newDataForSet);
+  };
+
   const _handleAddMoreEvaluation = () => {
     const newEvaluationList = _.cloneDeep(evaluationPayloadList);
     let numberOfEvalution = evaluationPayloadList.length + 1;
@@ -162,6 +191,28 @@ export default function CreateEvaluationSessionModal({
       lecturerId: []
     };
     updateEvaluationSessionListPayload(newEvaluationList, evaluationIndex, evaluationNeedUpdate);
+  };
+
+  const _handleCreateCouncilAndChangeStatus = async (selectedEvaluation: any) => {
+    const payload = {
+      evaluationId: selectedEvaluation.id,
+      status: selectedEvaluation.status,
+      createCouncilRequest: {
+        evaluationSessionId: selectedEvaluation.id,
+        projectId: selectedEvaluation.createCouncilRequest.projectId,
+        lecturerId: selectedEvaluation.createCouncilRequest.lecturerId
+      }
+    };
+    const response = await updateEvaluationsCouncil(payload);
+    if (response !== undefined) {
+      enqueueSnackbar('Updated Evaluation', { variant: 'success' });
+      const evaluationList = await getEvaluationSessionBySemesterId(semester?.id);
+      if (evaluationList !== undefined) {
+        _handleLoadDataEvaluationList(evaluationList);
+      }
+    } else {
+      enqueueSnackbar('Oops! Something went wrong, please try again later', { variant: 'error' });
+    }
   };
 
   const _handleChangeStatusValue = (evaluationIndex: number, statusValue: number) => {
@@ -252,7 +303,6 @@ export default function CreateEvaluationSessionModal({
       newProjectList,
       (project) => project.projectId
     );
-    console.log(evaluationNeedUpdate.createCouncilRequest.projectId);
     updateEvaluationSessionListPayload(newEvaluationList, evaluationIndex, evaluationNeedUpdate);
   };
 
@@ -268,6 +318,10 @@ export default function CreateEvaluationSessionModal({
       const criterions = await getCriteriaList();
       if (criterions) setAvailableCriterions(criterions);
       if (isReviewSemester) {
+        const evaluationList = await getEvaluationSessionBySemesterId(semester?.id);
+        if (evaluationList !== undefined) {
+          _handleLoadDataEvaluationList(evaluationList);
+        }
         await getAllProjectAndLecturer();
       }
     }
@@ -322,8 +376,25 @@ export default function CreateEvaluationSessionModal({
 
           <Box>
             {_.map(evaluationPayloadList, (evaluation, index) => {
-              const { sessionName, round, status, deadline, isFinal, createCouncilRequest } =
-                evaluation;
+              const {
+                sessionName,
+                round,
+                status,
+                deadline,
+                isFinal,
+                createCouncilRequest,
+                criterias
+              } = evaluation;
+              let selectedCriterias: any[] = [];
+              if (criterias) {
+                _.forEach(criterias, (evaluationCriteria) => {
+                  const matchedCriterions = _.find(availableCriterions, (criterion) => {
+                    return criterion.code.trim() === evaluationCriteria.code.trim();
+                  });
+                  if (matchedCriterions) selectedCriterias.push(matchedCriterions);
+                });
+              }
+
               return (
                 <Grid container spacing={1}>
                   <Grid item xs={isReviewSemester ? 11 : 12}>
@@ -364,6 +435,7 @@ export default function CreateEvaluationSessionModal({
                             <DatePicker
                               label="Select Deadline"
                               value={moment.unix(deadline).toDate()}
+                              disabled={isReviewSemester}
                               onChange={(newValue) => {
                                 _handleChangeDeadlineValue(index, newValue);
                               }}
@@ -374,6 +446,7 @@ export default function CreateEvaluationSessionModal({
                             <FormControlLabel
                               control={
                                 <Checkbox
+                                  disabled={isReviewSemester}
                                   checked={isFinal}
                                   onChange={(e) => {
                                     _handleChangeIsFinalStatus(index, e.target.checked);
@@ -395,6 +468,8 @@ export default function CreateEvaluationSessionModal({
                               onChange={(event: any, value) => {
                                 _handleChangeCriteriaValue(index, value);
                               }}
+                              value={selectedCriterias}
+                              disabled={isReviewSemester}
                               filterSelectedOptions
                               renderInput={(params) => (
                                 <TextField {...params} label="Add criteria" />
@@ -431,8 +506,11 @@ export default function CreateEvaluationSessionModal({
 
                         {createCouncilRequest && (
                           <CreateConcil
+                            index={index}
+                            isDisabled={status !== SemesterStatus.PREPARING}
                             lecturerList={lecturerList}
                             projectList={projectList}
+                            createCouncilRequest={createCouncilRequest}
                             onChangeLecturer={(newLecturerList: any) =>
                               _handleChangeLecturerValue(index, newLecturerList)
                             }
@@ -464,7 +542,7 @@ export default function CreateEvaluationSessionModal({
                             <Box>
                               <Button
                                 variant="outlined"
-                                onClick={() => _handleAddConcil(index)}
+                                onClick={() => _handleCreateCouncilAndChangeStatus(evaluation)}
                                 sx={{ height: 170 }}
                               >
                                 Update
@@ -478,16 +556,30 @@ export default function CreateEvaluationSessionModal({
                 </Grid>
               );
             })}
-            <Button
-              variant="outlined"
-              startIcon={<Icon icon={plusOutline} />}
-              sx={{ width: '100%' }}
-              onClick={_handleAddMoreEvaluation}
-              /* disabled={semester?.status !== SemesterStatus.PREPARING} */
-            >
-              Add Evaluation Session
-            </Button>
+            {!isReviewSemester && (
+              <Button
+                variant="outlined"
+                startIcon={<Icon icon={plusOutline} />}
+                sx={{ width: '100%' }}
+                onClick={_handleAddMoreEvaluation}
+                disabled={semester?.status !== SemesterStatus.PREPARING}
+              >
+                Add Evaluation Session
+              </Button>
+            )}
           </Box>
+
+          {isReviewSemester && evaluationPayloadList.length === 0 && (
+            <>
+              <Typography variant="h5" textAlign={'center'}>
+                No Evaluation Session added yet
+              </Typography>
+              <Typography variant="subtitle2" textAlign={'center'}>
+                Currently this Semester has no evaluation session added yet, add it by update status
+                of the semester in semester management
+              </Typography>
+            </>
+          )}
 
           <Box
             sx={{
@@ -499,15 +591,17 @@ export default function CreateEvaluationSessionModal({
             <Button variant="outlined" sx={{ mr: 1 }} onClick={onClose}>
               Discard
             </Button>
-            <LoadingButton
-              sx={{ px: 3 }}
-              loading={false}
-              type="submit"
-              variant="contained"
-              onClick={_handleUpdateSemesterWithEvaluationSessions}
-            >
-              Update
-            </LoadingButton>
+            {!isReviewSemester && (
+              <LoadingButton
+                sx={{ px: 3 }}
+                loading={false}
+                type="submit"
+                variant="contained"
+                onClick={_handleUpdateSemesterWithEvaluationSessions}
+              >
+                Update
+              </LoadingButton>
+            )}
           </Box>
         </Box>
       }

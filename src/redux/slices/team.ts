@@ -127,6 +127,15 @@ export async function getTeamReports(payload: any) {
   }
 }
 
+export async function getTeamCouncils(teamId: any) {
+  try {
+    const response = await axios.get(`v1/teams/${teamId}/council`);
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export async function createTeamReport(payload: any) {
   dispatch(slice.actions.startLoading());
   try {
