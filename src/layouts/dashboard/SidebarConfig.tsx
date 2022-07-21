@@ -52,7 +52,8 @@ const sidebarLecturerConfig = [
         children: [
           { title: 'admin settings', path: PATH_DASHBOARD.admin.settingsPage },
           { title: 'lecturer account', path: PATH_DASHBOARD.admin.lecturerManagement },
-          { title: 'student account', path: PATH_DASHBOARD.admin.studentManagement }
+          { title: 'student account', path: PATH_DASHBOARD.admin.studentManagement },
+          { title: 'projects in council', path: PATH_DASHBOARD.admin.projectsInCouncilManagement }
         ]
       }
     ]

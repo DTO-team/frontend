@@ -41,7 +41,8 @@ export const PATH_DASHBOARD = {
     studentManagement: path(ROOTS_DASHBOARD, '/admin/management/students'),
     settingsPage: path(ROOTS_DASHBOARD, '/admin/management/settings'),
     criteriaPage: path(ROOTS_DASHBOARD, '/admin/management/criteria'),
-    teamApplications: path(ROOTS_DASHBOARD, '/admin/management/team/applications')
+    teamApplications: path(ROOTS_DASHBOARD, '/admin/management/team/applications'),
+    projectsInCouncilManagement: path(ROOTS_DASHBOARD, '/admin/management/projects/council')
   },
   fptuCapstone: {
     teams: path(ROOTS_DASHBOARD, '/teams'),
