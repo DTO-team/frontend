@@ -119,7 +119,8 @@ export default function Router() {
           path: 'project',
           children: [
             { path: '/', element: <TeamList /> },
-            { path: 'project-details', element: <ProjectDetail /> }
+            { path: 'project-details', element: <ProjectDetail /> },
+            { path: 'project-details/:id', element: <ProjectDetail /> }
           ]
         },
         {

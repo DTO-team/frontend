@@ -5,7 +5,7 @@ import Page from '../../../components/Page';
 import useAuth from 'hooks/useAuth';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { getTeamByStudentId } from 'redux/slices/student';
+import { getTeamById, getTeamByStudentId } from 'redux/slices/student';
 import { RootState } from 'redux/store';
 import { PATH_DASHBOARD } from 'routes/paths';
 import { AuthorizeRole } from 'utils/enum-utils';
@@ -19,6 +19,7 @@ import { TeamManager } from '../../../@types/team';
 import { getProjectDetail } from 'redux/slices/project';
 import { getTeamCouncils } from 'redux/slices/team';
 import ProjectTeamCouncilSection from './ProjectTeamCouncilSection';
+import { useParams } from 'react-router';
 
 const StudentTeamInit: TeamManager = {
   teamId: '',
@@ -38,6 +39,7 @@ const StudentTeamInit: TeamManager = {
 };
 
 const ProjectDetail = () => {
+  let { id } = useParams();
   const { user } = useAuth();
   const { themeStretch } = useSettings();
   const { student } = useSelector((state: RootState) => state);
@@ -51,8 +53,13 @@ const ProjectDetail = () => {
   useEffect(() => {
     setIsLoading(true);
     async function getData() {
-      if (user?.role === AuthorizeRole.STUDENT) {
-        const studentTeam: any = await getTeamByStudentId(user?.id);
+      if (user?.role !== AuthorizeRole.ADMIN) {
+        let studentTeam: any;
+        if (user?.role === AuthorizeRole.STUDENT) {
+          studentTeam = await getTeamByStudentId(user?.id);
+        } else {
+          studentTeam = await getTeamById(id);
+        }
         setCurrentStudentTeam(studentTeam);
         const teamCouncil: any = await getTeamCouncils(studentTeam.teamId);
         setCurrentTeamCouncil(teamCouncil);
@@ -60,7 +67,7 @@ const ProjectDetail = () => {
     }
     getData();
     setIsLoading(false);
-  }, [user]);
+  }, [id, user]);
 
   useEffect(() => {
     setIsLoading(true);

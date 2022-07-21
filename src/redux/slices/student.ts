@@ -136,3 +136,18 @@ export async function getTeamByStudentId(studentId: string | undefined) {
     };
   }
 }
+
+export async function getTeamById(teamId: string | undefined) {
+  dispatch(slice.actions.startLoading());
+  try {
+    const response = await axios.get(`/v1/teams/${teamId}`);
+    dispatch(slice.actions.setStudentTeam(response));
+    return response;
+  } catch (error: any) {
+    dispatch(slice.actions.hasError(error));
+    return {
+      statusCode: error.toString().indexOf('400') === -1 ? 500 : 400,
+      data: error
+    };
+  }
+}
