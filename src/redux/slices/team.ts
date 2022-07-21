@@ -155,7 +155,7 @@ export async function createReportFeedback(payload: any) {
   };
   try {
     const response = await axios.patch(
-      `v1/teams/${payload.teamId}/reports/${payload.reportId}`,
+      `v1/teams/${payload.teamId}/reports/${payload.projectId}`,
       newPayload
     );
     return response;
