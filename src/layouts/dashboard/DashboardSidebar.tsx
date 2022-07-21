@@ -126,15 +126,20 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }: Dash
   const { isCollapse, collapseClick, collapseHover, onToggleCollapse, onHoverEnter, onHoverLeave } =
     useCollapseDrawer();
 
+  console.log(user?.role);
+
   useEffect(() => {
     if (isOpenSidebar) {
       onCloseSidebar();
     }
     if (user?.role === AuthorizeRole.ADMIN) {
-      setAuthorizeSidebarConfig([...sidebarGeneralConfig, ...sidebarAdminConfig]);
+      setAuthorizeSidebarConfig([...sidebarGeneralConfig, ...sidebarAdminConfig, ...sidebarConfig]);
     }
-    if (user?.role !== AuthorizeRole.ADMIN) {
-      setAuthorizeSidebarConfig([...sidebarGeneralConfig, ...sidebarConfig]);
+    if (user?.role === AuthorizeRole.LECTURER) {
+      setAuthorizeSidebarConfig([...sidebarGeneralConfig, ...sidebarLecturerConfig, ...sidebarConfig]);
+    }
+    if (user?.role === AuthorizeRole.STUDENT) {
+      setAuthorizeSidebarConfig([...sidebarGeneralConfig, ...sidebarUserConfig, ...sidebarConfig]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, user]);
