@@ -124,7 +124,10 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }: Dash
       onCloseSidebar();
     }
     if (user?.role === AuthorizeRole.ADMIN) {
-      setAuthorizeSidebarConfig([...sidebarGeneralConfig, ...sidebarAdminConfig, ...sidebarConfig]);
+      setAuthorizeSidebarConfig([...sidebarGeneralConfig, ...sidebarAdminConfig]);
+    }
+    if (user?.role !== AuthorizeRole.ADMIN) {
+      setAuthorizeSidebarConfig([...sidebarGeneralConfig, ...sidebarConfig]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, user]);
