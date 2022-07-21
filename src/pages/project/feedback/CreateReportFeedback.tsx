@@ -29,7 +29,7 @@ export default function CreateReportFeedbackModal({
     if (selectedReport === undefined) return;
     const payload = {
       teamId: selectedReport.reporter.teamId,
-      projectId: selectedReport.projectId,
+      reportId: selectedReport.id,
       value: feedbackContent
     };
     const response = await createReportFeedback(payload);
