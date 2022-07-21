@@ -5,6 +5,10 @@ import roundBusinessCenter from '@iconify/icons-ic/round-business-center';
 // material
 import { styled } from '@material-ui/core/styles';
 import { Link, Card, Typography, CardHeader, Stack } from '@material-ui/core';
+import { Link as RouterLink } from 'react-router-dom';
+import { paramCase } from 'change-case';
+import { PATH_DASHBOARD } from 'routes/paths';
+
 // ----------------------------------------------------------------------
 
 const IconStyle = styled(Icon)(({ theme }) => ({
@@ -20,6 +24,7 @@ interface TeamInformationProps {
   teamProject: any;
 }
 export default function TeamProject({ teamProject }: TeamInformationProps) {
+  console.log(teamProject);
   return teamProject && teamProject?.topicsResponse ? (
     <Card>
       <CardHeader title="Team Project" />
@@ -28,9 +33,14 @@ export default function TeamProject({ teamProject }: TeamInformationProps) {
           <IconStyle icon={pinFill} />
           <Typography variant="body2">
             Project name: &nbsp;
-            <Link component="span" variant="subtitle2" color="text.primary">
+            <Typography
+              component={RouterLink}
+              to={`${PATH_DASHBOARD.fptuCapstone.project}/project-details/${paramCase(teamProject.teamDetailResponse.teamId)}`}
+              variant="subtitle2"
+              color="text.primary"
+            >
               {teamProject.topicsResponse.topicName}
-            </Link>
+            </Typography>
           </Typography>
         </Stack>
 
