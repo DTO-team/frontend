@@ -40,6 +40,7 @@ export const PATH_DASHBOARD = {
     companyManagement: path(ROOTS_DASHBOARD, '/admin/management/companies'),
     studentManagement: path(ROOTS_DASHBOARD, '/admin/management/students'),
     settingsPage: path(ROOTS_DASHBOARD, '/admin/management/settings'),
+    criteriaPage: path(ROOTS_DASHBOARD, '/admin/management/criteria'),
     teamApplications: path(ROOTS_DASHBOARD, '/admin/management/team/applications')
   },
   fptuCapstone: {

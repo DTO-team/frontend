@@ -8,8 +8,8 @@ export interface ICriteria {
 }
 
 export interface ICriteriaGrade {
-  id: string;
-  criteriaId: string;
+  id?: string;
+  criteriaId?: string;
   level: string;
   minPoint: number;
   maxPoint: number;

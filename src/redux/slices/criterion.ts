@@ -1,23 +1,26 @@
+import filter from 'lodash/filter';
 import { createSlice } from '@reduxjs/toolkit';
 import { dispatch } from '../store';
 // utils
 import axios from '../../utils/axios';
+import { TeamManager } from '../../@types/team';
 import { ICriteria } from '../../@types/criterion';
 // ----------------------------------------------------------------------
 
-type CriteriaState = {
+type TeamState = {
   isLoading: boolean;
   error: boolean;
   criterionList: ICriteria[];
 };
 
-const initialState: CriteriaState = {
+const initialState: TeamState = {
   isLoading: false,
   error: false,
   criterionList: []
 };
+
 const slice = createSlice({
-  name: 'criteria',
+  name: 'criterion',
   initialState,
   reducers: {
     // START LOADING
@@ -30,6 +33,7 @@ const slice = createSlice({
       state.isLoading = false;
       state.error = action.payload;
     },
+
     // GET MANAGE USERS
     getCriterionListSuccess(state, action) {
       state.isLoading = false;
@@ -46,14 +50,7 @@ export default slice.reducer;
 
 // ----------------------------------------------------------------------
 
-export async function getCriteriaList() {
-  try {
-    const response: ICriteria[] = await axios.get(`/v1/criterions`);
-    return response;
-  } catch (error) {}
-}
-
-export function getCriterionList() {
+export function getTeamList() {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
