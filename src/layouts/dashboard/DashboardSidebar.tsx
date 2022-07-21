@@ -26,7 +26,13 @@ import NavSection from '../../components/NavSection';
 import Scrollbar from '../../components/Scrollbar';
 //
 import { DocIcon } from '../../assets';
-import { sidebarAdminConfig, sidebarConfig, sidebarGeneralConfig } from './SidebarConfig';
+import {
+  sidebarAdminConfig,
+  sidebarConfig,
+  sidebarGeneralConfig,
+  sidebarUserConfig,
+  sidebarLecturerConfig
+} from './SidebarConfig';
 
 // ----------------------------------------------------------------------
 
@@ -114,7 +120,8 @@ export default function DashboardSidebar({ isOpenSidebar, onCloseSidebar }: Dash
   const { user } = useAuth();
   const [authorizeSidebarConfig, setAuthorizeSidebarConfig] = useState([
     ...sidebarGeneralConfig,
-    ...sidebarConfig
+    ...sidebarConfig,
+    ...sidebarUserConfig
   ]);
   const { isCollapse, collapseClick, collapseHover, onToggleCollapse, onHoverEnter, onHoverLeave } =
     useCollapseDrawer();

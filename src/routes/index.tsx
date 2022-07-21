@@ -100,9 +100,11 @@ export default function Router() {
           path: 'admin',
           children: [
             { path: 'management/lecturers', element: <LecturerList /> },
-            { path: 'management/companies', element: <CompanyList /> },
+            // { path: 'management/companies', element: <CompanyList /> },
             { path: 'management/students', element: <StudentList /> },
             { path: 'management/settings', element: <AdminManagementSettingsPage /> },
+            { path: 'management/criteria', element: <CriterionList /> },
+            { path: 'management/projects/council', element: <ProjectsInCouncilList /> },
             { path: 'management/team/applications', element: <TeamApplicationList /> }
           ]
         },
@@ -351,6 +353,8 @@ const UserList = Loadable(lazy(() => import('../pages/dashboard/UserList')));
 const StudentList = Loadable(lazy(() => import('../pages/dashboard/StudentList')));
 const CompanyList = Loadable(lazy(() => import('../pages/dashboard/CompanyList')));
 const LecturerList = Loadable(lazy(() => import('../pages/dashboard/LecturerList')));
+const CriterionList = Loadable(lazy(() => import('../pages/dashboard/CriterionList')));
+const ProjectsInCouncilList = Loadable(lazy(() => import('../pages/dashboard/ProjectsInCouncil')));
 const TeamList = Loadable(lazy(() => import('../pages/dashboard/TeamList')));
 const TopicList = Loadable(lazy(() => import('../pages/topic/TopicList')));
 const TopicDetail = Loadable(lazy(() => import('../pages/topic/topic-detail/TopicDetail')));

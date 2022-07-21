@@ -7,8 +7,14 @@ export enum Role {
   null
 }
 
+export type Department = {
+  id: string;
+  name: number;
+  code: string;
+};
+
 export type LecturerManager = {
-  department: string;
+  department: Department;
   email: string;
   fullName: string;
   id: string;

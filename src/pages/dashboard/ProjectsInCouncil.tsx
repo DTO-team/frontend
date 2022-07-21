@@ -21,11 +21,8 @@ import {
   TableContainer,
   TablePagination
 } from '@material-ui/core';
-// @types
-import { LecturerManager } from '../../@types/lecturer';
 // redux
 import { RootState, useDispatch, useSelector } from '../../redux/store';
-import { getLecturerList } from '../../redux/slices/lecturer';
 // routes
 import { PATH_DASHBOARD } from '../../routes/paths';
 // hooks
@@ -37,14 +34,21 @@ import Scrollbar from '../../components/Scrollbar';
 import SearchNotFound from '../../components/SearchNotFound';
 import HeaderBreadcrumbs from '../../components/HeaderBreadcrumbs';
 import { UserListHead, UserListToolbar, UserMoreMenu } from '../../components/_dashboard/user/list';
+import {
+  callAPIForGetAllCouncilOfLecturer,
+  callAPIForGetEvaluationsessions,
+  callAPIForGetCouncilDetail
+} from '_apis_/council';
+import useAuth from 'hooks/useAuth';
+import FormDialogsForCouncilProject from 'components/dialog/FormDialogsForCriteria copy';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'department', label: 'Department', alignRight: false },
-  { id: 'userName', label: 'User Name', alignRight: false },
-  { id: 'fullName', label: 'Full Name', alignRight: false },
-  { id: 'role', label: 'Role', alignRight: false }
+  { id: 'topicName', label: 'Topic name', alignRight: false },
+  { id: 'description', label: 'Description', alignRight: false },
+  { id: 'lecturerName', label: 'Lecturer Name', alignRight: false },
+  { id: 'actions', label: 'Actions', alignRight: true }
 ];
 
 // ----------------------------------------------------------------------
@@ -67,46 +71,52 @@ function getComparator(order: string, orderBy: string) {
     : (a: Anonymous, b: Anonymous) => -descendingComparator(a, b, orderBy);
 }
 
-function applySortFilter(
-  array: LecturerManager[],
-  comparator: (a: any, b: any) => number,
-  query: string
-) {
-  const stabilizedThis = array.map((el, index) => [el, index] as const);
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-  if (query) {
-    return filter(
-      array,
-      (_lecturer) => _lecturer.userName.toLowerCase().indexOf(query.toLowerCase()) !== -1
-    );
-  }
-  return stabilizedThis.map((el) => el[0]);
-}
-
-export default function LecturerList() {
+export default function ProjectsInCouncil() {
   const { themeStretch } = useSettings();
   const theme = useTheme();
   const dispatch = useDispatch();
 
-  const { lecturerList } = useSelector((state: RootState) => state.lecturer);
-  console.log(lecturerList);
+  const [councils, setCouncils] = useState<Array<any>>([]);
   const [page, setPage] = useState(0);
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [selected, setSelected] = useState<string[]>([]);
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const { user } = useAuth();
+
+  console.log(councils);
 
   useEffect(() => {
-    async function getData() {
-      await getLecturerList();
+    handleGetAllProjectInCouncils();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleGetAllProjectInCouncils = async () => {
+    const { statusCode, data } = await callAPIForGetEvaluationsessions();
+
+    if (data && user) {
+      let isLecturerInCouncil = false;
+      for (let i = 0; i < data.length; i++) {
+        if (Boolean(data[i]?.lecturerInCouncils?.length)) {
+          for (let j = 0; j < data[i].lecturerInCouncils.length; j++) {
+            if (user?.id === data[i].lecturerInCouncils[j].id) {
+              isLecturerInCouncil = true;
+            }
+          }
+        }
+      }
+      if (isLecturerInCouncil) {
+        const { statusCode: stt, data: dt } = await callAPIForGetAllCouncilOfLecturer(user?.id);
+        if (dt) {
+          for (const councilId of dt) {
+            const { statusCode: sttt, data: dtt } = await callAPIForGetCouncilDetail(councilId);
+            setCouncils([...councils, ...dtt]);
+          }
+        }
+      }
     }
-    getData();
-  }, [dispatch]);
+  };
 
   const handleRequestSort = (property: string) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -116,7 +126,7 @@ export default function LecturerList() {
 
   const handleSelectAllClick = (checked: boolean) => {
     if (checked) {
-      const newSelecteds = lecturerList.map((n) => n.userName);
+      const newSelecteds = councils.map((n) => n.userName);
       setSelected(newSelecteds);
       return;
     }
@@ -150,50 +160,22 @@ export default function LecturerList() {
     setFilterName(filterName);
   };
 
-  const handleDeleteUser = (userId: string) => {
-    // dispatch(deleteUser(userId));
-  };
-
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - lecturerList.length) : 0;
-
-  const filteredLecturers = applySortFilter(
-    lecturerList,
-    getComparator(order, orderBy),
-    filterName
-  );
-
-  const isUserNotFound = filteredLecturers.length === 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - councils.length) : 0;
 
   return (
     <Page title="Lecturer: List | DTO">
       <Container maxWidth={themeStretch ? false : 'lg'}>
         <HeaderBreadcrumbs
-          heading="Lecturer List"
+          heading="Projects in council list"
           links={[
             { name: 'Dashboard', href: PATH_DASHBOARD.root },
             { name: 'Management' },
-            { name: 'Lecturer List' }
+            { name: 'Projects in council list' }
           ]}
-          action={
-            <Button
-              variant="contained"
-              component={RouterLink}
-              to={PATH_DASHBOARD.user.newUser}
-              startIcon={<Icon icon={plusFill} />}
-            >
-              New Lecturer
-            </Button>
-          }
+          action={<div></div>}
         />
 
         <Card>
-          <UserListToolbar
-            numSelected={selected.length}
-            filterName={filterName}
-            placeholder="Search lecturer..."
-            onFilterName={handleFilterByName}
-          />
-
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
@@ -201,21 +183,21 @@ export default function LecturerList() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={lecturerList.length}
+                  rowCount={councils.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredLecturers
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row) => {
-                      const { id, userName, fullName, department, role } = row;
-                      const isItemSelected = selected.indexOf(userName) !== -1;
+                  {councils
+                    ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((row: any) => {
+                      const { projectId, topicsResponse } = row;
+                      const isItemSelected = selected.indexOf(topicsResponse.topicName) !== -1;
                       return (
                         <TableRow
                           hover
-                          key={id}
+                          key={projectId}
                           tabIndex={-1}
                           role="checkbox"
                           selected={isItemSelected}
@@ -224,29 +206,29 @@ export default function LecturerList() {
                           <TableCell padding="checkbox">
                             <Checkbox
                               checked={isItemSelected}
-                              onClick={() => handleClick(userName)}
+                              onClick={() => handleClick(projectId)}
                             />
                           </TableCell>
-                          <TableCell align="left">{department.name}</TableCell>
-                          <TableCell align="left">{userName}</TableCell>
-                          <TableCell align="left">{fullName}</TableCell>
-                          <TableCell align="left">{role}</TableCell>
-                          {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell>
+                          <TableCell align="left">{topicsResponse.topicName}</TableCell>
+                          <TableCell align="left">{topicsResponse.description}</TableCell>
                           <TableCell align="left">
-                            <Label
-                              variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-                              color={(status === 'banned' && 'error') || 'success'}
-                            >
-                              {sentenceCase(status)}
-                            </Label>
-                          </TableCell> */}
-
-                          {/* <TableCell align="right">
-                            <UserMoreMenu
-                              onDelete={() => handleDeleteUser(id)}
-                              userName={userName}
+                            {topicsResponse.lecturersDetails.map((lecturer: any, index: any) => {
+                              return (
+                                <span>
+                                  {lecturer.fullName}
+                                  {topicsResponse.lecturersDetails.length === index + 1 ? '' : ', '}
+                                </span>
+                              );
+                            })}
+                          </TableCell>
+                          <TableCell align="center">
+                            <FormDialogsForCouncilProject
+                              id={'viewProjectInCouncil'}
+                              buttonContent="Detail"
+                              title="Project detail"
+                              // data={{ id, code, name, evaluation, grades, questions }}
                             />
-                          </TableCell> */}
+                          </TableCell>
                         </TableRow>
                       );
                     })}
@@ -256,15 +238,6 @@ export default function LecturerList() {
                     </TableRow>
                   )}
                 </TableBody>
-                {isUserNotFound && (
-                  <TableBody>
-                    <TableRow>
-                      <TableCell align="center" colSpan={6} sx={{ py: 3 }}>
-                        <SearchNotFound searchQuery={filterName} />
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                )}
               </Table>
             </TableContainer>
           </Scrollbar>
@@ -272,7 +245,7 @@ export default function LecturerList() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={lecturerList.length}
+            count={councils.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={(e, page) => setPage(page)}

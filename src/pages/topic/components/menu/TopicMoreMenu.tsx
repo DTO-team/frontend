@@ -8,6 +8,8 @@ import { Link as RouterLink } from 'react-router-dom';
 import { IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from '@material-ui/core';
 import { paramCase } from 'change-case';
 import { PATH_DASHBOARD } from 'routes/paths';
+import useAuth from 'hooks/useAuth';
+import { AuthorizeRole } from 'utils/enum-utils';
 // routes
 
 // ----------------------------------------------------------------------
@@ -18,6 +20,7 @@ interface ITopicMoreMenuProps {
 }
 
 export default function TopicMoreMenu(props: ITopicMoreMenuProps) {
+  const { user } = useAuth();
   const { onRegisterThisTopic, topicId } = props;
   const ref = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -38,12 +41,14 @@ export default function TopicMoreMenu(props: ITopicMoreMenuProps) {
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <MenuItem onClick={onRegisterThisTopic} sx={{ color: 'text.secondary' }}>
-          <ListItemIcon>
-            <Icon icon={paperPlaneFill} width={24} height={24} />
-          </ListItemIcon>
-          <ListItemText primary="Register Topic" primaryTypographyProps={{ variant: 'body2' }} />
-        </MenuItem>
+        {user?.role === AuthorizeRole.STUDENT && (
+          <MenuItem onClick={onRegisterThisTopic} sx={{ color: 'text.secondary' }}>
+            <ListItemIcon>
+              <Icon icon={paperPlaneFill} width={24} height={24} />
+            </ListItemIcon>
+            <ListItemText primary="Register Topic" primaryTypographyProps={{ variant: 'body2' }} />
+          </MenuItem>
+        )}
 
         <MenuItem
           sx={{ color: 'text.secondary' }}
