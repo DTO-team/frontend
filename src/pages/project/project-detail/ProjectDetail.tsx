@@ -17,6 +17,8 @@ import TeamInformationSection from './TeamInformationSection';
 import { getTopicDetail } from 'redux/slices/topic';
 import { TeamManager } from '../../../@types/team';
 import { getProjectDetail } from 'redux/slices/project';
+import { getTeamCouncils } from 'redux/slices/team';
+import ProjectTeamCouncilSection from './ProjectTeamCouncilSection';
 
 const StudentTeamInit: TeamManager = {
   teamId: '',
@@ -42,6 +44,7 @@ const ProjectDetail = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentStudentTeam, setCurrentStudentTeam] = useState<any>();
   const [currentTeamTopic, setCurrentTeamTopic] = useState<any>();
+  const [currentTeamCouncil, setCurrentTeamCouncil] = useState<any>([]);
 
   //   if (!ProjectDetail) return <Page404 />;
 
@@ -49,8 +52,10 @@ const ProjectDetail = () => {
     setIsLoading(true);
     async function getData() {
       if (user?.role === AuthorizeRole.STUDENT) {
-        const studentTeam = await getTeamByStudentId(user?.id);
+        const studentTeam: any = await getTeamByStudentId(user?.id);
         setCurrentStudentTeam(studentTeam);
+        const teamCouncil: any = await getTeamCouncils(studentTeam.teamId);
+        setCurrentTeamCouncil(teamCouncil);
       }
     }
     getData();
@@ -87,6 +92,12 @@ const ProjectDetail = () => {
             </Grid>
             <Grid item xs={12}>
               <WeeklyReportList currentStudentTeam={currentStudentTeam} />
+            </Grid>
+            <Grid item xs={12}>
+              <ProjectTeamCouncilSection
+                currentTeamCouncil={currentTeamCouncil}
+                isLoading={false}
+              />
             </Grid>
           </Grid>
 

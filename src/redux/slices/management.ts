@@ -102,3 +102,24 @@ export async function getAllWeeksOfSemester(semesterId: any) {
     console.log(error);
   }
 }
+
+export async function getEvaluationSessionBySemesterId(semesterId: any) {
+  try {
+    const response: any = await axiosInstance.get(`v1/evaluationsessions?semesterId=${semesterId}`);
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function updateEvaluationsCouncil(payload: any) {
+  try {
+    const response: any = await axiosInstance.put(
+      `v1/evaluationsessions/${payload.evaluationId}`,
+      payload
+    );
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
