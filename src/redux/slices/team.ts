@@ -150,7 +150,7 @@ export async function createTeamReport(payload: any) {
 export async function createReportFeedback(payload: any) {
   const newPayload = {
     op: 'add',
-    path: '/feedback',
+    path: 'feedback',
     value: payload.value || ''
   };
   try {
